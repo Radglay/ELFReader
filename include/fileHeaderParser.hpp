@@ -1,0 +1,9 @@
+
+
+class FileHeaderParser
+{
+public:
+
+private:
+
+};
