@@ -1,9 +1,0 @@
-
-
-class FileHeaderParser
-{
-public:
-
-private:
-
-};
