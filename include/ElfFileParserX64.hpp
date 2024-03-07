@@ -7,6 +7,8 @@
 #include "ProgramHeaderParserX64.hpp"
 #include "ProgramHeader.hpp"
 #include <vector>
+#include "SectionHeader.hpp"
+#include "SectionHeaderParserX64.hpp"
 
 
 namespace parser
@@ -23,6 +25,9 @@ public:
 
     std::vector<ProgramHeader> parseProgramHeaders(int) override;
     ProgramHeaderParserX64* createProgramHeaderParser() override;
+
+    std::vector<SectionHeader> parseSectionHeaders(int) override;
+    SectionHeaderParserX64* createSectionHeaderParser() override;
 
 private:
     std::ifstream m_fileStream;
