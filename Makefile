@@ -16,18 +16,29 @@ COMPILE_FLAG = -c
 
 # directories
 BUILD_DIR = build
-INCLUDE_DIR = include
+
 SRC_DIR = src
 MAIN_DIR = $(SRC_DIR)
 
 
 # files
-INCLUDES := -I $(INCLUDE_DIR)
+INCLUDES := -I include\
+			-I include/structures\
+			-I include/utility
 
-SOURCES = $(SRC_DIR)/fileHeaderParser.cpp
+SOURCES = $(SRC_DIR)/ElfFileParserX32.cpp\
+		  $(SRC_DIR)/ElfFileParserX64.cpp\
+		  $(SRC_DIR)/FileHeaderParserX32.cpp\
+          $(SRC_DIR)/FileHeaderParserX64.cpp\
+		  $(SRC_DIR)/CheckingFileVersionUtility.cpp\
+		  $(SRC_DIR)/ElfFileParserCreator.cpp
 
-OBJECTS = $(BUILD_DIR)/fileHeaderParser.o
-
+OBJECTS = $(BUILD_DIR)/ElfFileParserX32.o\
+	      $(BUILD_DIR)/ElfFileParserX64.o\
+		  $(BUILD_DIR)/FileHeaderParserX32.o\
+		  $(BUILD_DIR)/FileHeaderParserX64.o\
+		  $(BUILD_DIR)/CheckingFileVersionUtility.o\
+		  $(BUILD_DIR)/ElfFileParserCreator.o
 
 create_dir: 
 	@$(SET_START_LEVEL)
