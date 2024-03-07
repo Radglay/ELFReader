@@ -5,6 +5,7 @@
 #include <vector>
 #include "FileHeader.hpp"
 #include "ProgramHeader.hpp"
+#include "SectionHeader.hpp"
 
 
 int main(int argc, char** argv) //ENDIANES... 
@@ -25,6 +26,12 @@ int main(int argc, char** argv) //ENDIANES...
         std::cout << std::hex << l_programHeader.header32.p_type << '\n';
     }
 
-    
+    auto l_shnum { l_fileHeader.header32.e_shnum }; // can be moved to ElfFileParser...?
+    std::vector l_sectionHeaders { l_elfFileParser->parseSectionHeaders(l_shnum) };
+    for (auto& l_sectionHeader : l_sectionHeaders)
+    {
+        std::cout << std::hex << l_sectionHeader.header32.sh_type << '\n';
+    }
+
     return 0;
 }
