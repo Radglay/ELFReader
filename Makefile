@@ -31,14 +31,18 @@ SOURCES = $(SRC_DIR)/ElfFileParserX32.cpp\
 		  $(SRC_DIR)/FileHeaderParserX32.cpp\
           $(SRC_DIR)/FileHeaderParserX64.cpp\
 		  $(SRC_DIR)/CheckingFileVersionUtility.cpp\
-		  $(SRC_DIR)/ElfFileParserCreator.cpp
+		  $(SRC_DIR)/ElfFileParserCreator.cpp\
+		  $(SRC_DIR)/ProgramHeaderParserX32.cpp\
+		  $(SRC_DIR)/ProgramHeaderParserX64.cpp
 
 OBJECTS = $(BUILD_DIR)/ElfFileParserX32.o\
 	      $(BUILD_DIR)/ElfFileParserX64.o\
 		  $(BUILD_DIR)/FileHeaderParserX32.o\
 		  $(BUILD_DIR)/FileHeaderParserX64.o\
 		  $(BUILD_DIR)/CheckingFileVersionUtility.o\
-		  $(BUILD_DIR)/ElfFileParserCreator.o
+		  $(BUILD_DIR)/ElfFileParserCreator.o\
+		  $(BUILD_DIR)/ProgramHeaderParserX32.o\
+		  $(BUILD_DIR)/ProgramHeaderParserX64.o
 
 create_dir: 
 	@$(SET_START_LEVEL)
