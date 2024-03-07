@@ -4,6 +4,9 @@
 #include <fstream>
 #include "FileHeaderParserX32.hpp"
 #include "FileHeader.hpp"
+#include "ProgramHeaderParserX32.hpp"
+#include "ProgramHeader.hpp"
+#include <vector>
 
 
 namespace parser
@@ -17,6 +20,9 @@ public:
 
     FileHeader parseFileHeader() override;
     FileHeaderParserX32* createFileHeaderParser() override;
+
+    std::vector<ProgramHeader> parseProgramHeaders(int) override;
+    ProgramHeaderParserX32* createProgramHeaderParser() override;
 
 private:
     std::ifstream m_fileStream;

@@ -4,6 +4,10 @@
 #include <cstring>
 #include "FileHeader.hpp"
 #include "FileHeaderParserX64.hpp"
+#include "FileHeaderParserX32.hpp"
+#include "ProgramHeaderParserX32.hpp"
+#include <elf.h>
+#include <vector>
 
 
 namespace parser
@@ -31,6 +35,26 @@ FileHeader ElfFileParserX64::parseFileHeader()
 FileHeaderParserX64* ElfFileParserX64::createFileHeaderParser()
 {
     return new FileHeaderParserX64{};
+}
+
+std::vector<ProgramHeader> ElfFileParserX64::parseProgramHeaders(int p_programHeadersCount)
+{
+    std::vector<ProgramHeader> l_programHeaders(p_programHeadersCount);
+    auto l_programHeaderSize { sizeof(Elf64_Phdr) };
+
+    for (auto& l_programHeader : l_programHeaders)
+    {
+        char* l_buffer { new char[l_programHeaderSize] };
+        m_fileStream.get(l_buffer, l_programHeaderSize);
+        std::memcpy(&l_programHeader.header64, l_buffer, l_programHeaderSize);
+    }
+
+   return l_programHeaders;
+}
+
+ProgramHeaderParserX64* ElfFileParserX64::createProgramHeaderParser()
+{
+    return new ProgramHeaderParserX64{};
 }
 
 }
