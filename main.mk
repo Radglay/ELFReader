@@ -3,8 +3,7 @@ include common.mk
 
 .DEFAULT_GOAL := debug_build
 
-.PHONY := clean debug_build
-
+.PHONY: clean debug_build
 
 
 debug_build: create_dir main
