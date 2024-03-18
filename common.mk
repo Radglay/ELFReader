@@ -1,7 +1,3 @@
-.DEFAULT_GOAL := debug_build
-
-.PHONY := clean debug_build
-
 
 # log levels
 SET_START_LEVEL = echo -n "\033[0;33m"
@@ -48,29 +44,20 @@ OBJECTS = $(BUILD_DIR)/ElfFileParserX32.o\
 		  $(BUILD_DIR)/SectionHeaderParserX32.o\
 		  $(BUILD_DIR)/SectionHeaderParserX64.o
 
+
+# TESTS
+
+GTEST_DIR = lib/googletest
+GMOCK_DIR = lib/googlemock
+
+TEST_OBJECTS = $(wildcard ./build/test_*.o)
+TEST_SOURCES = $(wildcard ./tests/test_*.cpp)
+
+TESTS_DIR = tests
+
+
 create_dir: 
 	@$(SET_START_LEVEL)
 	@echo "Debug build..."
 	@$(SET_NORMAL_LEVEL)
 	@mkdir -p $(BUILD_DIR)
-
-debug_build: create_dir main
-	@$(SET_SUCCESS_LEVEL)
-	@echo "Build finished"
-	
-main: main.o $(OBJECTS)
-	@$(CC) $(OBJECTS) $(BUILD_DIR)/main.o -o main
-
-main.o: $(MAIN_DIR)/main.cpp
-	@$(CC) $(COMPILE_FLAG) $(DEBUG_FLAG) $(MAIN_DIR)/main.cpp -o $(BUILD_DIR)/main.o $(INCLUDES)
-
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@echo $@
-	$(CC) $(COMPILE_FLAG) $(DEBUG_FLAG) $< -o $@ $(INCLUDES)
-
-clean:
-	@$(SET_START_LEVEL)
-	@echo "Cleaning build..."
-	@$(SET_NORMAL_LEVEL)
-	@rm -rf ./build
-
