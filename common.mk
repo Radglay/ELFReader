@@ -13,14 +13,35 @@ COMPILE_FLAG = -c
 # directories
 BUILD_DIR = build
 
+BIN_DIR = bin
+
+TEST_DIR = tests
+
 SRC_DIR = src
 MAIN_DIR = $(SRC_DIR)
 
 
+# TESTS
+
+GTEST_DIR = lib/googletest
+GMOCK_DIR = lib/googlemock
+
+TEST_SOURCES = $(wildcard $(TEST_DIR)/test_*.cpp)
+TEST_OBJECTS = $(subst $(TEST_DIR)/, $(BUILD_DIR)/, $(patsubst %.cpp, %.o, $(TEST_SOURCES)))
+
+TESTS_DIR = tests
+
+
+
 # files
-INCLUDES := -I include\
-			-I include/structures\
-			-I include/utility
+INCLUDES := -I include \
+			-I include/structures \
+			-I include/utility \
+			-I $(GTEST_DIR)/include \
+			-I $(GMOCK_DIR)/include \
+			-I $(GTEST_DIR) \
+			-I $(GMOCK_DIR)
+
 
 SOURCES = $(SRC_DIR)/ElfFileParserX32.cpp\
 		  $(SRC_DIR)/ElfFileParserX64.cpp\
@@ -45,19 +66,14 @@ OBJECTS = $(BUILD_DIR)/ElfFileParserX32.o\
 		  $(BUILD_DIR)/SectionHeaderParserX64.o
 
 
-# TESTS
-
-GTEST_DIR = lib/googletest
-GMOCK_DIR = lib/googlemock
-
-TEST_OBJECTS = $(wildcard ./build/test_*.o)
-TEST_SOURCES = $(wildcard ./tests/test_*.cpp)
-
-TESTS_DIR = tests
-
-
-create_dir: 
+create_debug_dir:
 	@$(SET_START_LEVEL)
 	@echo "Debug build..."
 	@$(SET_NORMAL_LEVEL)
 	@mkdir -p $(BUILD_DIR)
+
+create_bin_dir:
+	@$(SET_START_LEVEL)
+	@echo "Bin build..."
+	@$(SET_NORMAL_LEVEL)
+	@mkdir -p $(BIN_DIR)
