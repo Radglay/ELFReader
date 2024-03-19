@@ -3,7 +3,7 @@
 
 namespace
 {
-    int getBitVersionFlag(std::ifstream& p_fileStream)
+    int getBitVersionFlag(std::istream& p_fileStream)
     {
         p_fileStream.seekg(4);
         int l_systemVersion{ p_fileStream.peek() };
@@ -16,12 +16,12 @@ namespace
 namespace parser
 {
 
-bool is32BitVersion(std::ifstream& p_fileStream)
+bool is32BitVersion(std::istream& p_fileStream)
 {
     return getBitVersionFlag(p_fileStream) == 1;
 }
 
-bool is64BitVersion(std::ifstream& p_fileStream)
+bool is64BitVersion(std::istream& p_fileStream)
 {
     return getBitVersionFlag(p_fileStream) == 2;
 }

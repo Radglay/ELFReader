@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IElfFileParser.hpp"
-#include <fstream>
+#include <istream>
 #include "FileHeaderParserX32.hpp"
 #include "FileHeader.hpp"
 #include "ProgramHeaderParserX32.hpp"
@@ -17,8 +17,8 @@ namespace parser
 class ElfFileParserX32 : public IElfFileParser
 {
 public:
-    ElfFileParserX32(std::ifstream&&);
-    ~ElfFileParserX32();
+    ElfFileParserX32(std::istream&);
+    ~ElfFileParserX32() = default;
 
     FileHeader parseFileHeader() override;
     FileHeaderParserX32* createFileHeaderParser() override;
@@ -30,7 +30,7 @@ public:
     SectionHeaderParserX32* createSectionHeaderParser() override;
 
 private:
-    std::ifstream m_fileStream;
+    std::istream& m_fileStream;
 };
 
 }

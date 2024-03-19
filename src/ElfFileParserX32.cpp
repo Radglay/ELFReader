@@ -1,6 +1,6 @@
 #include "ElfFileParserX32.hpp"
 // #include <elf.h>
-#include <fstream>
+#include <istream>
 #include <cstring>
 #include "FileHeader.hpp"
 #include "FileHeaderParserX32.hpp"
@@ -14,14 +14,9 @@
 namespace parser
 {
 
-ElfFileParserX32::ElfFileParserX32(std::ifstream&& p_fileStream)
-    : m_fileStream{ std::move(p_fileStream) }
+ElfFileParserX32::ElfFileParserX32(std::istream& p_fileStream)
+    : m_fileStream{ p_fileStream }
 {}
-
-ElfFileParserX32::~ElfFileParserX32()
-{
-    m_fileStream.close();
-}
 
 FileHeader ElfFileParserX32::parseFileHeader()
 {
