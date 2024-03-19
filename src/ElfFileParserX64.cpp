@@ -25,7 +25,12 @@ FileHeader ElfFileParserX64::parseFileHeader()
 
     char* l_buffer { new char[64] }; // MAGIC
     m_fileStream.get(l_buffer, 64);
-    return l_fileHeaderParser->parse(std::move(l_buffer));
+    auto l_fileHeader { l_fileHeaderParser->parse(std::move(l_buffer)) };
+
+    delete l_fileHeaderParser;
+    delete[] l_buffer;
+
+    return l_fileHeader;
 }
 
 
@@ -44,6 +49,7 @@ std::vector<ProgramHeader> ElfFileParserX64::parseProgramHeaders(int p_programHe
         char* l_buffer { new char[l_programHeaderSize] };
         m_fileStream.get(l_buffer, l_programHeaderSize);
         std::memcpy(&l_programHeader.header64, l_buffer, l_programHeaderSize);
+        delete[] l_buffer;
     }
 
    return l_programHeaders;
@@ -64,6 +70,7 @@ std::vector<SectionHeader> ElfFileParserX64::parseSectionHeaders(int p_sectionHe
         char* l_buffer { new char[l_sectionHeaderSize] };
         m_fileStream.get(l_buffer, l_sectionHeaderSize);
         std::memcpy(&l_sectionHeader.header64, l_buffer, l_sectionHeaderSize);
+        delete[] l_buffer;
     }
 
    return l_sectionHeaders;

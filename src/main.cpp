@@ -17,24 +17,16 @@ int main(int argc, char** argv) //ENDIANES...
     }
 
     std::ifstream l_fileStream { argv[1] };
-    parser::IElfFileParser* l_elfFileParser { parser::ElfFileParserCreator::createElfFileParser(l_fileStream) };
-    
+    auto* l_elfFileParser { parser::ElfFileParserCreator::createElfFileParser(l_fileStream) };
+
     auto l_fileHeader { l_elfFileParser->parseFileHeader() };
-    std::cout << static_cast<int>(l_fileHeader.header32.e_ident[4]) << '\n';
     auto l_phnum { l_fileHeader.header32.e_phnum }; // can be moved to ElfFileParser...?
     std::vector l_programHeaders { l_elfFileParser->parseProgramHeaders(l_phnum) };
 
-    for (auto& l_programHeader : l_programHeaders)
-    {
-        std::cout << std::hex << l_programHeader.header32.p_type << '\n';
-    }
-
     auto l_shnum { l_fileHeader.header32.e_shnum }; // can be moved to ElfFileParser...?
     std::vector l_sectionHeaders { l_elfFileParser->parseSectionHeaders(l_shnum) };
-    for (auto& l_sectionHeader : l_sectionHeaders)
-    {
-        std::cout << std::hex << l_sectionHeader.header32.sh_type << '\n';
-    }
+
+    delete l_elfFileParser;
 
     return 0;
 }
