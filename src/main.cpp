@@ -18,6 +18,7 @@ int main(int argc, char** argv) //ENDIANES...
 
     std::ifstream l_fileStream { argv[1] };
     parser::IElfFileParser* l_elfFileParser { parser::ElfFileParserCreator::createElfFileParser(l_fileStream) };
+    
     auto l_fileHeader { l_elfFileParser->parseFileHeader() };
     std::cout << static_cast<int>(l_fileHeader.header32.e_ident[4]) << '\n';
     auto l_phnum { l_fileHeader.header32.e_phnum }; // can be moved to ElfFileParser...?
