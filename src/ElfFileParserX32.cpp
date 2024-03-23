@@ -3,12 +3,9 @@
 #include <istream>
 #include <cstring>
 #include "FileHeader.hpp"
-#include "FileHeaderParserX32.hpp"
-#include "ProgramHeaderParserX32.hpp"
 #include <elf.h>
 #include <vector>
 #include "SectionHeader.hpp"
-#include "SectionHeaderParserX32.hpp"
 
 
 namespace parser
@@ -20,21 +17,13 @@ ElfFileParserX32::ElfFileParserX32(std::istream& p_fileStream)
 
 FileHeader ElfFileParserX32::parseFileHeader()
 {
-    auto* l_fileHeaderParser { createFileHeaderParser() };
+    char l_buffer[52]; // MAGIC
+    m_fileStream.read(l_buffer, 52);
 
-    char* l_buffer { new char[52] }; // MAGIC
-    m_fileStream.get(l_buffer, 52);
-    auto l_fileHeader { l_fileHeaderParser->parse(std::move(l_buffer)) };
-
-    delete l_fileHeaderParser;
-    delete[] l_buffer;
+    FileHeader l_fileHeader {};
+    std::memcpy(&l_fileHeader.header32, l_buffer, sizeof(Elf32_Ehdr));
 
     return l_fileHeader;
-}
-
-FileHeaderParserX32* ElfFileParserX32::createFileHeaderParser()
-{
-    return new FileHeaderParserX32{};
 }
 
 std::vector<ProgramHeader> ElfFileParserX32::parseProgramHeaders(int p_programHeadersCount)
@@ -53,11 +42,6 @@ std::vector<ProgramHeader> ElfFileParserX32::parseProgramHeaders(int p_programHe
    return l_programHeaders;
 }
 
-ProgramHeaderParserX32* ElfFileParserX32::createProgramHeaderParser()
-{
-    return new ProgramHeaderParserX32{};
-}
-
 std::vector<SectionHeader> ElfFileParserX32::parseSectionHeaders(int p_sectionHeadersCount)
 {
     std::vector<SectionHeader> l_sectionHeaders(p_sectionHeadersCount);
@@ -72,11 +56,6 @@ std::vector<SectionHeader> ElfFileParserX32::parseSectionHeaders(int p_sectionHe
     }
 
    return l_sectionHeaders;
-}
-
-SectionHeaderParserX32* ElfFileParserX32::createSectionHeaderParser()
-{
-    return new SectionHeaderParserX32{};
 }
 
 }

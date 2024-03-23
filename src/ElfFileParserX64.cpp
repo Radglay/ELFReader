@@ -3,13 +3,9 @@
 #include <istream>
 #include <cstring>
 #include "FileHeader.hpp"
-#include "FileHeaderParserX64.hpp"
-#include "FileHeaderParserX32.hpp"
-#include "ProgramHeaderParserX32.hpp"
 #include <elf.h>
 #include <vector>
 #include "SectionHeader.hpp"
-#include "SectionHeaderParserX64.hpp"
 
 
 namespace parser
@@ -21,22 +17,13 @@ ElfFileParserX64::ElfFileParserX64(std::istream& p_fileStream)
 
 FileHeader ElfFileParserX64::parseFileHeader()
 {
-    auto* l_fileHeaderParser { createFileHeaderParser() };
+    char l_buffer[52]; // MAGIC
+    m_fileStream.read(l_buffer, 64);
 
-    char* l_buffer { new char[64] }; // MAGIC
-    m_fileStream.get(l_buffer, 64);
-    auto l_fileHeader { l_fileHeaderParser->parse(std::move(l_buffer)) };
-
-    delete l_fileHeaderParser;
-    delete[] l_buffer;
+    FileHeader l_fileHeader {};
+    std::memcpy(&l_fileHeader.header64, l_buffer, sizeof(Elf64_Ehdr));
 
     return l_fileHeader;
-}
-
-
-FileHeaderParserX64* ElfFileParserX64::createFileHeaderParser()
-{
-    return new FileHeaderParserX64{};
 }
 
 std::vector<ProgramHeader> ElfFileParserX64::parseProgramHeaders(int p_programHeadersCount)
@@ -55,11 +42,6 @@ std::vector<ProgramHeader> ElfFileParserX64::parseProgramHeaders(int p_programHe
    return l_programHeaders;
 }
 
-ProgramHeaderParserX64* ElfFileParserX64::createProgramHeaderParser()
-{
-    return new ProgramHeaderParserX64{};
-}
-
 std::vector<SectionHeader> ElfFileParserX64::parseSectionHeaders(int p_sectionHeadersCount)
 {
     std::vector<SectionHeader> l_sectionHeaders(p_sectionHeadersCount);
@@ -74,11 +56,6 @@ std::vector<SectionHeader> ElfFileParserX64::parseSectionHeaders(int p_sectionHe
     }
 
    return l_sectionHeaders;
-}
-
-SectionHeaderParserX64* ElfFileParserX64::createSectionHeaderParser()
-{
-    return new SectionHeaderParserX64{};
 }
 
 }
