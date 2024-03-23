@@ -2,8 +2,19 @@
 
 #include <elf.h>
 
-union FileHeader
+
+enum class FileHeaderDiscriminator
 {
-    Elf32_Ehdr header32;
-    Elf64_Ehdr header64;
+    SYSTEM_VERSION_32_BIT,
+    SYSTEM_VERSION_64_BIT
+};
+
+struct FileHeader
+{
+    FileHeaderDiscriminator discriminator;
+    union
+    {
+        Elf32_Ehdr header32;
+        Elf64_Ehdr header64;
+    };
 };
