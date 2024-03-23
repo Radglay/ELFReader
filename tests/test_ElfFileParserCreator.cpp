@@ -38,37 +38,45 @@ protected:
 TEST_F(ElfFileParserCreatorTestSuite,
        shouldReturnNullptrWhenNoVersionIdentifierExtracted)
 {
-    std::istringstream l_stubStream { "" };
+    std::istringstream* l_stubStream { new std::istringstream() };
     auto* l_fileParser { ElfFileParserCreator::createElfFileParser(l_stubStream) };
     ASSERT_EQ(l_fileParser, nullptr);
+
+    delete l_stubStream;
 }
 
 TEST_F(ElfFileParserCreatorTestSuite,
        shouldReturnNullptrWhenWrongVersionIdentifierExtracted)
 {
-    std::istringstream l_stubStream { m_streamContent + SYSTEM_VERSION_WRONG };
+    std::istringstream* l_stubStream { new std::istringstream(m_streamContent + SYSTEM_VERSION_WRONG) };
     auto* l_fileParser { ElfFileParserCreator::createElfFileParser(l_stubStream) };
     ASSERT_EQ(l_fileParser, nullptr);
+
+    delete l_stubStream;
 }
 
 TEST_F(ElfFileParserCreatorTestSuite,
        shouldReturnPointerTo32BitVersionWhen32VersionIdentifierExtracted)
 {
-    std::istringstream l_stubStream { m_streamContent + SYSTEM_VERSION_32_BIT };
+    std::istringstream* l_stubStream {new std::istringstream( m_streamContent + SYSTEM_VERSION_32_BIT) };
     auto* l_fileParser { ElfFileParserCreator::createElfFileParser(l_stubStream) };
     ASSERT_NE(l_fileParser, nullptr);
     EXPECT_THAT(l_fileParser,
                 WhenDynamicCastTo<ElfFileParserX32*>(Pointee(A<ElfFileParserX32>())));
+
+    delete l_stubStream;
 }
 
 TEST_F(ElfFileParserCreatorTestSuite,
        shouldReturnPointerTo64BitVersionWhen64VersionIdentifierExtracted)
 {
-    std::istringstream l_stubStream { m_streamContent + SYSTEM_VERSION_64_BIT };
+    std::istringstream* l_stubStream { new std::istringstream(m_streamContent + SYSTEM_VERSION_64_BIT) };
     auto* l_fileParser { ElfFileParserCreator::createElfFileParser(l_stubStream) };
     ASSERT_NE(l_fileParser, nullptr);
     EXPECT_THAT(l_fileParser,
                 WhenDynamicCastTo<ElfFileParserX64*>(Pointee(A<ElfFileParserX64>())));
+    
+    delete l_stubStream;
 }
 
 }

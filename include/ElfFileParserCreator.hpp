@@ -11,7 +11,7 @@ class IElfFileParser;
 class ElfFileParserCreator
 {
 public:
-    static IElfFileParser* createElfFileParser(std::istream&);
+    static IElfFileParser* createElfFileParser(std::istream*);
 };
 
 }
