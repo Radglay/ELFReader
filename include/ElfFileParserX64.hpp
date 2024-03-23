@@ -14,7 +14,7 @@ namespace parser
 class ElfFileParserX64 : public IElfFileParser
 {
 public:
-    ElfFileParserX64(std::istream&);
+    ElfFileParserX64(std::istream*);
     ~ElfFileParserX64() = default;
 
     FileHeader parseFileHeader() override;
@@ -22,7 +22,7 @@ public:
     std::vector<SectionHeader> parseSectionHeaders(int) override;
 
 private:
-    std::istream& m_fileStream;
+    std::istream* m_fileStream;
 };
 
 }

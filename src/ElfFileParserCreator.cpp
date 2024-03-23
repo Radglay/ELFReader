@@ -9,13 +9,13 @@
 namespace parser
 {
 
-IElfFileParser* ElfFileParserCreator::createElfFileParser(std::istream& p_fileStream)
+IElfFileParser* ElfFileParserCreator::createElfFileParser(std::istream* p_fileStream)
 {
-    if (is32BitVersion(p_fileStream))
+    if (is32BitVersion(*p_fileStream))
     {
         return new ElfFileParserX32(p_fileStream);
     }
-    else if (is64BitVersion(p_fileStream))
+    else if (is64BitVersion(*p_fileStream))
     {
         return new ElfFileParserX64(p_fileStream);
     }

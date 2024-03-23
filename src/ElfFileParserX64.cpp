@@ -11,14 +11,14 @@
 namespace parser
 {
 
-ElfFileParserX64::ElfFileParserX64(std::istream& p_fileStream)
+ElfFileParserX64::ElfFileParserX64(std::istream* p_fileStream)
     : m_fileStream{ p_fileStream }
 {}
 
 FileHeader ElfFileParserX64::parseFileHeader()
 {
     char l_buffer[52]; // MAGIC
-    m_fileStream.read(l_buffer, 64);
+    m_fileStream->read(l_buffer, 64);
 
     FileHeader l_fileHeader {};
     std::memcpy(&l_fileHeader.header64, l_buffer, sizeof(Elf64_Ehdr));
@@ -34,7 +34,7 @@ std::vector<ProgramHeader> ElfFileParserX64::parseProgramHeaders(int p_programHe
     for (auto& l_programHeader : l_programHeaders)
     {
         char* l_buffer { new char[l_programHeaderSize] };
-        m_fileStream.get(l_buffer, l_programHeaderSize);
+        m_fileStream->read(l_buffer, l_programHeaderSize);
         std::memcpy(&l_programHeader.header64, l_buffer, l_programHeaderSize);
         delete[] l_buffer;
     }
@@ -50,7 +50,7 @@ std::vector<SectionHeader> ElfFileParserX64::parseSectionHeaders(int p_sectionHe
     for (auto& l_sectionHeader : l_sectionHeaders)
     {
         char* l_buffer { new char[l_sectionHeaderSize] };
-        m_fileStream.get(l_buffer, l_sectionHeaderSize);
+        m_fileStream->read(l_buffer, l_sectionHeaderSize);
         std::memcpy(&l_sectionHeader.header64, l_buffer, l_sectionHeaderSize);
         delete[] l_buffer;
     }
