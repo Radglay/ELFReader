@@ -2,8 +2,19 @@
 
 #include <elf.h>
 
-union SectionHeader
+
+enum class SectionHeaderDiscriminator
 {
-    Elf32_Shdr header32;
-    Elf64_Shdr header64;
+    SYSTEM_VERSION_32_BIT,
+    SYSTEM_VERSION_64_BIT
+};
+
+struct SectionHeader
+{
+    SectionHeaderDiscriminator discriminator;
+    union
+    {
+        Elf32_Shdr header32;
+        Elf64_Shdr header64;
+    };
 };
