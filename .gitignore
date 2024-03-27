@@ -1,6 +1,6 @@
 build/
 *.o
-CMakeLists.txt
+CMakeCache.txt
 CMakeFiles
 a.out
 main
