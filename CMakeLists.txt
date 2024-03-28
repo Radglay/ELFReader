@@ -20,9 +20,10 @@ add_subdirectory(src)
 add_subdirectory(app)
 
 
-option(TESTS "Build the tests" OFF)
-if (TESTS)
+option(BUILD_TESTS "Build ElfFileParser unit tests" OFF)
+if (BUILD_TESTS)
     enable_testing()
     include(GoogleTest)
     add_subdirectory(tests)
 endif()
+unset(BUILD_TESTS CACHE)

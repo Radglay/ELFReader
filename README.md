@@ -19,7 +19,7 @@
 
 ## Building tests & running tests
 ### Building
-1) `cmake -S . -B build -DTESTS`
+1) `cmake -S . -B build -DBUILD_TESTS=ON`
 2) `cmake --build build`
 
 ### Running
