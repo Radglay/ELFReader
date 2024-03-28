@@ -6,6 +6,7 @@
 #include <elf.h>
 #include <vector>
 #include "SectionHeader.hpp"
+#include <plog/Log.h>
 
 
 namespace parser

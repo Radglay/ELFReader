@@ -1,5 +1,11 @@
 build/
-.o
-bin/
-main_test
+logs/
+.log
+*.o
+CMakeCache.txt
+CMakeFiles
 a.out
+main
+main_test
+
+.vscode
