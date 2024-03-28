@@ -1,7 +1,11 @@
 build/
+logs/
+.log
 *.o
 CMakeCache.txt
 CMakeFiles
 a.out
 main
 main_test
+
+.vscode

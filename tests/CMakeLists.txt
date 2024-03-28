@@ -5,3 +5,9 @@ add_executable(ElfFileParserCreatorTest test_ElfFileParserCreator.cpp)
 target_link_libraries(ElfFileParserCreatorTest gtest gmock gtest_main)
 target_link_libraries(ElfFileParserCreatorTest ElfFileParser)
 
+
+gtest_discover_tests(ElfFileParserCreatorTest
+                     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                     )
+
+message(${PROJECT_SOURCE_DIR})

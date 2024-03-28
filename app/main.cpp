@@ -7,14 +7,19 @@
 #include "FileHeader.hpp"
 #include "ProgramHeader.hpp"
 #include "SectionHeader.hpp"
+#include <plog/Log.h>
+#include "LoggerSettingUtility.hpp"
 
 
-int main(int argc, char** argv) //ENDIANES... 
+int main(int argc, char** argv)
 {
     if (argc != 2) {
         std::cerr << "You provided wrong number of arguments...\n";
         return 1;
     }
+    
+    initLogger();
+    LOG_INFO << "Program started execution";
 
     std::ifstream* l_fileStream { new std::ifstream(argv[1], std::ios::binary) };
     auto* l_elfFileParser { parser::ElfFileParserCreator::createElfFileParser(l_fileStream) };

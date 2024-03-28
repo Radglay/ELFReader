@@ -13,13 +13,17 @@ if(EXISTS "${LOC_PATH}")
     message(FATAL_ERROR "You cannot build in a source directory (or any directory with a CMakeLists.txt file). Please make a build subdirectory. Feel free to remove CMakeCache.txt and CMakeFiles.")
 endif()
 
+add_subdirectory(lib/plog)
+include_directories(lib/plog/include)
+file(MAKE_DIRECTORY logs)
+
 add_subdirectory(src)
 add_subdirectory(app)
 
-option(BUILD_TESTS "Build the tests" ON)
-if (BUILD_TESTS)
+
+option(TESTS "Build the tests" OFF)
+if (TESTS)
     enable_testing()
     include(GoogleTest)
     add_subdirectory(tests)
 endif()
-
