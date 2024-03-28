@@ -8,18 +8,19 @@
 
 ## Building & running executable
 ### Building DEBUG
-1a) cmake -S . -B build -DCMAKE_BUILD_TYPE=DEBUG
-### RELEASE version
-1b) cmake -S . -B build -DCMAKE_BUILD_TYPE=RELEASE
-
+1) cmake -S . -B build -DCMAKE_BUILD_TYPE=DEBUG
 2) cmake --build build
+### RELEASE version
+1) cmake -S . -B build -DCMAKE_BUILD_TYPE=RELEASE
+2) cmake --build build
+
 ### Running
 3) ./build/App/main <elf_file_name>
 
 ## Building tests & running tests
 ### Building
 1) cmake -S . -B build -DTESTS
-2) cmake --build build
+
 ### Running
 3) simple summary: ctest --test-dir build
 4) colored verbose summary: GTEST_COLOR = 1 ctest --test-dir build -V
