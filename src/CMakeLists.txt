@@ -9,6 +9,7 @@ target_include_directories(ElfFileParser PUBLIC
                            ${PROJECT_SOURCE_DIR}/include
                            ${PROJECT_SOURCE_DIR}/include/structures
                            ${PROJECT_SOURCE_DIR}/include/utility
+                           ${PROJECT_SOURCE_DIR}/include/exceptions
                            )
 
 add_library(Logger OBJECT utility/LoggerSettingUtility.cpp)
