@@ -15,6 +15,19 @@ target_link_libraries(ElfFileParserX32ProgramHeaderTest gtest gmock gtest_main)
 target_link_libraries(ElfFileParserX32ProgramHeaderTest ElfFileParser)
 
 
+add_executable(ElfFileParserX64FileHeaderTest ElfFileParserX64FileHeaderTest.cpp)
+target_link_libraries(ElfFileParserX64FileHeaderTest gtest gmock gtest_main)
+target_link_libraries(ElfFileParserX64FileHeaderTest ElfFileParser)
+
+add_executable(ElfFileParserX64ProgramHeaderTest ElfFileParserX64ProgramHeaderTest.cpp)
+target_link_libraries(ElfFileParserX64ProgramHeaderTest gtest gmock gtest_main)
+target_link_libraries(ElfFileParserX64ProgramHeaderTest ElfFileParser)
+
+
 gtest_discover_tests(ElfFileParserCreatorTest)
+
 gtest_discover_tests(ElfFileParserX32FileHeaderTest)
 gtest_discover_tests(ElfFileParserX32ProgramHeaderTest)
+
+gtest_discover_tests(ElfFileParserX64FileHeaderTest)
+gtest_discover_tests(ElfFileParserX64ProgramHeaderTest)
