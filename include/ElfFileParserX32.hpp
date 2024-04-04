@@ -18,7 +18,7 @@ public:
     ~ElfFileParserX32() = default;
 
     FileHeader parseFileHeader() override;
-    std::vector<ProgramHeader> parseProgramHeaders(int) override;
+    std::vector<ProgramHeader> parseProgramHeaders(int, int) override;
     std::vector<SectionHeader> parseSectionHeaders(int) override;
 
 private:
