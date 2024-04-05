@@ -19,6 +19,8 @@ constexpr unsigned char LITTLE_ENDIAN_VALUE { 0x1 };
 constexpr unsigned char BIG_ENDIAN_VALUE { 0x2 };
 constexpr unsigned char WRONG_ENDIAN_VALUE { 0x3 };
 
+constexpr Elf32_Off PROGRAM_HEADER_TABLE_OFFSET { 0x0 };
+
 // first Program header
 constexpr unsigned char P_TYPE_PROGRAM_HEADER_TABLE_VALUE_LITTLE_ENDIAN[] { 0x06, 0x0, 0x0, 0x0 };
 constexpr unsigned char P_OFFSET_1_VALUE_LITTLE_ENDIAN[] { 0x34, 0x0, 0x0, 0x0 };
@@ -238,9 +240,11 @@ TEST(ElfFileParserX32ProgramHeaderTestSuite, shouldParseAll32BitTargetLittleEndi
     std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
 
     ElfFileParserX32 l_fileParser { l_stubStream };
-    int l_programHeadersCount { THREE_ELEMENTS_SIZE };
-    int l_targetEndianess { LITTLE_ENDIAN_VALUE };
-    auto l_targetProgramHeaders { l_fileParser.parseProgramHeaders(l_programHeadersCount, l_targetEndianess) };
+
+    auto l_targetProgramHeaders { l_fileParser.parseProgramHeaders(
+            PROGRAM_HEADER_TABLE_OFFSET,
+            THREE_ELEMENTS_SIZE,
+            LITTLE_ENDIAN_VALUE) };
 
     ASSERT_EQ(l_targetProgramHeaders.size(), THREE_ELEMENTS_SIZE);
     EXPECT_EQ(l_targetProgramHeaders[0].discriminator, ProgramHeaderDiscriminator::SYSTEM_VERSION_32_BIT);
@@ -270,9 +274,10 @@ TEST(ElfFileParserX32ProgramHeaderTestSuite, shouldParseAll32BitTargetBigEndianP
     std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
 
     ElfFileParserX32 l_fileParser { l_stubStream };
-    int l_programHeadersCount { THREE_ELEMENTS_SIZE };
-    int l_targetEndianess { BIG_ENDIAN_VALUE };
-    auto l_targetProgramHeaders { l_fileParser.parseProgramHeaders(l_programHeadersCount, l_targetEndianess) };
+    auto l_targetProgramHeaders { l_fileParser.parseProgramHeaders(
+            PROGRAM_HEADER_TABLE_OFFSET,
+            THREE_ELEMENTS_SIZE,
+            BIG_ENDIAN_VALUE) };
 
     ASSERT_EQ(l_targetProgramHeaders.size(), THREE_ELEMENTS_SIZE);
     EXPECT_EQ(l_targetProgramHeaders[0].discriminator, ProgramHeaderDiscriminator::SYSTEM_VERSION_32_BIT);
@@ -302,10 +307,11 @@ TEST(ElfFileParserX32ProgramHeaderTestSuite, shouldNotParseAny32BitProgramHeader
     std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
 
     ElfFileParserX32 l_fileParser { l_stubStream };
-    int l_programHeadersCount { THREE_ELEMENTS_SIZE };
-    int l_targetEndianess { WRONG_ENDIAN_VALUE };
 
-    ASSERT_THROW(l_fileParser.parseProgramHeaders(l_programHeadersCount, l_targetEndianess),
+    ASSERT_THROW(l_fileParser.parseProgramHeaders(
+        PROGRAM_HEADER_TABLE_OFFSET,
+        THREE_ELEMENTS_SIZE,
+        WRONG_ENDIAN_VALUE),
                  WrongTargetEndianessException);
 }
 
@@ -315,9 +321,11 @@ TEST(ElfFileParserX32ProgramHeaderTestSuite, shouldParseZero32BitTargetLittleEnd
     std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
 
     ElfFileParserX32 l_fileParser { l_stubStream };
-    int l_programHeadersCount { ZERO_ELEMENTS_SIZE };
-    int l_targetEndianess { LITTLE_ENDIAN_VALUE };
-    auto l_targetProgramHeaders { l_fileParser.parseProgramHeaders(l_programHeadersCount, l_targetEndianess) };
+
+    auto l_targetProgramHeaders { l_fileParser.parseProgramHeaders(
+        PROGRAM_HEADER_TABLE_OFFSET,
+        ZERO_ELEMENTS_SIZE,
+        LITTLE_ENDIAN_VALUE) };
 
     ASSERT_EQ(l_targetProgramHeaders.size(), ZERO_ELEMENTS_SIZE);
 }
@@ -328,9 +336,11 @@ TEST(ElfFileParserX32ProgramHeaderTestSuite, shouldParseZero32BitTargetBigEndian
     std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
 
     ElfFileParserX32 l_fileParser { l_stubStream };
-    int l_programHeadersCount { ZERO_ELEMENTS_SIZE };
-    int l_targetEndianess { BIG_ENDIAN_VALUE };
-    auto l_targetProgramHeaders { l_fileParser.parseProgramHeaders(l_programHeadersCount, l_targetEndianess) };
+
+    auto l_targetProgramHeaders { l_fileParser.parseProgramHeaders(
+        PROGRAM_HEADER_TABLE_OFFSET,
+        ZERO_ELEMENTS_SIZE,
+        BIG_ENDIAN_VALUE) };
 
     ASSERT_EQ(l_targetProgramHeaders.size(), ZERO_ELEMENTS_SIZE);
 }

@@ -15,7 +15,7 @@ class IElfFileParser
 public:
     virtual ~IElfFileParser() = default;
     virtual FileHeader parseFileHeader() = 0;
-    virtual std::vector<ProgramHeader> parseProgramHeaders(int, int) = 0;
+    virtual std::vector<ProgramHeader> parseProgramHeaders(int, int, int) = 0;
     virtual std::vector<SectionHeader> parseSectionHeaders(int) = 0;
 };
 

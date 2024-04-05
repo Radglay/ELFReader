@@ -193,7 +193,9 @@ FileHeader ElfFileParserX32::parseFileHeader()
     return l_fileHeader;
 }
 
-std::vector<ProgramHeader> ElfFileParserX32::parseProgramHeaders(int p_programHeadersCount, int p_targetEndianess)
+std::vector<ProgramHeader> ElfFileParserX32::parseProgramHeaders(int p_programHeaderTableOffset,
+                                                                 int p_programHeadersCount,
+                                                                 int p_targetEndianess)
 {
     std::vector<ProgramHeader> l_programHeaders(p_programHeadersCount);
 
@@ -203,6 +205,7 @@ std::vector<ProgramHeader> ElfFileParserX32::parseProgramHeaders(int p_programHe
         l_hostEndianess = ELFDATA2MSB;
     }
 
+    m_fileStream->seekg(p_programHeaderTableOffset);
     for (auto& l_programHeader : l_programHeaders)
     {
         char l_buffer[sizeof(Elf32_Phdr)] {};
