@@ -194,6 +194,61 @@ void fill64BitProgramHeaderWithCorrectEndianess(ProgramHeader& p_programHeader, 
 
 }
 
+void fill64BitSectionHeadersWithCorrectEndianess(SectionHeader& p_sectionHeader, int p_hostEndianess, int p_targetEndianess)
+{
+    LOG_INFO << "Filling 64-bit section header";
+
+    if ( p_targetEndianess == ELFDATA2LSB )
+    {
+        if ( p_hostEndianess == p_targetEndianess )
+        {
+            LOG_INFO << "No endianess formatting";
+        }
+        else
+        {
+            LOG_INFO << "Converting Target Little Endian to Host Big Endian";
+
+            p_sectionHeader.header64.sh_type = convertToUnsignedBigEndian(p_sectionHeader.header64.sh_type);
+            p_sectionHeader.header64.sh_flags = convertToUnsignedBigEndian(p_sectionHeader.header64.sh_flags);
+            p_sectionHeader.header64.sh_addr = convertToUnsignedBigEndian(p_sectionHeader.header64.sh_addr);
+            p_sectionHeader.header64.sh_name = convertToUnsignedBigEndian(p_sectionHeader.header64.sh_name);
+            p_sectionHeader.header64.sh_offset = convertToUnsignedBigEndian(p_sectionHeader.header64.sh_offset);
+            p_sectionHeader.header64.sh_size = convertToUnsignedBigEndian(p_sectionHeader.header64.sh_size);
+            p_sectionHeader.header64.sh_link = convertToUnsignedBigEndian(p_sectionHeader.header64.sh_link);
+            p_sectionHeader.header64.sh_info = convertToUnsignedBigEndian(p_sectionHeader.header64.sh_info);
+            p_sectionHeader.header64.sh_addralign = convertToUnsignedBigEndian(p_sectionHeader.header64.sh_addralign);
+            p_sectionHeader.header64.sh_entsize = convertToUnsignedBigEndian(p_sectionHeader.header64.sh_entsize);
+        }
+    }
+    else if( p_targetEndianess == ELFDATA2MSB )
+    {
+        if ( p_hostEndianess == p_targetEndianess )
+        {
+            LOG_INFO << "No endianess formatting";
+        }
+        else
+        {
+            LOG_INFO << "Converting Target Big Endian to Host Little Endian";
+
+            p_sectionHeader.header64.sh_type = convertToUnsignedLittleEndian(p_sectionHeader.header64.sh_type);
+            p_sectionHeader.header64.sh_flags = convertToUnsignedLittleEndian(p_sectionHeader.header64.sh_flags);
+            p_sectionHeader.header64.sh_addr = convertToUnsignedLittleEndian(p_sectionHeader.header64.sh_addr);
+            p_sectionHeader.header64.sh_name = convertToUnsignedLittleEndian(p_sectionHeader.header64.sh_name);
+            p_sectionHeader.header64.sh_offset = convertToUnsignedLittleEndian(p_sectionHeader.header64.sh_offset);
+            p_sectionHeader.header64.sh_size = convertToUnsignedLittleEndian(p_sectionHeader.header64.sh_size);
+            p_sectionHeader.header64.sh_link = convertToUnsignedLittleEndian(p_sectionHeader.header64.sh_link);
+            p_sectionHeader.header64.sh_info = convertToUnsignedLittleEndian(p_sectionHeader.header64.sh_info);
+            p_sectionHeader.header64.sh_addralign = convertToUnsignedLittleEndian(p_sectionHeader.header64.sh_addralign);
+            p_sectionHeader.header64.sh_entsize = convertToUnsignedLittleEndian(p_sectionHeader.header64.sh_entsize);
+        }
+    }
+    else
+    {
+        LOG_ERROR << "Exception thrown: WrongTargetEndianessException\n";
+        throw WrongTargetEndianessException();
+    }
+}
+
 
 ElfFileParserX64::ElfFileParserX64(std::istream* p_fileStream)
     : m_fileStream{ p_fileStream }
@@ -247,17 +302,26 @@ std::vector<ProgramHeader> ElfFileParserX64::parseProgramHeaders(int p_programHe
    return l_programHeaders;
 }
 
-std::vector<SectionHeader> ElfFileParserX64::parseSectionHeaders(int p_sectionHeadersCount)
+std::vector<SectionHeader> ElfFileParserX64::parseSectionHeaders(int p_sectionHeaderTableOffset,
+                                                                 int p_sectionHeadersCount,
+                                                                 int p_targetEndianess)
 {
     std::vector<SectionHeader> l_sectionHeaders(p_sectionHeadersCount);
-    auto l_sectionHeaderSize { sizeof(Elf64_Shdr) };
 
+    int l_hostEndianess { ELFDATA2LSB };
+    if ( BYTE_ORDER == BIG_ENDIAN )
+    {
+        l_hostEndianess = ELFDATA2MSB;
+    }
+
+    m_fileStream->seekg(p_sectionHeaderTableOffset);
     for (auto& l_sectionHeader : l_sectionHeaders)
     {
-        char* l_buffer { new char[l_sectionHeaderSize] };
-        m_fileStream->read(l_buffer, l_sectionHeaderSize);
-        std::memcpy(&l_sectionHeader.header64, l_buffer, l_sectionHeaderSize);
-        delete[] l_buffer;
+        char l_buffer[sizeof(Elf64_Shdr)] {};
+        m_fileStream->read(l_buffer, sizeof(Elf64_Shdr));
+        std::memcpy(&l_sectionHeader.header64, l_buffer, sizeof(Elf64_Shdr));
+        fill64BitSectionHeadersWithCorrectEndianess(l_sectionHeader, l_hostEndianess, p_targetEndianess);
+        l_sectionHeader.discriminator = SectionHeaderDiscriminator::SYSTEM_VERSION_64_BIT;
     }
 
    return l_sectionHeaders;
