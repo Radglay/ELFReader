@@ -2,16 +2,10 @@
 #include <gmock/gmock.h>
 #include <sstream>
 #include <string>
-#include "IElfFileParser.hpp"
-#include "ElfFileParserX32.hpp"
 #include "ElfFileParserX64.hpp"
 #include "FileHeader.hpp"
 #include <elf.h>
-#include <iterator>
 #include "WrongTargetEndianessException.hpp"
-
-#include <iostream>
-
 
 
 namespace
@@ -78,7 +72,6 @@ std::string generateFileHeaderIdentPartWithSpecificEndianess(unsigned char p_end
 
     return l_identPart;
 }
-
 
 std::string generate64BitLittleEndianStreamContent()
 {   
