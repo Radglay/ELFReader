@@ -19,8 +19,8 @@ int main(int argc, char** argv)
     }
     
     initLogger();
-    LOG_INFO << "Program started execution";
 
+    LOG_INFO << "Opening the file " << argv[1];
     std::ifstream* l_fileStream { new std::ifstream(argv[1], std::ios::binary) };
     auto* l_elfFileParser { parser::ElfFileParserCreator::createElfFileParser(l_fileStream) };
 
@@ -49,11 +49,15 @@ int main(int argc, char** argv)
         l_shoff = l_fileHeader.header64.e_shoff;
     }
 
+    LOG_INFO << "Start parsing program headers";
     std::vector<ProgramHeader> l_programHeaders { l_elfFileParser->parseProgramHeaders(
         l_phoff, l_phnum, l_targetEndianess) };
+    
+    LOG_INFO << "Start parsing section headers";
     std::vector<SectionHeader> l_sectionHeaders { l_elfFileParser->parseSectionHeaders(
         l_shoff, l_shnum, l_targetEndianess) };
 
+    LOG_INFO << "Closing program";
     delete l_elfFileParser;
     delete l_fileStream;
 
