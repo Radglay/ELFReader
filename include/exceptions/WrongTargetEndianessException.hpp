@@ -3,7 +3,7 @@
 #include "ElfFileParserException.hpp"
 
 
-namespace parser
+namespace reader
 {
 
 class WrongTargetEndianessException : public ElfFileParserException

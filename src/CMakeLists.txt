@@ -1,11 +1,11 @@
-add_library(ElfFileParser
-            ElfFileParserCreator.cpp
-            ElfFileParserX32.cpp
-            ElfFileParserX64.cpp
+add_library(ElfHeaderReader
+            ElfHeaderReaderCreator.cpp
+            ElfHeaderReaderX32.cpp
+            ElfHeaderReaderX64.cpp
             utility/CheckingFileVersionUtility.cpp
             )
 
-target_include_directories(ElfFileParser PUBLIC
+target_include_directories(ElfHeaderReader PUBLIC
                            ${PROJECT_SOURCE_DIR}/include
                            ${PROJECT_SOURCE_DIR}/include/structures
                            ${PROJECT_SOURCE_DIR}/include/utility
