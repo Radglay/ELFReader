@@ -8,5 +8,5 @@
 void initLogger()
 {
     std::string fileName = "logs/" + std::to_string(std::time(nullptr)) + "_log.txt";
-    plog::init(plog::debug, fileName.c_str(), 1, 5);
+    plog::init(plog::debug, fileName.c_str());
 }
