@@ -1,8 +1,8 @@
-# ELFParser
+# ELFReader
 
 ## Downloading
-1) `git clone https://github.com/Radglay/ELFParser`
-2) `cd ELFParser`
+1) `git clone https://github.com/Radglay/ELFReader`
+2) `cd ELFReader`
 3) `git submodule init`
 4) `git submodule update`
 

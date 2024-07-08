@@ -1,4 +1,4 @@
-#include "ElfFileParserX32.hpp"
+#include "ElfHeaderReaderX32.hpp"
 #include <istream>
 #include <cstring>
 #include "FileHeader.hpp"
@@ -17,7 +17,7 @@
 #include <plog/Log.h>
 
 
-namespace parser
+namespace reader
 {
 
 namespace
@@ -219,11 +219,11 @@ void fill32BitSectionHeadersWithCorrectEndianess(SectionHeader& p_sectionHeader,
     }
 }
 
-ElfFileParserX32::ElfFileParserX32(std::istream* p_fileStream)
+ElfHeaderReaderX32::ElfHeaderReaderX32(std::istream* p_fileStream)
     : m_fileStream{ p_fileStream }
 {}
 
-FileHeader ElfFileParserX32::parseFileHeader()
+FileHeader ElfHeaderReaderX32::readFileHeader()
 {
     unsigned char l_buffer[sizeof(Elf32_Ehdr)];
     m_fileStream->read(reinterpret_cast<char*>(l_buffer), sizeof(Elf32_Ehdr));
@@ -245,7 +245,7 @@ FileHeader ElfFileParserX32::parseFileHeader()
     return l_fileHeader;
 }
 
-std::vector<ProgramHeader> ElfFileParserX32::parseProgramHeaders(int p_programHeaderTableOffset,
+std::vector<ProgramHeader> ElfHeaderReaderX32::readProgramHeaders(int p_programHeaderTableOffset,
                                                                  int p_programHeadersCount,
                                                                  int p_targetEndianess)
 {
@@ -270,7 +270,7 @@ std::vector<ProgramHeader> ElfFileParserX32::parseProgramHeaders(int p_programHe
    return l_programHeaders;
 }
 
-std::vector<SectionHeader> ElfFileParserX32::parseSectionHeaders(int p_sectionHeaderTableOffset,
+std::vector<SectionHeader> ElfHeaderReaderX32::readSectionHeaders(int p_sectionHeaderTableOffset,
                                                                  int p_sectionHeadersCount,
                                                                  int p_targetEndianess)
 {
