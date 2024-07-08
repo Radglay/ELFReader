@@ -3,7 +3,7 @@
 #include <istream>
 
 
-namespace parser
+namespace reader
 {
 
 bool is32BitVersion(std::istream& p_fileStream);

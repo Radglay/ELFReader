@@ -3,7 +3,7 @@
 #include <exception>
 
 
-namespace parser
+namespace reader
 {
 
 class ElfFileParserException : public std::exception

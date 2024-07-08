@@ -1,9 +1,9 @@
-# ELFParser
+# ELFReader
 ![example workflow](https://github.com/Radglay/ELFReader/actions/workflows/ci.yml/badge.svg)
 
 ## Downloading
-1) `git clone https://github.com/Radglay/ELFParser`
-2) `cd ELFParser`
+1) `git clone https://github.com/Radglay/ELFReader`
+2) `cd ELFReader`
 3) `git submodule init`
 4) `git submodule update`
 
