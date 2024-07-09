@@ -3,6 +3,7 @@ add_library(ElfHeaderReader
             ElfHeaderReaderX32.cpp
             ElfHeaderReaderX64.cpp
             utility/CheckingFileVersionUtility.cpp
+            utility/EndiannessUtility.cpp
             )
 
 target_include_directories(ElfHeaderReader PUBLIC
