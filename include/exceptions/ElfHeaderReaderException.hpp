@@ -6,7 +6,7 @@
 namespace reader
 {
 
-class ElfFileParserException : public std::exception
+class ElfHeaderReaderException : public std::exception
 {};
 
 }
