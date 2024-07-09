@@ -14,9 +14,9 @@ class IElfHeaderReader
 {
 public:
     virtual ~IElfHeaderReader() = default;
-    virtual FileHeader readFileHeader() = 0;
-    virtual std::vector<ProgramHeader> readProgramHeaders(int, int, int) = 0;
-    virtual std::vector<SectionHeader> readSectionHeaders(int, int, int) = 0;
+    virtual FileHeader readFileHeader(int) = 0;
+    virtual std::vector<ProgramHeader> readProgramHeaders(int, int, int, int) = 0;
+    virtual std::vector<SectionHeader> readSectionHeaders(int, int, int, int) = 0;
 };
 
 }

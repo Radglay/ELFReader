@@ -17,9 +17,9 @@ public:
     ElfHeaderReaderX64(std::istream*);
     ~ElfHeaderReaderX64() = default;
 
-    FileHeader readFileHeader() override;
-    std::vector<ProgramHeader> readProgramHeaders(int, int, int) override;
-    std::vector<SectionHeader> readSectionHeaders(int, int, int) override;
+    FileHeader readFileHeader(int) override;
+    std::vector<ProgramHeader> readProgramHeaders(int, int, int, int) override;
+    std::vector<SectionHeader> readSectionHeaders(int, int, int, int) override;
 
 private:
     std::istream* m_fileStream;
