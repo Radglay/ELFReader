@@ -2,10 +2,9 @@
 #include <gmock/gmock.h>
 #include <sstream>
 #include <string>
-#include "ElfFileParserX64.hpp"
+#include "ElfHeaderReaderX64.hpp"
 #include "SectionHeader.hpp"
 #include <elf.h>
-#include "WrongTargetEndianessException.hpp"
 
 
 namespace
@@ -92,7 +91,7 @@ constexpr Elf64_Xword SH_ENTSIZE_3_VALUE { 0x0 };
 
 }
 
-namespace parser
+namespace reader
 {
 
 using namespace ::testing;
@@ -267,7 +266,7 @@ std::string generate64BitNotesSectionHeaderBigEndianStreamContent()
 }
 
 
-TEST(ElfFileParserX64SectionHeaderTestSuite, shouldParseAll64BitTargetLittleEndianSectionHeadersOnHostLittleEndian)
+TEST(ElfHeaderReaderX64SectionHeaderTestSuite, shouldReadAll64BitLittleEndianSectionHeadersOnHostLittleEndian)
 {
     std::string l_streamContent { generate64BitSectionHeaderTableEntrySectionHeaderLittleEndianStreamContent() };
     l_streamContent += generate64BitProgbitsSectionHeaderLittleEndianStreamContent();
@@ -275,11 +274,12 @@ TEST(ElfFileParserX64SectionHeaderTestSuite, shouldParseAll64BitTargetLittleEndi
 
     std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
 
-    ElfFileParserX64 l_fileParser { l_stubStream };
+    ElfHeaderReaderX64 l_headerReader { l_stubStream };
 
-    auto l_targetSectionHeaders { l_fileParser.parseSectionHeaders(
+    auto l_targetSectionHeaders { l_headerReader.readSectionHeaders(
             SECTION_HEADER_TABLE_OFFSET,
             THREE_ELEMENTS_SIZE,
+            LITTLE_ENDIAN_VALUE,
             LITTLE_ENDIAN_VALUE) };
 
     ASSERT_EQ(l_targetSectionHeaders.size(), THREE_ELEMENTS_SIZE);
@@ -306,7 +306,7 @@ TEST(ElfFileParserX64SectionHeaderTestSuite, shouldParseAll64BitTargetLittleEndi
                           SH_ENTSIZE_3_VALUE));
 }
 
-TEST(ElfFileParserX64SectionHeaderTestSuite, shouldParseAll64BitTargetBigEndianSectionHeadersOnHostLittleEndian)
+TEST(ElfHeaderReaderX64SectionHeaderTestSuite, shouldReadAll64BitBigEndianSectionHeadersOnHostLittleEndian)
 {
     std::string l_streamContent { generate64BitSectionHeaderTableEntrySectionHeaderBigEndianStreamContent() };
     l_streamContent += generate64BitProgbitsSectionHeaderBigEndianStreamContent();
@@ -314,12 +314,13 @@ TEST(ElfFileParserX64SectionHeaderTestSuite, shouldParseAll64BitTargetBigEndianS
 
     std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
 
-    ElfFileParserX64 l_fileParser { l_stubStream };
+    ElfHeaderReaderX64 l_headerReader { l_stubStream };
 
-    auto l_targetSectionHeaders { l_fileParser.parseSectionHeaders(
+    auto l_targetSectionHeaders { l_headerReader.readSectionHeaders(
             SECTION_HEADER_TABLE_OFFSET,
             THREE_ELEMENTS_SIZE,
-            BIG_ENDIAN_VALUE) };
+            BIG_ENDIAN_VALUE,
+            LITTLE_ENDIAN_VALUE) };
 
     ASSERT_EQ(l_targetSectionHeaders.size(), THREE_ELEMENTS_SIZE);
 
@@ -345,7 +346,8 @@ TEST(ElfFileParserX64SectionHeaderTestSuite, shouldParseAll64BitTargetBigEndianS
                           SH_ENTSIZE_3_VALUE));
 }
 
-TEST(ElfFileParserX64SectionHeaderTestSuite, shouldNotParseAny64BitSectionHeaderWhenWrongTargetEndianess)
+TEST(ElfHeaderReaderX64SectionHeaderTestSuite,
+    shouldNotReadAny64BitLittleEndianSectionHeaderWhenSectionHeaderTableEntryCountIsEqualToZero)
 {
     std::string l_streamContent { generate64BitSectionHeaderTableEntrySectionHeaderLittleEndianStreamContent() };
     l_streamContent += generate64BitProgbitsSectionHeaderLittleEndianStreamContent();
@@ -353,36 +355,19 @@ TEST(ElfFileParserX64SectionHeaderTestSuite, shouldNotParseAny64BitSectionHeader
 
     std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
 
-    ElfFileParserX64 l_fileParser { l_stubStream };
+    ElfHeaderReaderX64 l_headerReader { l_stubStream };
 
-    ASSERT_THROW(l_fileParser.parseSectionHeaders(
-            SECTION_HEADER_TABLE_OFFSET,
-            THREE_ELEMENTS_SIZE,
-            WRONG_ENDIAN_VALUE),
-                WrongTargetEndianessException);
-}
-
-TEST(ElfFileParserX64SectionHeaderTestSuite,
-    shouldNotParseAny64BitTargetLittleEndianSectionHeaderWhenSectionHeaderTableEntryCountIsEqualToZero)
-{
-    std::string l_streamContent { generate64BitSectionHeaderTableEntrySectionHeaderLittleEndianStreamContent() };
-    l_streamContent += generate64BitProgbitsSectionHeaderLittleEndianStreamContent();
-    l_streamContent += generate64BitNotesSectionHeaderLittleEndianStreamContent();
-
-    std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
-
-    ElfFileParserX64 l_fileParser { l_stubStream };
-
-    auto l_targetSectionHeaders { l_fileParser.parseSectionHeaders(
+    auto l_targetSectionHeaders { l_headerReader.readSectionHeaders(
         SECTION_HEADER_TABLE_OFFSET,
         ZERO_ELEMENTS_SIZE,
+        LITTLE_ENDIAN_VALUE,
         LITTLE_ENDIAN_VALUE) };
     
     ASSERT_EQ(l_targetSectionHeaders.size(), ZERO_ELEMENTS_SIZE);
 }
 
-TEST(ElfFileParserX64SectionHeaderTestSuite,
-    shouldNotParseAny64BitTargetBigEndianSectionHeaderWhenSectionHeaderTableEntryCountIsEqualToZero)
+TEST(ElfHeaderReaderX64SectionHeaderTestSuite,
+    shouldNotReadAny64BitBigEndianSectionHeaderWhenSectionHeaderTableEntryCountIsEqualToZero)
 {
     std::string l_streamContent { generate64BitSectionHeaderTableEntrySectionHeaderBigEndianStreamContent() };
     l_streamContent += generate64BitProgbitsSectionHeaderBigEndianStreamContent();
@@ -390,12 +375,13 @@ TEST(ElfFileParserX64SectionHeaderTestSuite,
 
     std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
 
-    ElfFileParserX64 l_fileParser { l_stubStream };
+    ElfHeaderReaderX64 l_headerReader { l_stubStream };
 
-    auto l_targetSectionHeaders { l_fileParser.parseSectionHeaders(
+    auto l_targetSectionHeaders { l_headerReader.readSectionHeaders(
         SECTION_HEADER_TABLE_OFFSET,
         ZERO_ELEMENTS_SIZE,
-        BIG_ENDIAN_VALUE) };
+        BIG_ENDIAN_VALUE,
+        LITTLE_ENDIAN_VALUE) };
     
     ASSERT_EQ(l_targetSectionHeaders.size(), ZERO_ELEMENTS_SIZE);
 }

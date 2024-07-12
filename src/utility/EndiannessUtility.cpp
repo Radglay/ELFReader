@@ -1,12 +1,20 @@
 #include "EndiannessUtility.hpp"
+#include <byteswap.h>
+#include <elf.h>
+#include "WrongEndiannessException.hpp"
 
 
 namespace reader
 {
 
-bool shouldConvertEndianness(int fileEndianness, int p_hostEndianness)
+bool isEndiannessCorrect(int p_endianness)
 {
-    return fileEndianness != fileEndianness;
+    return p_endianness == ELFDATA2LSB or p_endianness == ELFDATA2MSB;
+}
+
+bool shouldConvertEndianness(int p_fileEndianness, int p_hostEndianness)
+{
+    return p_fileEndianness != p_hostEndianness;
 }
 
 uint16_t convertEndianness(uint16_t p_toConvert)

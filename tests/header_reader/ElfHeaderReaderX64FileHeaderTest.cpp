@@ -2,10 +2,9 @@
 #include <gmock/gmock.h>
 #include <sstream>
 #include <string>
-#include "ElfFileParserX64.hpp"
+#include "ElfHeaderReaderX64.hpp"
 #include "FileHeader.hpp"
 #include <elf.h>
-#include "WrongTargetEndianessException.hpp"
 
 
 namespace
@@ -53,18 +52,18 @@ constexpr Elf64_Half E_SHSTRNDX_VALUE { 0x1e };
 }
 
 
-namespace parser
+namespace reader
 {
 
 using namespace ::testing;
 
 
-std::string generateFileHeaderIdentPartWithSpecificEndianess(unsigned char p_endianess)
+std::string generateFileHeaderIdentPartWithSpecificEndianness(unsigned char p_endianness)
 {
     std::string l_identPart;
     std::copy_n(MAGIC_NUMBERS_VALUE, sizeof(MAGIC_NUMBERS_VALUE), std::back_inserter(l_identPart));
     l_identPart += static_cast<char>(BIT_VERSION_64_VALUE);
-    l_identPart += static_cast<char>(p_endianess);
+    l_identPart += static_cast<char>(p_endianness);
     l_identPart += static_cast<char>(ORIGINAL_ELF_FILE_VERSION_VALUE);
     l_identPart += static_cast<char>(SYSTEM_V_ABI_VALUE);
     l_identPart += static_cast<char>(ABI_VERSION_VALUE);
@@ -73,10 +72,11 @@ std::string generateFileHeaderIdentPartWithSpecificEndianess(unsigned char p_end
     return l_identPart;
 }
 
+
 std::string generate64BitLittleEndianStreamContent()
-{   
+{
     std::string l_streamContent;
-    l_streamContent += generateFileHeaderIdentPartWithSpecificEndianess(LITTLE_ENDIAN_VALUE);
+    l_streamContent += generateFileHeaderIdentPartWithSpecificEndianness(LITTLE_ENDIAN_VALUE);
 
     std::copy_n(E_TYPE_EXEC_VALUE_LITTLE_ENDIAN, sizeof(Elf64_Half), std::back_inserter(l_streamContent));
     std::copy_n(E_MACHINE_AMD_x86_64_VALUE_LITTLE_ENDIAN, sizeof(Elf64_Half), std::back_inserter(l_streamContent));
@@ -98,7 +98,7 @@ std::string generate64BitLittleEndianStreamContent()
 std::string generate64BitBigEndianStreamContent()
 {   
     std::string l_streamContent;
-    l_streamContent += generateFileHeaderIdentPartWithSpecificEndianess(BIG_ENDIAN_VALUE);
+    l_streamContent += generateFileHeaderIdentPartWithSpecificEndianness(BIG_ENDIAN_VALUE);
 
     std::reverse_copy(E_TYPE_EXEC_VALUE_LITTLE_ENDIAN, E_TYPE_EXEC_VALUE_LITTLE_ENDIAN + sizeof(Elf64_Half),
                       std::back_inserter(l_streamContent));
@@ -131,15 +131,15 @@ std::string generate64BitBigEndianStreamContent()
 }
 
 
-TEST(ElfFileParserX64TestSuite, shouldParse64BitTargetLittleEndianFileHeaderOnHostLittelEndian)
+TEST(ElfHeaderReaderX64TestSuite, shouldRead64BitLittleEndianFileHeaderOnHostLittleEndian)
 {
     std::string l_streamContent { generate64BitLittleEndianStreamContent() };
     std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
 
-    ElfFileParserX64 l_fileParser { l_stubStream };
-    auto l_targetFileHeader { l_fileParser.parseFileHeader() };
+    ElfHeaderReaderX64 l_headerReader { l_stubStream };
+    auto l_targetFileHeader { l_headerReader.readFileHeader(LITTLE_ENDIAN_VALUE) };
 
-    std::string l_expectedIdentPart { generateFileHeaderIdentPartWithSpecificEndianess(LITTLE_ENDIAN_VALUE) };
+    std::string l_expectedIdentPart { generateFileHeaderIdentPartWithSpecificEndianness(LITTLE_ENDIAN_VALUE) };
     EXPECT_EQ(l_targetFileHeader.discriminator, FileHeaderDiscriminator::SYSTEM_VERSION_64_BIT);
     EXPECT_THAT(l_targetFileHeader.header64,
                 FieldsAre(ElementsAreArray(l_expectedIdentPart.c_str(), l_expectedIdentPart.c_str() + 16),
@@ -149,15 +149,15 @@ TEST(ElfFileParserX64TestSuite, shouldParse64BitTargetLittleEndianFileHeaderOnHo
                           E_PHNUM_VALUE, E_SHENTSIZE_VALUE, E_SHNUM_VALUE, E_SHSTRNDX_VALUE));
 }
 
-TEST(ElfFileParserX64TestSuite, shouldParse64BitTargetBigEndianFileHeaderOnHostLittelEndian)
+TEST(ElfHeaderReaderX64TestSuite, shouldRead64BitBigEndianFileHeaderOnHostLittleEndian)
 {
     std::string l_streamContent { generate64BitBigEndianStreamContent() };
     std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
 
-    ElfFileParserX64 l_fileParser { l_stubStream };
-    auto l_targetFileHeader { l_fileParser.parseFileHeader() };
+    ElfHeaderReaderX64 l_headerReader { l_stubStream };
+    auto l_targetFileHeader { l_headerReader.readFileHeader(LITTLE_ENDIAN_VALUE) };
 
-    std::string l_expectedIdentPart { generateFileHeaderIdentPartWithSpecificEndianess(BIG_ENDIAN_VALUE) };
+    std::string l_expectedIdentPart { generateFileHeaderIdentPartWithSpecificEndianness(BIG_ENDIAN_VALUE) };
     EXPECT_EQ(l_targetFileHeader.discriminator, FileHeaderDiscriminator::SYSTEM_VERSION_64_BIT);
     EXPECT_THAT(l_targetFileHeader.header64,
                 FieldsAre(ElementsAreArray(l_expectedIdentPart.c_str(), l_expectedIdentPart.c_str() + 16),
@@ -166,16 +166,5 @@ TEST(ElfFileParserX64TestSuite, shouldParse64BitTargetBigEndianFileHeaderOnHostL
                           E_FLAGS_VALUE, E_EHSIZE, E_PHENTSIZE_VALUE,
                           E_PHNUM_VALUE, E_SHENTSIZE_VALUE, E_SHNUM_VALUE, E_SHSTRNDX_VALUE));
 }
-
-TEST(ElfFileParserX64TestSuite, shouldThrowWrongTargetEndianessWhenTargetEndianessIsNeitherBigNorLittleEndian)
-{
-    std::string l_streamContent { generateFileHeaderIdentPartWithSpecificEndianess(WRONG_ENDIAN_VALUE) };
-    std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
-
-    ElfFileParserX64 l_fileParser { l_stubStream };
-
-    ASSERT_THROW(l_fileParser.parseFileHeader(), WrongTargetEndianessException);
-}
-
 
 }
