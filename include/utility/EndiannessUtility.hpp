@@ -1,13 +1,14 @@
 #pragma once
 
-#include <byteswap.h>
 #include <inttypes.h>
 
 
 namespace reader
 {
 
-bool shouldConvertEndianness(int fileEndianness, int p_hostEndianness);
+bool isEndiannessCorrect(int p_endianness);
+
+bool shouldConvertEndianness(int p_fileEndianness, int p_hostEndianness);
 
 uint16_t convertEndianness(uint16_t p_toConvert);
 
