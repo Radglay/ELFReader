@@ -1,7 +1,6 @@
 #include "EndiannessUtility.hpp"
 #include <byteswap.h>
 #include <elf.h>
-#include "WrongEndiannessException.hpp"
 
 
 namespace reader
