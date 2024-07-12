@@ -13,17 +13,17 @@ if(EXISTS "${LOC_PATH}")
 endif()
 
 add_subdirectory(lib/plog)
-include_directories(lib/plog/include)
 file(MAKE_DIRECTORY logs)
 
-add_subdirectory(src)
+add_subdirectory(components/header_reader)
+add_subdirectory(components/section_reader)
+add_subdirectory(components/common)
 add_subdirectory(app)
-
 
 option(BUILD_TESTS "Build all unit tests" OFF)
 if (BUILD_TESTS)
     enable_testing()
     include(GoogleTest)
-    add_subdirectory(tests)
+    add_subdirectory(components/header_reader/test)
 endif()
 unset(BUILD_TESTS CACHE)
