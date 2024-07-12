@@ -15,11 +15,18 @@ class ElfHeaderReaderX32 : public IElfHeaderReader
 {
 public:
     ElfHeaderReaderX32(std::istream*);
-    ~ElfHeaderReaderX32() = default;
 
-    FileHeader readFileHeader(int) override;
-    std::vector<ProgramHeader> readProgramHeaders(int, int, int, int) override;
-    std::vector<SectionHeader> readSectionHeaders(int, int, int, int) override;
+    FileHeader readFileHeader(int p_hostEndianness) override;
+
+    std::vector<ProgramHeader> readProgramHeaders(int p_programHeaderTableOffset,
+                                                  int p_programHeadersCount,
+                                                  int p_fileEndianness,
+                                                  int p_hostEndianness) override;
+
+    std::vector<SectionHeader> readSectionHeaders(int p_sectionHeaderTableOffset,
+                                                  int p_sectionHeadersCount,
+                                                  int p_fileEndianness,
+                                                  int p_hostEndianness) override;
 
 private:
     std::istream* m_fileStream;

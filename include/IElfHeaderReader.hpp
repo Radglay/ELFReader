@@ -14,9 +14,18 @@ class IElfHeaderReader
 {
 public:
     virtual ~IElfHeaderReader() = default;
-    virtual FileHeader readFileHeader(int) = 0;
-    virtual std::vector<ProgramHeader> readProgramHeaders(int, int, int, int) = 0;
-    virtual std::vector<SectionHeader> readSectionHeaders(int, int, int, int) = 0;
+
+    virtual FileHeader readFileHeader(int p_hostEndianness) = 0;
+
+    virtual std::vector<ProgramHeader> readProgramHeaders(int p_programHeaderTableOffset,
+                                                          int p_programHeadersCount,
+                                                          int p_fileEndianness,
+                                                          int p_hostEndianness) = 0;
+
+    virtual std::vector<SectionHeader> readSectionHeaders(int p_sectionHeaderTableOffset,
+                                                          int p_sectionHeadersCount,
+                                                          int p_fileEndianness,
+                                                          int p_hostEndianness) = 0;
 };
 
 }
