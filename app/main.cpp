@@ -12,12 +12,12 @@
 
 int main(int argc, char** argv)
 {
+    initLogger();
+
     if (argc != 2) {
-        std::cerr << "You provided wrong number of arguments...\n";
+        LOG_ERROR << "Wrong number of arguments";
         return 1;
     }
-    
-    initLogger();
 
     LOG_INFO << "Opening the file " << argv[1];
     std::ifstream* l_fileStream { new std::ifstream(argv[1], std::ios::binary) };
