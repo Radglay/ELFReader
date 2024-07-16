@@ -1,5 +1,3 @@
-add_subdirectory("${PROJECT_SOURCE_DIR}/lib/googletest" "lib/googletest")
-
 macro(add_tests_from_file TESTNAME)
     add_executable(${TESTNAME} ${ARGN})
     target_link_libraries(${TESTNAME}

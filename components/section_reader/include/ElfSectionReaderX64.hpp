@@ -13,7 +13,9 @@ class ElfSectionReaderX64
 public:
     ElfSectionReaderX64(std::istream* p_fileStream);
     
-    std::vector<Elf64_Sym> readSymbols(const Elf64_Shdr& p_symTabSection);
+    std::vector<Elf64_Sym> readSymbols(const Elf64_Shdr& p_symTabSection,
+                                       int p_fileEndianness,
+                                       int p_hostEndianness);
 
 private:
     std::istream* m_fileStream;
