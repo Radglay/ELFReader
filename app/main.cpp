@@ -9,6 +9,8 @@
 #include <plog/Log.h>
 #include "LoggerSettingUtility.hpp"
 
+#include <iostream>
+
 
 int main(int argc, char** argv)
 {
@@ -61,6 +63,26 @@ int main(int argc, char** argv)
     
     std::vector<SectionHeader> l_sectionHeaders { l_elfHeaderReader->readSectionHeaders(
         l_shoff, l_shnum, l_fileEndianness, l_hostEndianness) };
+
+
+    std::cout << std::hex;
+
+    for (auto& l_sec : l_sectionHeaders)
+    {
+        if (l_sec.header64.sh_type == SHT_SYMTAB)
+        {
+            std::cout << l_sec.header64.sh_name << '\n';
+            std::cout << l_sec.header64.sh_type << '\n';
+            std::cout << l_sec.header64.sh_flags << '\n';
+            std::cout << l_sec.header64.sh_addr << '\n';
+            std::cout << l_sec.header64.sh_offset << '\n';
+            std::cout << l_sec.header64.sh_size << '\n';
+            std::cout << l_sec.header64.sh_link << '\n';
+            std::cout << l_sec.header64.sh_info << '\n';
+            std::cout << l_sec.header64.sh_addralign << '\n';
+            std::cout << l_sec.header64.sh_entsize << '\n';
+        }
+    }
 
     LOG_INFO << "Closing program";
 

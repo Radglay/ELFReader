@@ -42,7 +42,7 @@ constexpr Elf64_Addr E_ENTRY_VALUE { 0x11a0 };
 constexpr Elf64_Off	E_PHOFF_VALUE { 0x40 };
 constexpr Elf64_Off	E_SHOFF_VALUE { 0x3c20 };
 constexpr Elf64_Word E_FLAGS_VALUE { 0x0 };
-constexpr Elf64_Half E_EHSIZE { 0x40 };
+constexpr Elf64_Half E_EHSIZE_VALUE { 0x40 };
 constexpr Elf64_Half E_PHENTSIZE_VALUE { 0x38 };
 constexpr Elf64_Half E_PHNUM_VALUE { 0x0d };
 constexpr Elf64_Half E_SHENTSIZE_VALUE { 0x40 };
@@ -145,7 +145,7 @@ TEST(ElfHeaderReaderX64TestSuite, shouldRead64BitLittleEndianFileHeaderOnHostLit
                 FieldsAre(ElementsAreArray(l_expectedIdentPart.c_str(), l_expectedIdentPart.c_str() + 16),
                           E_TYPE_EXEC_VALUE, E_MACHINE_AMD_x86_64_VALUE, E_VERSION_ORIGINAL_VALUE,
                           E_ENTRY_VALUE, E_PHOFF_VALUE, E_SHOFF_VALUE,
-                          E_FLAGS_VALUE, E_EHSIZE, E_PHENTSIZE_VALUE,
+                          E_FLAGS_VALUE, E_EHSIZE_VALUE, E_PHENTSIZE_VALUE,
                           E_PHNUM_VALUE, E_SHENTSIZE_VALUE, E_SHNUM_VALUE, E_SHSTRNDX_VALUE));
 }
 
@@ -163,7 +163,7 @@ TEST(ElfHeaderReaderX64TestSuite, shouldRead64BitBigEndianFileHeaderOnHostLittle
                 FieldsAre(ElementsAreArray(l_expectedIdentPart.c_str(), l_expectedIdentPart.c_str() + 16),
                           E_TYPE_EXEC_VALUE, E_MACHINE_AMD_x86_64_VALUE, E_VERSION_ORIGINAL_VALUE,
                           E_ENTRY_VALUE, E_PHOFF_VALUE, E_SHOFF_VALUE,
-                          E_FLAGS_VALUE, E_EHSIZE, E_PHENTSIZE_VALUE,
+                          E_FLAGS_VALUE, E_EHSIZE_VALUE, E_PHENTSIZE_VALUE,
                           E_PHNUM_VALUE, E_SHENTSIZE_VALUE, E_SHNUM_VALUE, E_SHSTRNDX_VALUE));
 }
 
