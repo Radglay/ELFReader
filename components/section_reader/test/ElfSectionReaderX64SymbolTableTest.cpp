@@ -14,7 +14,21 @@ namespace
 constexpr int LITTLE_ENDIAN_VALUE { 0x1 };
 constexpr int BIG_ENDIAN_VALUE { 0x2 };
 
-constexpr Elf64_Shdr SYMBOL_TABLE_SECTION
+constexpr Elf64_Shdr SYMBOL_TABLE_SECTION_WITH_ZERO_ELEMENTS
+{
+    .sh_name = 0x1,
+    .sh_type = 0x2,
+    .sh_flags = 0x0,
+    .sh_addr = 0x0,
+    .sh_offset = 0x0,
+    .sh_size = 0x0,
+    .sh_link = 0x1d,
+    .sh_info = 0x16,
+    .sh_addralign = 0x8,
+    .sh_entsize = 0x18
+};
+
+constexpr Elf64_Shdr SYMBOL_TABLE_SECTION_WITH_FIVE_ELEMENTS
 {
     .sh_name = 0x1,
     .sh_type = 0x2,
@@ -246,15 +260,45 @@ void expectSymbolsAreEqual(const std::vector<Elf64_Sym>& p_targetSymbols,
     }
 } 
 
-TEST(ElfSectionReaderX64TestSuite, shouldReadAllSymbolsFrom64BitLittleEndianFileOnHostLittleEndian)
+TEST(ElfSectionReaderX64TestSuite, shouldNotReadAnySymbolFrom64BitLittleEndianFile)
 {
     std::string l_streamContent { generate64BitLittleEndianSymbolTable() };
     std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
 
     ElfSectionReaderX64 l_sectionReader { l_stubStream };
-    auto l_targetSymbols { l_sectionReader.readSymbols(SYMBOL_TABLE_SECTION, 
+    auto l_targetSymbols { l_sectionReader.readSymbols(SYMBOL_TABLE_SECTION_WITH_ZERO_ELEMENTS, 
                                                        LITTLE_ENDIAN_VALUE,
-                                                       LITTLE_ENDIAN_VALUE) };
+                                                       BYTE_ORDER) };
+
+    std::vector<Elf64_Sym> l_expectedSymbols;
+
+    expectSymbolsAreEqual(l_targetSymbols, l_expectedSymbols);
+}
+
+TEST(ElfSectionReaderX64TestSuite, shouldNotReadAnySymbolFrom64BitBigEndianFile)
+{
+    std::string l_streamContent { generate64BitBigEndianSymbolTable() };
+    std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
+
+    ElfSectionReaderX64 l_sectionReader { l_stubStream };
+    auto l_targetSymbols { l_sectionReader.readSymbols(SYMBOL_TABLE_SECTION_WITH_ZERO_ELEMENTS, 
+                                                       BIG_ENDIAN_VALUE,
+                                                       BYTE_ORDER) };
+
+    std::vector<Elf64_Sym> l_expectedSymbols;
+
+    expectSymbolsAreEqual(l_targetSymbols, l_expectedSymbols);
+}
+
+TEST(ElfSectionReaderX64TestSuite, shouldReadAllSymbolsFrom64BitLittleEndianFile)
+{
+    std::string l_streamContent { generate64BitLittleEndianSymbolTable() };
+    std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
+
+    ElfSectionReaderX64 l_sectionReader { l_stubStream };
+    auto l_targetSymbols { l_sectionReader.readSymbols(SYMBOL_TABLE_SECTION_WITH_FIVE_ELEMENTS, 
+                                                       LITTLE_ENDIAN_VALUE,
+                                                       BYTE_ORDER) };
 
     std::vector<Elf64_Sym> l_expectedSymbols {
         UNDEFINED_SYMBOL, TEST_CPP_SYMBOL, DYNAMIC_SYMBOL, MY_GLOBAL_VAR_SYMBOL, MAIN_FUNC_SYMBOL };
@@ -262,15 +306,15 @@ TEST(ElfSectionReaderX64TestSuite, shouldReadAllSymbolsFrom64BitLittleEndianFile
     expectSymbolsAreEqual(l_targetSymbols, l_expectedSymbols);
 }
 
-TEST(ElfSectionReaderX64TestSuite, shouldReadAllSymbolsFrom64BitBigEndianFileOnHostLittleEndian)
+TEST(ElfSectionReaderX64TestSuite, shouldReadAllSymbolsFrom64BitBigEndianFile)
 {
     std::string l_streamContent { generate64BitBigEndianSymbolTable() };
     std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
 
     ElfSectionReaderX64 l_sectionReader { l_stubStream };
-    auto l_targetSymbols { l_sectionReader.readSymbols(SYMBOL_TABLE_SECTION, 
+    auto l_targetSymbols { l_sectionReader.readSymbols(SYMBOL_TABLE_SECTION_WITH_FIVE_ELEMENTS, 
                                                        BIG_ENDIAN_VALUE,
-                                                       LITTLE_ENDIAN_VALUE) };
+                                                       BYTE_ORDER) };
 
     std::vector<Elf64_Sym> l_expectedSymbols {
         UNDEFINED_SYMBOL, TEST_CPP_SYMBOL, DYNAMIC_SYMBOL, MY_GLOBAL_VAR_SYMBOL, MAIN_FUNC_SYMBOL };
