@@ -1,4 +1,5 @@
 add_library(ElfSectionReader
+            src/ElfSectionReaderX32.cpp
             src/ElfSectionReaderX64.cpp
             ${PROJECT_SOURCE_DIR}/components/common/src/EndiannessUtility.cpp
             )

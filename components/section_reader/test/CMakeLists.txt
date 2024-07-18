@@ -8,4 +8,5 @@ macro(add_tests_from_file TESTNAME)
     gtest_discover_tests(${TESTNAME})
 endmacro()
 
+add_tests_from_file(ElfSectionReaderX32SymbolTableTest ElfSectionReaderX32SymbolTableTest.cpp)
 add_tests_from_file(ElfSectionReaderX64SymbolTableTest ElfSectionReaderX64SymbolTableTest.cpp)
