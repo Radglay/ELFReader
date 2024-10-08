@@ -21,6 +21,15 @@ void convert64BitSymbolEndianness(Elf64_Sym& p_symbol)
     p_symbol.st_size = convertEndianness(p_symbol.st_size);
 }
 
+void convert64BitRelaEndianness(Elf64_Rela& p_rela)
+{
+    LOG_INFO << "Converting Rela Endianness";
+
+    p_rela.r_offset = convertEndianness(p_rela.r_offset);
+    p_rela.r_info = convertEndianness(p_rela.r_info);
+    p_rela.r_addend = convertEndianness(p_rela.r_addend);
+}
+
 }
 
 ElfSectionReaderX64::ElfSectionReaderX64(std::istream* p_fileStream)
@@ -52,6 +61,31 @@ std::vector<Elf64_Sym> ElfSectionReaderX64::readSymbols(const Elf64_Shdr& p_symT
     }
 
     return l_symbols;
+}
+
+std::vector<Elf64_Rela> ElfSectionReaderX64::readRelaEntries(const Elf64_Shdr& p_relaSection,
+                                                             int p_fileEndianness,
+                                                             int p_hostEndianness)
+{
+    LOG_INFO << "Reading Rela Entries";
+    std::vector<Elf64_Rela> l_relas (p_relaSection.sh_size / sizeof(Elf64_Rela));
+    
+    auto l_currentOffset { p_relaSection.sh_offset };
+
+    char l_buffer[sizeof(Elf64_Rela)];    
+    for (auto& l_rela : l_relas)
+    {
+        m_fileStream->seekg(l_currentOffset);
+        m_fileStream->read(l_buffer, sizeof(Elf64_Rela));
+        std::memcpy(&l_rela, l_buffer, sizeof(Elf64_Rela));
+
+        if (shouldConvertEndianness(p_fileEndianness, p_hostEndianness))
+        {
+            convert64BitRelaEndianness(l_rela);
+        }
+
+        l_currentOffset += sizeof(Elf64_Rela);
+    }
 }
 
 }

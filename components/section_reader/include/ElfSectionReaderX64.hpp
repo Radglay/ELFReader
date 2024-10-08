@@ -17,6 +17,10 @@ public:
                                        int p_fileEndianness,
                                        int p_hostEndianness);
 
+    std::vector<Elf64_Rela> readRelaEntries(const Elf64_Shdr& p_relaSection,
+                                            int p_fileEndianness,
+                                            int p_hostEndianness);
+
 private:
     std::istream* m_fileStream;
 };

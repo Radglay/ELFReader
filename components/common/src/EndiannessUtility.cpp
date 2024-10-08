@@ -31,4 +31,9 @@ uint64_t convertEndianness(uint64_t p_toConvert)
     return bswap_64(p_toConvert);
 }
 
+int64_t convertEndianness(int64_t p_toConvert)
+{
+    return bswap_64(p_toConvert);
+}
+
 }
