@@ -3,8 +3,15 @@
 #include <elf.h>
 
 
-namespace reader
+int getHostEndianness()
 {
+    int l_hostEndianness { ELFDATA2LSB };
+
+    if (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+        l_hostEndianness = ELFDATA2MSB;
+
+    return l_hostEndianness;
+}
 
 bool isEndiannessCorrect(int p_endianness)
 {
@@ -34,6 +41,4 @@ uint64_t convertEndianness(uint64_t p_toConvert)
 int64_t convertEndianness(int64_t p_toConvert)
 {
     return bswap_64(p_toConvert);
-}
-
 }
