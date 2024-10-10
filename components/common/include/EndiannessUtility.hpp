@@ -1,10 +1,9 @@
 #pragma once
 
-#include <inttypes.h>
+#include <cstdint>
 
 
-namespace reader
-{
+int getHostEndianness();
 
 bool isEndiannessCorrect(int p_endianness);
 
@@ -17,5 +16,3 @@ uint32_t convertEndianness(uint32_t p_toConvert);
 uint64_t convertEndianness(uint64_t p_toConvert);
 
 int64_t convertEndianness(int64_t p_toConvert);
-
-}
