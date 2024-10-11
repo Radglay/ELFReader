@@ -7,7 +7,7 @@ int getHostEndianness();
 
 bool isEndiannessCorrect(int p_endianness);
 
-bool shouldConvertEndianness(int p_fileEndianness, int p_hostEndianness);
+bool shouldConvertEndianness(int p_fileEndianness);
 
 uint16_t convertEndianness(uint16_t p_toConvert);
 
