@@ -18,9 +18,10 @@ bool isEndiannessCorrect(int p_endianness)
     return p_endianness == ELFDATA2LSB or p_endianness == ELFDATA2MSB;
 }
 
-bool shouldConvertEndianness(int p_fileEndianness, int p_hostEndianness)
+bool shouldConvertEndianness(int p_fileEndianness)
 {
-    return p_fileEndianness != p_hostEndianness;
+    int l_hostEndianness = getHostEndianness();
+    return p_fileEndianness != l_hostEndianness;
 }
 
 uint16_t convertEndianness(uint16_t p_toConvert)

@@ -15,8 +15,8 @@ endif()
 add_subdirectory(lib/plog)
 file(MAKE_DIRECTORY logs)
 
-add_subdirectory(components/header_reader)
-add_subdirectory(components/section_reader)
+add_subdirectory(components/elf_structure_info_builder)
+add_subdirectory(components/elf_object_builder)
 add_subdirectory(components/common)
 add_subdirectory(app)
 
