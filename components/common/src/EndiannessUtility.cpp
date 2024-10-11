@@ -5,12 +5,10 @@
 
 int getHostEndianness()
 {
-    int l_hostEndianness { ELFDATA2LSB };
-
     if (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-        l_hostEndianness = ELFDATA2MSB;
+        return ELFDATA2MSB;
 
-    return l_hostEndianness;
+    return ELFDATA2LSB;
 }
 
 bool isEndiannessCorrect(int p_endianness)
