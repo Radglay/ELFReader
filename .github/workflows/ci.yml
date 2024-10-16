@@ -2,9 +2,13 @@ name: C/C++ CI
 
 on:
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - "main"
+    types:
+      - closed
 jobs:
   build-amd64:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
@@ -18,6 +22,7 @@ jobs:
         run: ./build/main
   
   build-powerpc:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - name: Update apt 
