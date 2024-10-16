@@ -1,6 +1,7 @@
 name: C/C++ CI
 
 on:
+  push:
   pull_request:
     branches:
       - "main"
@@ -8,7 +9,7 @@ on:
       - closed
 jobs:
   build-amd64:
-    if: github.event.pull_request.merged == true
+    # if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
@@ -23,7 +24,7 @@ jobs:
         run: ctest --test-dir build
   
   build-powerpc:
-    if: github.event.pull_request.merged == true
+    # if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
@@ -38,7 +39,7 @@ jobs:
           sudo apt install libc6-powerpc-cross
       - name: Building
         run: |
-          cmake -S . -B build -D CMAKE_CXX_COMPILER=powerpc-linux-gnu-g++ -D BUILD_TESTS=ON -D CMAKE_LIBRARY_PATH_FLAG=/usr/powerpc-linux-gnu
+          cmake -S . -B build -D CMAKE_CXX_COMPILER=powerpc-linux-gnu-g++ -D BUILD_TESTS=ON -D CMAKE_LIBRARY_PATH=/usr/powerpc-linux-gnu
           cmake --build build
       - name: Testing
         run: ctest --test-dir build
