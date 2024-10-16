@@ -9,7 +9,6 @@ on:
       - closed
 jobs:
   build-amd64:
-    # if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
@@ -24,7 +23,6 @@ jobs:
         run: ctest --test-dir build
   
   build-powerpc:
-    # if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
