@@ -1,0 +1,41 @@
+name: C/C++ CI
+
+on:
+  pull_request:
+    branches:
+      - "main"
+    types:
+      - closed
+jobs:
+  build-amd64:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - run: ls lib
+      - name: Building
+        run: |
+          cmake -S . -B build
+          cmake --build build
+      - name: Testing
+        run: ./build/main
+  
+  build-powerpc:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update apt 
+        run: |
+          sudo apt update
+          sudo apt install g++-powerpc-linux-gnu
+          sudo apt install qemu-user-static
+          sudo apt install libc6-powerpc-cross
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Building
+        run: |
+          cmake -S . -B build -D CMAKE_CXX_COMPILER=powerpc-linux-gnu-g++
+          cmake --build build
+      - name: Testing
+        run: qemu-ppc-static -L /usr/powerpc-linux-gnu ./build/main
