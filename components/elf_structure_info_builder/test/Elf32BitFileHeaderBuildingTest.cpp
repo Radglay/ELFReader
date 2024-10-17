@@ -161,4 +161,3 @@ TEST(Elf32BitFileHeaderBuildingTestSuite, shouldBuild32BitBigEndianFileHeader)
                           E_FLAGS_VALUE, E_EHSIZE, E_PHENTSIZE_VALUE,
                           E_PHNUM_VALUE, E_SHENTSIZE_VALUE, E_SHNUM_VALUE, E_SHSTRNDX_VALUE));
 }
-
