@@ -18,7 +18,7 @@ jobs:
       - name: Building
         run: cmake --build build
       - name: Testing
-        run: ctest --test-dir build
+        run: GTEST_COLOR=1 CTEST_OUTPUT_ON_FAILURE=1 ctest --test-dir build -V
   
   build-powerpc:
     runs-on: ubuntu-latest
@@ -41,4 +41,4 @@ jobs:
       - name: Building
         run: cmake --build build
       - name: Testing
-        run: ctest --test-dir build
+        run: GTEST_COLOR=1 CTEST_OUTPUT_ON_FAILURE=1 ctest --test-dir build -V
