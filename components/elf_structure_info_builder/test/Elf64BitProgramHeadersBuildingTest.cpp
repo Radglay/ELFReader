@@ -28,8 +28,6 @@ constexpr unsigned char LITTLE_ENDIAN_VALUE { 0x1 };
 constexpr unsigned char BIG_ENDIAN_VALUE { 0x2 };
 constexpr unsigned char WRONG_ENDIAN_VALUE { 0x3 };
 
-constexpr Elf64_Off PROGRAM_HEADER_TABLE_OFFSET { 0x0 };
-
 
 // first Program header
 constexpr unsigned char P_TYPE_PROGRAM_HEADER_TABLE_VALUE_LITTLE_ENDIAN[] { 0x06, 0x0, 0x0, 0x0 };
@@ -275,7 +273,7 @@ TEST(Elf64BitProgramHeadersBuildingTestSuite, shouldReadAll64BitLittleEndianProg
     l_elfStructureInfoBuilder.buildProgramHeaders();
     auto l_targetElfStructureInfo { l_elfStructureInfoBuilder.getResult() };
  
-    ASSERT_EQ(l_targetElfStructureInfo->programHeaders.size(), THREE_ELEMENTS_SIZE);
+    EXPECT_EQ(l_targetElfStructureInfo->programHeaders.size(), THREE_ELEMENTS_SIZE);
 
     EXPECT_THAT(l_targetElfStructureInfo->programHeaders[0],
                 FieldsAre(P_TYPE_PROGRAM_HEADER_TABLE_VALUE, P_FLAGS_1_VALUE, P_OFFSET_1_VALUE,
@@ -310,7 +308,7 @@ TEST(Elf64BitProgramHeadersBuildingTestSuite, shouldReadAll64BitBigEndianProgram
     l_elfStructureInfoBuilder.buildProgramHeaders();
     auto l_targetElfStructureInfo { l_elfStructureInfoBuilder.getResult() };
 
-    ASSERT_EQ(l_targetElfStructureInfo->programHeaders.size(), THREE_ELEMENTS_SIZE);
+    EXPECT_EQ(l_targetElfStructureInfo->programHeaders.size(), THREE_ELEMENTS_SIZE);
     EXPECT_THAT(l_targetElfStructureInfo->programHeaders[0],
                 FieldsAre(P_TYPE_PROGRAM_HEADER_TABLE_VALUE, P_FLAGS_1_VALUE, P_OFFSET_1_VALUE,
                           P_VADDR_1_VALUE, P_PADDR_1_VALUE, P_FILESZ_1_VALUE,
@@ -342,7 +340,7 @@ TEST(Elf64BitProgramHeadersBuildingTestSuite, shouldReadZero64BitLittleEndianPro
     l_elfStructureInfoBuilder.buildProgramHeaders();
     auto l_targetElfStructureInfo { l_elfStructureInfoBuilder.getResult() };
 
-    ASSERT_EQ(l_targetElfStructureInfo->programHeaders.size(), ZERO_ELEMENTS_SIZE);
+    EXPECT_EQ(l_targetElfStructureInfo->programHeaders.size(), ZERO_ELEMENTS_SIZE);
 }
 
 TEST(Elf64BitProgramHeadersBuildingTestSuite, shouldReadZero64BitBigEndianProgramHeaders)
@@ -360,5 +358,5 @@ TEST(Elf64BitProgramHeadersBuildingTestSuite, shouldReadZero64BitBigEndianProgra
     l_elfStructureInfoBuilder.buildProgramHeaders();
     auto l_targetElfStructureInfo { l_elfStructureInfoBuilder.getResult() };
 
-    ASSERT_EQ(l_targetElfStructureInfo->programHeaders.size(), ZERO_ELEMENTS_SIZE);
+    EXPECT_EQ(l_targetElfStructureInfo->programHeaders.size(), ZERO_ELEMENTS_SIZE);
 }
