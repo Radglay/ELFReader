@@ -161,3 +161,19 @@ TEST(Elf32BitFileHeaderBuildingTestSuite, shouldBuild32BitBigEndianFileHeader)
                           E_FLAGS_VALUE, E_EHSIZE, E_PHENTSIZE_VALUE,
                           E_PHNUM_VALUE, E_SHENTSIZE_VALUE, E_SHNUM_VALUE, E_SHSTRNDX_VALUE));
 }
+
+
+TEST(Elf32BitFileHeaderBuildingTestSuite, shouldResetElfStructureInfoAfterGettingResult)
+{
+    std::string l_streamContent { generate32BitFileHeaderLittleEndianStreamContent() };
+    std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
+
+    ElfStructureInfoBuilderX32 l_elfStructureInfoBuilder { l_stubStream, LITTLE_ENDIAN_VALUE };
+    l_elfStructureInfoBuilder.buildFileHeader();
+
+    auto l_firstTargetElfStructureInfo { l_elfStructureInfoBuilder.getResult() };
+    auto l_secondTargetElfStructureInfo { l_elfStructureInfoBuilder.getResult() };
+
+    EXPECT_THAT(l_secondTargetElfStructureInfo, NotNull());
+    EXPECT_THAT(l_firstTargetElfStructureInfo, Not(Pointer(l_secondTargetElfStructureInfo)));
+}
