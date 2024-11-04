@@ -4,13 +4,15 @@
 #include <istream>
 #include "TargetMachineInfo.hpp"
 #include "ElfObjectX32.hpp"
+#include "ElfStructureInfoBuilderX32.hpp"
 
 
 class ElfObjectBuilderX32 : public IElfObjectBuilder
 {
 public:
-    ElfObjectBuilderX32(std::istream* p_fileStream, TargetMachineInfo p_targetMachineInfo)
+    ElfObjectBuilderX32(std::istream* p_fileStream, ElfStructureInfoBuilderX32 p_elfStructureInfoBuilder, TargetMachineInfo p_targetMachineInfo)
         : m_fileStream { p_fileStream }
+        , m_elfStructureInfoBuilder { p_elfStructureInfoBuilder }
         , m_targetMachineInfo { p_targetMachineInfo }
     {}
 
@@ -19,6 +21,7 @@ public:
 
 private:
     std::istream* m_fileStream;
-    TargetMachineInfo m_targetMachineInfo {};
+    ElfStructureInfoBuilderX32 m_elfStructureInfoBuilder;
+    TargetMachineInfo m_targetMachineInfo;
     ElfObjectX32 m_elfObject;
 };
