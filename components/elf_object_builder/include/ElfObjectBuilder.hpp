@@ -10,13 +10,16 @@
 #include "ElfStructureInfoBuilder.hpp"
 #include "IElfStructureInfoBuilder.hpp"
 #include "ElfStructureInfoTraits.hpp"
+#include "ElfObjectTraits.hpp"
 
 
-template <typename T, typename U, typename Traits = ElfStructureInfoTraits<U>>
-class ElfObjectBuilder : public IElfObjectBuilder<T, U, Traits>
+template <typename T, typename U, typename ElfStructureInfoTraits = elf_structure_info_traits<U>, typename ElfObjectTraits = elf_object_traits<T>>
+class ElfObjectBuilder : public IElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>
 {
 public:
-    ElfObjectBuilder(std::istream* p_fileStream, IElfStructureInfoBuilder<U, Traits>& p_elfStructureInfoBuilder, TargetMachineInfo& p_targetMachineInfo)
+    ElfObjectBuilder(std::istream* p_fileStream, 
+                     IElfStructureInfoBuilder<U, ElfStructureInfoTraits>& p_elfStructureInfoBuilder,
+                     TargetMachineInfo& p_targetMachineInfo)
         : m_fileStream { p_fileStream }
         , m_elfStructureInfoBuilder { p_elfStructureInfoBuilder }
         , m_targetMachineInfo { p_targetMachineInfo }
@@ -24,10 +27,11 @@ public:
 
     void reset() override;
     void buildElfStructureInfo() override;
+    void buildSymbols() override;
 
 private:
     std::istream* m_fileStream;
-    IElfStructureInfoBuilder<U, Traits>& m_elfStructureInfoBuilder;
+    IElfStructureInfoBuilder<U, ElfStructureInfoTraits>& m_elfStructureInfoBuilder;
     TargetMachineInfo m_targetMachineInfo;
     T m_elfObject;
 };

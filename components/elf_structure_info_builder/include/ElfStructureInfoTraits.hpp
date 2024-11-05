@@ -6,11 +6,11 @@
 
 
 template <typename T>
-class ElfStructureInfoTraits;
+class elf_structure_info_traits;
 
 
 template <>
-class ElfStructureInfoTraits<ElfStructureInfoX32>
+class elf_structure_info_traits<ElfStructureInfoX32>
 {
 public:
     using file_header_type = Elf32_Ehdr;
@@ -19,7 +19,7 @@ public:
 };
 
 template <>
-class ElfStructureInfoTraits<ElfStructureInfoX64>
+class elf_structure_info_traits<ElfStructureInfoX64>
 {
 public:
     using file_header_type = Elf64_Ehdr;

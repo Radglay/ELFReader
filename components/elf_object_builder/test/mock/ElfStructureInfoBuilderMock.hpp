@@ -3,7 +3,7 @@
 #include "ElfStructureInfoTraits.hpp"
 
 
-template <typename T, typename Traits = ElfStructureInfoTraits<T>>
+template <typename T, typename Traits = elf_structure_info_traits<T>>
 class ElfStructureInfoBuilderMock : public IElfStructureInfoBuilder<T, Traits>
 {
 public:
