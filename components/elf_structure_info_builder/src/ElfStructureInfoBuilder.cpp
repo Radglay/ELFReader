@@ -1,17 +1,18 @@
-#include "ElfStructureInfoBuilderX32.hpp"
-#include "ElfStructureInfoX32.hpp"
+#include "ElfStructureInfoBuilder.hpp"
 #include <plog/Log.h>
 #include "BytesReadingUtility.hpp"
 #include "EndiannessUtility.hpp"
 
 
-void ElfStructureInfoBuilderX32::reset()
+template <typename T, typename Traits>
+void ElfStructureInfoBuilder<T, Traits>::reset()
 {
     delete m_elfStructureInfo;
-    m_elfStructureInfo = new ElfStructureInfoX32();
+    m_elfStructureInfo = new T();
 }
 
-void ElfStructureInfoBuilderX32::buildFileHeader()
+template <typename T, typename Traits>
+void ElfStructureInfoBuilder<T, Traits>::buildFileHeader()
 {
     LOG_INFO << "Building X32 File Header";
 
@@ -38,11 +39,11 @@ void ElfStructureInfoBuilderX32::buildFileHeader()
     }
 }
 
-void ElfStructureInfoBuilderX32::buildSectionHeaders()
+template <typename T, typename Traits>
+void ElfStructureInfoBuilder<T, Traits>::buildSectionHeaders()
 {
     LOG_INFO << "Building X32 Section Headers";
-
-    std::vector<Elf32_Shdr> l_sectionHeaders(m_elfStructureInfo->fileHeader.e_shnum);
+    std::vector<typename Traits::section_header_type> l_sectionHeaders(m_elfStructureInfo->fileHeader.e_shnum);
 
     int l_offset = m_elfStructureInfo->fileHeader.e_shoff;
     for (auto& l_sectionHeader : l_sectionHeaders)
@@ -66,17 +67,18 @@ void ElfStructureInfoBuilderX32::buildSectionHeaders()
             convertEndianness(l_sectionHeader.sh_entsize);
         }
 
-        l_offset += sizeof(Elf32_Shdr);
+        l_offset += sizeof(typename Traits::section_header_type);
     }
 
     m_elfStructureInfo->sectionHeaders = l_sectionHeaders;
 }
 
-void ElfStructureInfoBuilderX32::buildProgramHeaders()
+template <typename T, typename Traits>
+void ElfStructureInfoBuilder<T, Traits>::buildProgramHeaders()
 {
     LOG_INFO << "Building X32 Program Headers";
 
-    std::vector<Elf32_Phdr> l_programHeaders(m_elfStructureInfo->fileHeader.e_phnum);
+    std::vector<typename Traits::program_header_type> l_programHeaders(m_elfStructureInfo->fileHeader.e_phnum);
 
     int l_offset = m_elfStructureInfo->fileHeader.e_phoff;
     for (auto& l_programHeader : l_programHeaders)
@@ -97,15 +99,16 @@ void ElfStructureInfoBuilderX32::buildProgramHeaders()
             convertEndianness(l_programHeader.p_align);
         }
 
-        l_offset += sizeof(Elf32_Phdr);
+        l_offset += sizeof(typename Traits::program_header_type);
     }
 
     m_elfStructureInfo->programHeaders = l_programHeaders;
 }
 
-ElfStructureInfoX32* ElfStructureInfoBuilderX32::getResult()
+template <typename T, typename Traits>
+T* ElfStructureInfoBuilder<T, Traits>::getResult()
 {
-    auto l_result = new ElfStructureInfoX32(*m_elfStructureInfo);
+    auto l_result = new T(*m_elfStructureInfo);
     reset();
     return l_result;
 }

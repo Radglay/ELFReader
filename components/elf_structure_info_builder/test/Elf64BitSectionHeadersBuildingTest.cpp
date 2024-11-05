@@ -2,7 +2,7 @@
 #include <gmock/gmock.h>
 #include <sstream>
 #include <string>
-#include "ElfStructureInfoBuilderX64.hpp"
+#include "ElfStructureInfoBuilder.hpp"
 #include <elf.h>
 #include <algorithm>
 #include <cstring>
@@ -299,7 +299,7 @@ TEST(Elf64BitSectionHeadersBuildingTestSuite, shouldReadAll64BitLittleEndianSect
     l_streamContent += generate64BitNotesSectionHeaderLittleEndianStreamContent();
 
     std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
-    ElfStructureInfoBuilderX64 l_elfStructureInfoBuilder { l_stubStream, LITTLE_ENDIAN_VALUE };
+    ElfStructureInfoBuilder<ElfStructureInfoX64> l_elfStructureInfoBuilder { l_stubStream, LITTLE_ENDIAN_VALUE };
     l_elfStructureInfoBuilder.buildFileHeader();
 
     l_elfStructureInfoBuilder.buildSectionHeaders();
@@ -335,7 +335,7 @@ TEST(Elf64BitSectionHeadersBuildingTestSuite, shouldReadAll64BitBigEndianSection
     l_streamContent += generate64BitNotesSectionHeaderBigEndianStreamContent();
 
     std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
-    ElfStructureInfoBuilderX64 l_elfStructureInfoBuilder { l_stubStream, BIG_ENDIAN_VALUE };
+    ElfStructureInfoBuilder<ElfStructureInfoX64> l_elfStructureInfoBuilder { l_stubStream, BIG_ENDIAN_VALUE };
     l_elfStructureInfoBuilder.buildFileHeader();
 
     l_elfStructureInfoBuilder.buildSectionHeaders();
@@ -372,7 +372,7 @@ TEST(Elf64BitSectionHeadersBuildingTestSuite,
     l_streamContent += generate64BitNotesSectionHeaderLittleEndianStreamContent();
 
     std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
-    ElfStructureInfoBuilderX64 l_elfStructureInfoBuilder { l_stubStream, LITTLE_ENDIAN_VALUE };
+    ElfStructureInfoBuilder<ElfStructureInfoX64> l_elfStructureInfoBuilder { l_stubStream, LITTLE_ENDIAN_VALUE };
     l_elfStructureInfoBuilder.buildFileHeader();
 
     l_elfStructureInfoBuilder.buildSectionHeaders();
@@ -392,7 +392,7 @@ TEST(Elf64BitSectionHeadersBuildingTestSuite,
     l_streamContent += generate64BitNotesSectionHeaderBigEndianStreamContent();
 
     std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
-    ElfStructureInfoBuilderX64 l_elfStructureInfoBuilder { l_stubStream, BIG_ENDIAN_VALUE };
+    ElfStructureInfoBuilder<ElfStructureInfoX64> l_elfStructureInfoBuilder { l_stubStream, BIG_ENDIAN_VALUE };
     l_elfStructureInfoBuilder.buildFileHeader();
 
     l_elfStructureInfoBuilder.buildSectionHeaders();
