@@ -1,7 +1,9 @@
 #pragma once
 
+#include "ElfStructureInfoTraits.hpp"
 
 
+template <typename T, typename U, typename Traits = ElfStructureInfoTraits<U>>
 class IElfObjectBuilder
 {
 public:

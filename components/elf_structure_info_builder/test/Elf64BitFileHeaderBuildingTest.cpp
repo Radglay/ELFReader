@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <sstream>
-#include "ElfStructureInfoBuilderX64.hpp"
+#include "ElfStructureInfoBuilder.hpp"
 #include <elf.h>
 #include <algorithm>
 
@@ -131,7 +131,7 @@ TEST(Elf64BitFileHeaderBuildingTestSuite, shouldBuild64BitLittleEndianFileHeader
     std::string l_streamContent { generate64BitFileHeaderLittleEndianStreamContent() };
     std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
 
-    ElfStructureInfoBuilderX64 l_elfStructureInfoBuilder { l_stubStream, LITTLE_ENDIAN_VALUE };
+    ElfStructureInfoBuilder<ElfStructureInfoX64> l_elfStructureInfoBuilder { l_stubStream, LITTLE_ENDIAN_VALUE };
     l_elfStructureInfoBuilder.buildFileHeader();
 
     auto l_targetElfStructureInfo { l_elfStructureInfoBuilder.getResult() };
@@ -150,7 +150,7 @@ TEST(Elf64BitFileHeaderBuildingTestSuite, shouldBuild64BitBigEndianFileHeader)
     std::string l_streamContent { generate64BitFileHeaderBigEndianStreamContent() };
     std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
 
-    ElfStructureInfoBuilderX64 l_elfStructureInfoBuilder { l_stubStream, BIG_ENDIAN_VALUE };
+    ElfStructureInfoBuilder<ElfStructureInfoX64> l_elfStructureInfoBuilder { l_stubStream, BIG_ENDIAN_VALUE };
     l_elfStructureInfoBuilder.buildFileHeader();
 
     auto l_targetElfStructureInfo { l_elfStructureInfoBuilder.getResult() };
@@ -169,7 +169,7 @@ TEST(Elf64BitFileHeaderBuildingTestSuite, shouldResetElfStructureInfoAfterGettin
     std::string l_streamContent { generate64BitFileHeaderLittleEndianStreamContent() };
     std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
 
-    ElfStructureInfoBuilderX64 l_elfStructureInfoBuilder { l_stubStream, LITTLE_ENDIAN_VALUE };
+    ElfStructureInfoBuilder<ElfStructureInfoX64> l_elfStructureInfoBuilder { l_stubStream, LITTLE_ENDIAN_VALUE };
     l_elfStructureInfoBuilder.buildFileHeader();
 
     auto l_firstTargetElfStructureInfo { l_elfStructureInfoBuilder.getResult() };

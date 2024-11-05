@@ -2,7 +2,7 @@
 #include <gmock/gmock.h>
 #include <sstream>
 #include <string>
-#include "ElfStructureInfoBuilderX32.hpp"
+#include "ElfStructureInfoBuilder.hpp"
 #include <elf.h>
 #include <algorithm>
 #include <cstring>
@@ -266,7 +266,7 @@ TEST(Elf32BitProgramHeadersBuildingTestSuite, shouldReadAll32BitLittleEndianProg
 
     std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
 
-    ElfStructureInfoBuilderX32 l_elfStructureInfoBuilder { l_stubStream, LITTLE_ENDIAN_VALUE };
+    ElfStructureInfoBuilder<ElfStructureInfoX32> l_elfStructureInfoBuilder { l_stubStream, LITTLE_ENDIAN_VALUE };
     l_elfStructureInfoBuilder.buildFileHeader();
 
     l_elfStructureInfoBuilder.buildProgramHeaders();
@@ -300,7 +300,7 @@ TEST(Elf32BitProgramHeadersBuildingTestSuite, shouldReadAll32BitBigEndianProgram
 
     std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
 
-    ElfStructureInfoBuilderX32 l_elfStructureInfoBuilder { l_stubStream, BIG_ENDIAN_VALUE };
+    ElfStructureInfoBuilder<ElfStructureInfoX32> l_elfStructureInfoBuilder { l_stubStream, BIG_ENDIAN_VALUE };
     l_elfStructureInfoBuilder.buildFileHeader();
 
     l_elfStructureInfoBuilder.buildProgramHeaders();
@@ -332,7 +332,7 @@ TEST(Elf32BitProgramHeadersBuildingTestSuite, shouldReadZero32BitLittleEndianPro
 
     std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
 
-    ElfStructureInfoBuilderX32 l_elfStructureInfoBuilder { l_stubStream, LITTLE_ENDIAN_VALUE };
+    ElfStructureInfoBuilder<ElfStructureInfoX32> l_elfStructureInfoBuilder { l_stubStream, LITTLE_ENDIAN_VALUE };
     l_elfStructureInfoBuilder.buildFileHeader();
 
     l_elfStructureInfoBuilder.buildProgramHeaders();
@@ -350,7 +350,7 @@ TEST(Elf32BitProgramHeadersBuildingTestSuite, shouldReadZero32BitBigEndianProgra
 
     std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
 
-    ElfStructureInfoBuilderX32 l_elfStructureInfoBuilder { l_stubStream, BIG_ENDIAN_VALUE };
+    ElfStructureInfoBuilder<ElfStructureInfoX32> l_elfStructureInfoBuilder { l_stubStream, BIG_ENDIAN_VALUE };
     l_elfStructureInfoBuilder.buildFileHeader();
 
     l_elfStructureInfoBuilder.buildProgramHeaders();

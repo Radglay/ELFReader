@@ -15,9 +15,9 @@ endif()
 add_subdirectory(lib/plog)
 file(MAKE_DIRECTORY logs)
 
+add_subdirectory(components/common)
 add_subdirectory(components/elf_structure_info_builder)
 add_subdirectory(components/elf_object_builder)
-add_subdirectory(components/common)
 add_subdirectory(app)
 
 option(BUILD_TESTS "Build all unit tests" OFF)
@@ -27,5 +27,6 @@ if (BUILD_TESTS)
     add_subdirectory(lib/googletest)
 
     add_subdirectory(components/elf_structure_info_builder/test)
+    add_subdirectory(components/elf_object_builder/test)
 endif()
 unset(BUILD_TESTS CACHE)

@@ -1,13 +1,14 @@
-#include "ElfObjectBuilderX32.hpp"
-#include "ElfStructureInfoBuilderX32.hpp"
+#include "ElfObjectBuilder.hpp"
+#include "ElfStructureInfoBuilder.hpp"
 #include <istream>
 
 
-void ElfObjectBuilderX32::reset()
+template <typename T, typename U, typename Traits>
+void ElfObjectBuilder<T, U, Traits>::reset()
 {}
 
-
-void ElfObjectBuilderX32::buildElfStructureInfo()
+template <typename T, typename U, typename Traits>
+void ElfObjectBuilder<T, U, Traits>::buildElfStructureInfo()
 {
     m_elfStructureInfoBuilder.buildFileHeader();
     m_elfStructureInfoBuilder.buildSectionHeaders();

@@ -1,7 +1,5 @@
 add_library(ElfObjectBuilder
-            src/ElfObjectBuilderX32.cpp
-            src/ElfObjectBuilderX64.cpp
-            src/ElfObjectBuilderCreator.cpp
+            src/ElfObjectBuilder.cpp
             ${PROJECT_SOURCE_DIR}/components/common/src/EndiannessUtility.cpp
             )
 
@@ -12,4 +10,4 @@ target_include_directories(ElfObjectBuilder PUBLIC
             )
 
 target_link_libraries(ElfObjectBuilder PRIVATE Logger)
-target_link_libraries(ElfObjectBuilder PRIVATE ElfStructureInfoBuilder)
+target_link_libraries(ElfObjectBuilder PUBLIC ElfStructureInfoBuilder)

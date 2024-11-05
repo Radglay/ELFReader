@@ -1,0 +1,13 @@
+macro(add_tests_from_file TESTNAME)
+    add_executable(${TESTNAME} ${ARGN} mock/ElfStructureInfoBuilderMock.hpp)
+    target_include_directories(${TESTNAME} PRIVATE mock)
+    target_link_libraries(${TESTNAME}
+                          gtest
+                          gmock
+                          gtest_main
+                          ElfObjectBuilder
+                          ElfStructureInfoBuilder)
+    gtest_discover_tests(${TESTNAME})
+endmacro()
+
+add_tests_from_file(Elf32BitElfStructureInfoBuildingTest Elf32BitElfStructureInfoBuildingTest.cpp)

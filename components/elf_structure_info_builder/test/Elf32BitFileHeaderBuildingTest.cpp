@@ -1,9 +1,10 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <sstream>
-#include "ElfStructureInfoBuilderX32.hpp"
+#include "ElfStructureInfoBuilder.hpp"
 #include <elf.h>
 #include <algorithm>
+#include "ElfStructureInfoX32.hpp"
 
 
 namespace
@@ -129,7 +130,7 @@ TEST(Elf32BitFileHeaderBuildingTestSuite, shouldBuild32BitLittleEndianFileHeader
     std::string l_streamContent { generate32BitFileHeaderLittleEndianStreamContent() };
     std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
 
-    ElfStructureInfoBuilderX32 l_elfStructureInfoBuilder { l_stubStream, LITTLE_ENDIAN_VALUE };
+    ElfStructureInfoBuilder<ElfStructureInfoX32> l_elfStructureInfoBuilder { l_stubStream, LITTLE_ENDIAN_VALUE };
     l_elfStructureInfoBuilder.buildFileHeader();
 
     auto l_targetElfStructureInfo { l_elfStructureInfoBuilder.getResult() };
@@ -148,7 +149,7 @@ TEST(Elf32BitFileHeaderBuildingTestSuite, shouldBuild32BitBigEndianFileHeader)
     std::string l_streamContent { generate32BitFileHeaderBigEndianStreamContent() };
     std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
 
-    ElfStructureInfoBuilderX32 l_elfStructureInfoBuilder { l_stubStream, BIG_ENDIAN_VALUE };
+    ElfStructureInfoBuilder<ElfStructureInfoX32> l_elfStructureInfoBuilder { l_stubStream, BIG_ENDIAN_VALUE };
     l_elfStructureInfoBuilder.buildFileHeader();
 
     auto l_targetElfStructureInfo { l_elfStructureInfoBuilder.getResult() };
@@ -168,7 +169,7 @@ TEST(Elf32BitFileHeaderBuildingTestSuite, shouldResetElfStructureInfoAfterGettin
     std::string l_streamContent { generate32BitFileHeaderLittleEndianStreamContent() };
     std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
 
-    ElfStructureInfoBuilderX32 l_elfStructureInfoBuilder { l_stubStream, LITTLE_ENDIAN_VALUE };
+    ElfStructureInfoBuilder<ElfStructureInfoX32> l_elfStructureInfoBuilder { l_stubStream, LITTLE_ENDIAN_VALUE };
     l_elfStructureInfoBuilder.buildFileHeader();
 
     auto l_firstTargetElfStructureInfo { l_elfStructureInfoBuilder.getResult() };
