@@ -1,17 +1,17 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include "ElfSectionReaderX32.hpp"
-#include <string>
+#include "ElfObjectBuilder.hpp"
+#include "ElfStructureInfoBuilderMock.hpp"
+#include "TargetMachineInfo.hpp"
 #include <sstream>
-#include <elf.h>
+#include "ElfObjectX32.hpp"
+#include "ElfStructureInfoX32.hpp"
+#include <tuple>
 #include <vector>
-#include <algorithm>
 
 
 namespace
 {
-
-constexpr int HOST_ENDIANNESS { BYTE_ORDER == BIG_ENDIAN ? ELFDATA2MSB : ELFDATA2LSB };
 
 constexpr int LITTLE_ENDIAN_VALUE { ELFDATA2LSB };
 constexpr int BIG_ENDIAN_VALUE { ELFDATA2MSB };
@@ -19,7 +19,7 @@ constexpr int BIG_ENDIAN_VALUE { ELFDATA2MSB };
 constexpr Elf32_Shdr SYMBOL_TABLE_SECTION_WITH_ZERO_ELEMENTS
 {
     .sh_name = 0x1,
-    .sh_type = 0x2,
+    .sh_type = SHT_SYMTAB,
     .sh_flags = 0x0,
     .sh_addr = 0x0,
     .sh_offset = 0x0,
@@ -33,7 +33,7 @@ constexpr Elf32_Shdr SYMBOL_TABLE_SECTION_WITH_ZERO_ELEMENTS
 constexpr Elf32_Shdr SYMBOL_TABLE_SECTION_WITH_FIVE_ELEMENTS
 {
     .sh_name = 0x1,
-    .sh_type = 0x2,
+    .sh_type = SHT_SYMTAB,
     .sh_flags = 0x0,
     .sh_addr = 0x0,
     .sh_offset = 0x0,
@@ -43,7 +43,6 @@ constexpr Elf32_Shdr SYMBOL_TABLE_SECTION_WITH_FIVE_ELEMENTS
     .sh_addralign = 0x4,
     .sh_entsize = 0x10
 };
-
 
 // (1) UND
 constexpr char ST_NAME_BYTES_LITTLE_ENDIAN_UNDEFINED[] { 0x0, 0x0, 0x0, 0x0 };
@@ -127,15 +126,6 @@ constexpr Elf32_Sym MAIN_FUNC_SYMBOL
     .st_other = 0x0,
     .st_shndx = 0x16
 };
-
-}
-
-
-namespace reader
-{
-
-using namespace ::testing;
-
 
 std::string generate32BitLittleEndianSymbolTable()
 {
@@ -242,9 +232,22 @@ std::string generate32BitBigEndianSymbolTable()
     return l_streamContent;
 }
 
+}
 
-void expectSymbolsAreEqual(const std::vector<Elf32_Sym>& p_targetSymbols,
-                           const std::vector<Elf32_Sym>& p_expectedSymbols)
+
+using namespace ::testing;
+
+
+
+class Elf32BitSymbolsBuildingTestSuite : public TestWithParam<std::tuple<int, std::string>>
+{
+protected:
+    void expectSymbolsAreEqual(const std::vector<Elf32_Sym>& p_targetSymbols,
+                               const std::vector<Elf32_Sym>& p_expectedSymbols);
+};
+
+void Elf32BitSymbolsBuildingTestSuite::expectSymbolsAreEqual(const std::vector<Elf32_Sym>& p_targetSymbols,
+                                                             const std::vector<Elf32_Sym>& p_expectedSymbols)
 {
     EXPECT_EQ(p_targetSymbols.size(), p_expectedSymbols.size());
 
@@ -264,66 +267,71 @@ void expectSymbolsAreEqual(const std::vector<Elf32_Sym>& p_targetSymbols,
     }
 } 
 
-TEST(ElfSectionReaderX32TestSuite, shouldNotReadAnySymbolFrom32BitLittleEndianFile)
-{
-    std::string l_streamContent { generate32BitLittleEndianSymbolTable() };
-    std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
 
-    ElfSectionReaderX32 l_sectionReader { l_stubStream };
-    auto l_targetSymbols { l_sectionReader.readSymbols(SYMBOL_TABLE_SECTION_WITH_ZERO_ELEMENTS, 
-                                                       LITTLE_ENDIAN_VALUE,
-                                                       HOST_ENDIANNESS) };
+
+TEST_P(Elf32BitSymbolsBuildingTestSuite, shouldNotReadAnySymbolWhenSizeIsZero)
+{
+    auto l_params { GetParam() };
+    auto l_endianness { std::get<0>(l_params) };
+    auto l_streamContent { std::get<1>(l_params) };
+
+    std::stringstream l_stubStream { l_streamContent };
+    NiceMock<ElfStructureInfoBuilderMock<ElfStructureInfoX32>> l_elfStructureInfoBuilderMock;
+    TargetMachineInfo l_targetMachineInfo;
+    l_targetMachineInfo.endianness = l_endianness;
+
+    ElfObjectBuilder<ElfObjectX32, ElfStructureInfoX32> l_elfObjectBuilder (&l_stubStream, l_elfStructureInfoBuilderMock, l_targetMachineInfo);
+
+    ElfStructureInfoX32 l_stubElfStructureInfo;
+    l_stubElfStructureInfo.sectionHeaders.push_back(SYMBOL_TABLE_SECTION_WITH_ZERO_ELEMENTS);
+
+    EXPECT_CALL(l_elfStructureInfoBuilderMock, getResult)
+        .WillOnce(Return(&l_stubElfStructureInfo));
+
+    l_elfObjectBuilder.buildElfStructureInfo();
+
+    l_elfObjectBuilder.buildSymbols();
+
+    auto l_targetSymbols { l_elfObjectBuilder.getResult()->symbols };
 
     std::vector<Elf32_Sym> l_expectedSymbols;
 
     expectSymbolsAreEqual(l_targetSymbols, l_expectedSymbols);
 }
 
-TEST(ElfSectionReaderX32TestSuite, shouldNotReadAnySymbolFrom32BitBigEndianFile)
+TEST_P(Elf32BitSymbolsBuildingTestSuite, shouldReadAllFiveSymbolsWhenSizeIsFive)
 {
-    std::string l_streamContent { generate32BitBigEndianSymbolTable() };
-    std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
+    auto l_params { GetParam() };
+    auto l_endianness { std::get<0>(l_params) };
+    auto l_streamContent { std::get<1>(l_params) };
 
-    ElfSectionReaderX32 l_sectionReader { l_stubStream };
-    auto l_targetSymbols { l_sectionReader.readSymbols(SYMBOL_TABLE_SECTION_WITH_ZERO_ELEMENTS, 
-                                                       BIG_ENDIAN_VALUE,
-                                                       HOST_ENDIANNESS) };
+    std::stringstream l_stubStream { l_streamContent };
+    NiceMock<ElfStructureInfoBuilderMock<ElfStructureInfoX32>> l_elfStructureInfoBuilderMock;
+    TargetMachineInfo l_targetMachineInfo;
+    l_targetMachineInfo.endianness = l_endianness;
 
-    std::vector<Elf32_Sym> l_expectedSymbols;
+    ElfObjectBuilder<ElfObjectX32, ElfStructureInfoX32> l_elfObjectBuilder (&l_stubStream, l_elfStructureInfoBuilderMock, l_targetMachineInfo);
 
-    expectSymbolsAreEqual(l_targetSymbols, l_expectedSymbols);
-}
+    ElfStructureInfoX32 l_stubElfStructureInfo;
+    l_stubElfStructureInfo.sectionHeaders.push_back(SYMBOL_TABLE_SECTION_WITH_FIVE_ELEMENTS);
 
-TEST(ElfSectionReaderX32TestSuite, shouldReadAllSymbolsFrom32BitLittleEndianFile)
-{
-    std::string l_streamContent { generate32BitLittleEndianSymbolTable() };
-    std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
+    EXPECT_CALL(l_elfStructureInfoBuilderMock, getResult)
+        .WillOnce(Return(&l_stubElfStructureInfo));
 
-    ElfSectionReaderX32 l_sectionReader { l_stubStream };
-    auto l_targetSymbols { l_sectionReader.readSymbols(SYMBOL_TABLE_SECTION_WITH_FIVE_ELEMENTS, 
-                                                       LITTLE_ENDIAN_VALUE,
-                                                       HOST_ENDIANNESS) };
+    l_elfObjectBuilder.buildElfStructureInfo();
+
+    l_elfObjectBuilder.buildSymbols();
+
+    auto l_targetSymbols { l_elfObjectBuilder.getResult()->symbols };
 
     std::vector<Elf32_Sym> l_expectedSymbols {
         UNDEFINED_SYMBOL, TEST_CPP_SYMBOL, DYNAMIC_SYMBOL, MY_GLOBAL_VAR_SYMBOL, MAIN_FUNC_SYMBOL };
-    
+
     expectSymbolsAreEqual(l_targetSymbols, l_expectedSymbols);
 }
 
-TEST(ElfSectionReaderX32TestSuite, shouldReadAllSymbolsFrom32BitBigEndianFile)
-{
-    std::string l_streamContent { generate32BitBigEndianSymbolTable() };
-    std::istringstream* l_stubStream { new std::istringstream(l_streamContent) };
 
-    ElfSectionReaderX32 l_sectionReader { l_stubStream };
-    auto l_targetSymbols { l_sectionReader.readSymbols(SYMBOL_TABLE_SECTION_WITH_FIVE_ELEMENTS, 
-                                                       BIG_ENDIAN_VALUE,
-                                                       HOST_ENDIANNESS) };
-
-    std::vector<Elf32_Sym> l_expectedSymbols {
-        UNDEFINED_SYMBOL, TEST_CPP_SYMBOL, DYNAMIC_SYMBOL, MY_GLOBAL_VAR_SYMBOL, MAIN_FUNC_SYMBOL };
-    
-    expectSymbolsAreEqual(l_targetSymbols, l_expectedSymbols);
-}
-
-}
+INSTANTIATE_TEST_SUITE_P(FileHeaderWithSectionHeaderTableEntriesNumberEqualToFive,
+                         Elf32BitSymbolsBuildingTestSuite,
+                         Values(std::make_tuple(LITTLE_ENDIAN_VALUE, generate32BitLittleEndianSymbolTable()),
+                                std::make_tuple(BIG_ENDIAN_VALUE, generate32BitBigEndianSymbolTable())));

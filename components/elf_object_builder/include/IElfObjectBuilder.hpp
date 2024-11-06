@@ -8,6 +8,7 @@ public:
     virtual void reset() = 0;
     virtual void buildElfStructureInfo() = 0;
     virtual void buildSymbols() = 0;
+    virtual T* getResult() = 0;
 
     virtual ~IElfObjectBuilder() = default;
 };

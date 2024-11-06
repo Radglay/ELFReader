@@ -11,3 +11,8 @@ macro(add_tests_from_file TESTNAME)
 endmacro()
 
 add_tests_from_file(Elf32BitElfStructureInfoBuildingTest Elf32BitElfStructureInfoBuildingTest.cpp)
+add_tests_from_file(Elf64BitElfStructureInfoBuildingTest Elf64BitElfStructureInfoBuildingTest.cpp)
+
+
+add_tests_from_file(Elf32BitSymbolsBuildingTest Elf32BitSymbolsBuildingTest.cpp)
+add_tests_from_file(Elf64BitSymbolsBuildingTest Elf64BitSymbolsBuildingTest.cpp)
