@@ -23,17 +23,19 @@ public:
         : m_fileStream { p_fileStream }
         , m_elfStructureInfoBuilder { p_elfStructureInfoBuilder }
         , m_targetMachineInfo { p_targetMachineInfo }
+        , m_elfObject { new T{} }
     {}
 
     void reset() override;
     void buildElfStructureInfo() override;
     void buildSymbols() override;
+    T* getResult() override;
 
 private:
     std::istream* m_fileStream;
     IElfStructureInfoBuilder<U, ElfStructureInfoTraits>& m_elfStructureInfoBuilder;
     TargetMachineInfo m_targetMachineInfo;
-    T m_elfObject;
+    T* m_elfObject;
 };
 
 template class ElfObjectBuilder<ElfObjectX32, ElfStructureInfoX32>;

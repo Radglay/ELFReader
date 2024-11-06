@@ -4,21 +4,21 @@
 #include "ElfStructureInfoBuilderMock.hpp"
 #include "TargetMachineInfo.hpp"
 #include <sstream>
-#include "ElfObjectX32.hpp"
-#include "ElfStructureInfoX32.hpp"
+#include "ElfObjectX64.hpp"
+#include "ElfStructureInfoX64.hpp"
 
 
 using namespace ::testing;
 
 
 
-TEST(ElfObjectBuilderX32TestSuite, shouldBuild32BitLittleEndianElfStructureInfo)
+TEST(ElfObjectBuilderX64TestSuite, shouldBuild64BitLittleEndianElfStructureInfo)
 {
     std::stringstream l_stubStream;
-    StrictMock<ElfStructureInfoBuilderMock<ElfStructureInfoX32>> l_elfStructureInfoBuilderMock;
+    StrictMock<ElfStructureInfoBuilderMock<ElfStructureInfoX64>> l_elfStructureInfoBuilderMock;
     TargetMachineInfo l_targetMachineInfo;
 
-    ElfObjectBuilder<ElfObjectX32, ElfStructureInfoX32> l_elfObjectBuilder (&l_stubStream, l_elfStructureInfoBuilderMock, l_targetMachineInfo);
+    ElfObjectBuilder<ElfObjectX64, ElfStructureInfoX64> l_elfObjectBuilder (&l_stubStream, l_elfStructureInfoBuilderMock, l_targetMachineInfo);
 
     EXPECT_CALL(l_elfStructureInfoBuilderMock, buildFileHeader)
         .Times(1);
@@ -30,7 +30,7 @@ TEST(ElfObjectBuilderX32TestSuite, shouldBuild32BitLittleEndianElfStructureInfo)
         .Times(1);
 
     EXPECT_CALL(l_elfStructureInfoBuilderMock, getResult)
-        .WillOnce(Return(new ElfStructureInfoX32));
+        .WillOnce(Return(new ElfStructureInfoX64));
 
     l_elfObjectBuilder.buildElfStructureInfo();
 }
