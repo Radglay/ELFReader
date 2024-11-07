@@ -242,12 +242,12 @@ using namespace ::testing;
 class Elf32BitSymbolHeadersBuildingTestSuite : public TestWithParam<std::tuple<int, std::string>>
 {
 protected:
-    void expectSymbolsAreEqual(const std::vector<Elf32_Sym>& p_targetSymbols,
-                               const std::vector<Elf32_Sym>& p_expectedSymbols);
+    void expectSymbolHeadersAreEqual(const std::vector<Elf32_Sym>& p_targetSymbols,
+                                     const std::vector<Elf32_Sym>& p_expectedSymbols);
 };
 
-void Elf32BitSymbolHeadersBuildingTestSuite::expectSymbolsAreEqual(const std::vector<Elf32_Sym>& p_targetSymbols,
-                                                             const std::vector<Elf32_Sym>& p_expectedSymbols)
+void Elf32BitSymbolHeadersBuildingTestSuite::expectSymbolHeadersAreEqual(const std::vector<Elf32_Sym>& p_targetSymbols,
+                                                                         const std::vector<Elf32_Sym>& p_expectedSymbols)
 {
     EXPECT_EQ(p_targetSymbols.size(), p_expectedSymbols.size());
 
@@ -290,13 +290,13 @@ TEST_P(Elf32BitSymbolHeadersBuildingTestSuite, shouldNotReadAnySymbolWhenSizeIsZ
 
     l_elfObjectBuilder.buildElfStructureInfo();
 
-    l_elfObjectBuilder.buildSymbols();
+    l_elfObjectBuilder.buildSymbolHeaders();
 
-    auto l_targetSymbols { l_elfObjectBuilder.getResult()->symbols };
+    auto l_targetSymbols { l_elfObjectBuilder.getResult()->symbolHeaders };
 
     std::vector<Elf32_Sym> l_expectedSymbols;
 
-    expectSymbolsAreEqual(l_targetSymbols, l_expectedSymbols);
+    expectSymbolHeadersAreEqual(l_targetSymbols, l_expectedSymbols);
 }
 
 TEST_P(Elf32BitSymbolHeadersBuildingTestSuite, shouldReadAllFiveSymbolsWhenSizeIsFive)
@@ -320,14 +320,14 @@ TEST_P(Elf32BitSymbolHeadersBuildingTestSuite, shouldReadAllFiveSymbolsWhenSizeI
 
     l_elfObjectBuilder.buildElfStructureInfo();
 
-    l_elfObjectBuilder.buildSymbols();
+    l_elfObjectBuilder.buildSymbolHeaders();
 
-    auto l_targetSymbols { l_elfObjectBuilder.getResult()->symbols };
+    auto l_targetSymbols { l_elfObjectBuilder.getResult()->symbolHeaders };
 
     std::vector<Elf32_Sym> l_expectedSymbols {
         UNDEFINED_SYMBOL, TEST_CPP_SYMBOL, DYNAMIC_SYMBOL, MY_GLOBAL_VAR_SYMBOL, MAIN_FUNC_SYMBOL };
 
-    expectSymbolsAreEqual(l_targetSymbols, l_expectedSymbols);
+    expectSymbolHeadersAreEqual(l_targetSymbols, l_expectedSymbols);
 }
 
 

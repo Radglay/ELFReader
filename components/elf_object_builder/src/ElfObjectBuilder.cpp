@@ -7,6 +7,7 @@
 #include "BytesReadingUtility.hpp"
 #include "EndiannessUtility.hpp"
 #include <plog/Log.h>
+#include <iterator>
 
 
 namespace
@@ -40,15 +41,15 @@ void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildElfSt
 }
 
 template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>
-void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildSymbols()
+void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildSymbolHeaders()
 {
     auto& l_symbolSectionHeader = findSectionHeaderByType(m_elfObject->elfStructureInfo.sectionHeaders, SHT_SYMTAB);
 
-    std::vector<typename ElfObjectTraits::symbol_type> l_symbols (l_symbolSectionHeader.sh_size / sizeof(typename ElfObjectTraits::symbol_type));
+    std::vector<typename ElfObjectTraits::symbol_header_type> l_symbolHeaders (l_symbolSectionHeader.sh_size / sizeof(typename ElfObjectTraits::symbol_header_type));
 
     auto l_currentOffset { l_symbolSectionHeader.sh_offset };
 
-    for (auto& l_symbol : l_symbols)
+    for (auto& l_symbol : l_symbolHeaders)
     {
         readBytesFromFile(l_symbol, l_currentOffset, m_fileStream);
 
@@ -63,10 +64,43 @@ void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildSymbo
             convertEndianness(l_symbol.st_shndx);
         }
 
-        l_currentOffset += sizeof(typename ElfObjectTraits::symbol_type);
+        l_currentOffset += sizeof(typename ElfObjectTraits::symbol_header_type);
     }
 
-    m_elfObject->symbols = l_symbols;
+    m_elfObject->symbolHeaders = l_symbolHeaders;
+}
+
+template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>
+void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildNoteHeaders()
+{
+    std::vector<typename ElfStructureInfoTraits::section_header_type> l_noteSectionHeaders;
+    std::copy_if(m_elfObject->elfStructureInfo.sectionHeaders.begin(),
+                 m_elfObject->elfStructureInfo.sectionHeaders.end(),
+                 std::back_inserter(l_noteSectionHeaders),
+                 [](const auto& p_sectionHeader)
+                 {
+                    return p_sectionHeader.sh_type == SHT_NOTE;
+                 });
+
+    std::vector<typename ElfObjectTraits::note_header_type> l_noteHeaders;
+    for (auto& l_noteSectionHeader : l_noteSectionHeaders)
+    {
+        typename ElfObjectTraits::note_header_type l_noteHeader {};
+        auto l_currentOffset  { l_noteSectionHeader.sh_offset };
+        readBytesFromFile(l_noteHeader, l_currentOffset, m_fileStream);
+
+        if (isEndiannessCorrect(m_targetMachineInfo.endianness)
+            and shouldConvertEndianness(m_targetMachineInfo.endianness))
+        {
+            convertEndianness(l_noteHeader.n_namesz);
+            convertEndianness(l_noteHeader.n_descsz);
+            convertEndianness(l_noteHeader.n_type);
+        }
+
+        l_noteHeaders.push_back(l_noteHeader);
+    }
+
+    m_elfObject->noteHeaders = l_noteHeaders;
 }
 
 template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>
