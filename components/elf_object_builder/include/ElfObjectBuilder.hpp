@@ -28,7 +28,8 @@ public:
 
     void reset() override;
     void buildElfStructureInfo() override;
-    void buildSymbols() override;
+    void buildSymbolHeaders() override;
+    void buildNoteHeaders() override;
     T* getResult() override;
 
 private:

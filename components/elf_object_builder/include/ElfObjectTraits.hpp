@@ -13,13 +13,15 @@ template <>
 class elf_object_traits<ElfObjectX32>
 {
 public:
-    using symbol_type = Elf32_Sym;
+    using symbol_header_type = Elf32_Sym;
+    using note_header_type = Elf32_Nhdr;
 };
 
 template <>
 class elf_object_traits<ElfObjectX64>
 {
 public:
-    using symbol_type = Elf64_Sym;
+    using symbol_header_type = Elf64_Sym;
+    using note_header_type = Elf64_Nhdr;
 };
 
