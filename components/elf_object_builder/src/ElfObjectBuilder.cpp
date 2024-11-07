@@ -16,7 +16,7 @@ namespace
     {
         return *std::find_if(p_sectionHeaders.begin(),
                              p_sectionHeaders.end(),
-                             [](auto& l_header) { return l_header.sh_type == SHT_SYMTAB; } );
+                             [p_type](auto& l_header) { return l_header.sh_type == p_type; } );
     }
 }
 
