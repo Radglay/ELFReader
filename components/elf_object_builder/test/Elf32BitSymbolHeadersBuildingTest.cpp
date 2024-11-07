@@ -239,14 +239,14 @@ using namespace ::testing;
 
 
 
-class Elf32BitSymbolsBuildingTestSuite : public TestWithParam<std::tuple<int, std::string>>
+class Elf32BitSymbolHeadersBuildingTestSuite : public TestWithParam<std::tuple<int, std::string>>
 {
 protected:
     void expectSymbolsAreEqual(const std::vector<Elf32_Sym>& p_targetSymbols,
                                const std::vector<Elf32_Sym>& p_expectedSymbols);
 };
 
-void Elf32BitSymbolsBuildingTestSuite::expectSymbolsAreEqual(const std::vector<Elf32_Sym>& p_targetSymbols,
+void Elf32BitSymbolHeadersBuildingTestSuite::expectSymbolsAreEqual(const std::vector<Elf32_Sym>& p_targetSymbols,
                                                              const std::vector<Elf32_Sym>& p_expectedSymbols)
 {
     EXPECT_EQ(p_targetSymbols.size(), p_expectedSymbols.size());
@@ -269,7 +269,7 @@ void Elf32BitSymbolsBuildingTestSuite::expectSymbolsAreEqual(const std::vector<E
 
 
 
-TEST_P(Elf32BitSymbolsBuildingTestSuite, shouldNotReadAnySymbolWhenSizeIsZero)
+TEST_P(Elf32BitSymbolHeadersBuildingTestSuite, shouldNotReadAnySymbolWhenSizeIsZero)
 {
     auto l_params { GetParam() };
     auto l_endianness { std::get<0>(l_params) };
@@ -299,7 +299,7 @@ TEST_P(Elf32BitSymbolsBuildingTestSuite, shouldNotReadAnySymbolWhenSizeIsZero)
     expectSymbolsAreEqual(l_targetSymbols, l_expectedSymbols);
 }
 
-TEST_P(Elf32BitSymbolsBuildingTestSuite, shouldReadAllFiveSymbolsWhenSizeIsFive)
+TEST_P(Elf32BitSymbolHeadersBuildingTestSuite, shouldReadAllFiveSymbolsWhenSizeIsFive)
 {
     auto l_params { GetParam() };
     auto l_endianness { std::get<0>(l_params) };
@@ -331,7 +331,7 @@ TEST_P(Elf32BitSymbolsBuildingTestSuite, shouldReadAllFiveSymbolsWhenSizeIsFive)
 }
 
 
-INSTANTIATE_TEST_SUITE_P(FileHeaderWithSectionHeaderTableEntriesNumberEqualToFive,
-                         Elf32BitSymbolsBuildingTestSuite,
+INSTANTIATE_TEST_SUITE_P(SymbolTableSectionHeaderBuilding,
+                         Elf32BitSymbolHeadersBuildingTestSuite,
                          Values(std::make_tuple(LITTLE_ENDIAN_VALUE, generate32BitLittleEndianSymbolTable()),
                                 std::make_tuple(BIG_ENDIAN_VALUE, generate32BitBigEndianSymbolTable())));
