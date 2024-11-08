@@ -5,8 +5,7 @@ macro(add_tests_from_file TESTNAME)
                           gtest
                           gmock
                           gtest_main
-                          ElfObjectBuilder
-                          ElfStructureInfoBuilder)
+                          ElfObjectBuilder)
     gtest_discover_tests(${TESTNAME})
 endmacro()
 
@@ -17,9 +16,14 @@ add_tests_from_file(Elf64BitElfStructureInfoBuildingTest Elf64BitElfStructureInf
 add_tests_from_file(Elf32BitSymbolHeadersBuildingTest Elf32BitSymbolHeadersBuildingTest.cpp)
 add_tests_from_file(Elf64BitSymbolHeadersBuildingTest Elf64BitSymbolHeadersBuildingTest.cpp)
 
+
 add_tests_from_file(Elf32BitNoteHeaderBuildingTest Elf32BitNoteHeaderBuildingTest.cpp)
 add_tests_from_file(Elf64BitNoteHeaderBuildingTest Elf64BitNoteHeaderBuildingTest.cpp)
+
 
 add_tests_from_file(Elf32BitRelocationWithAddendHeadersBuildingTest Elf32BitRelocationWithAddendHeadersBuildingTest.cpp)
 add_tests_from_file(Elf64BitRelocationWithAddendHeadersBuildingTest Elf64BitRelocationWithAddendHeadersBuildingTest.cpp)
 
+
+add_tests_from_file(Elf32BitRelocationHeadersBuildingTest Elf32BitRelocationHeadersBuildingTest.cpp)
+add_tests_from_file(Elf64BitRelocationHeadersBuildingTest Elf64BitRelocationHeadersBuildingTest.cpp)
