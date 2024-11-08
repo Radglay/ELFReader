@@ -12,4 +12,6 @@ struct ElfObjectX32
     ElfStructureInfoX32 elfStructureInfo;
     std::vector<Elf32_Sym> symbolHeaders;
     std::vector<Elf32_Nhdr> noteHeaders;
+    std::vector<Elf32_Rel> relocationHeaders;
+    std::vector<Elf32_Rela> relocationWithAddendHeaders;
 };

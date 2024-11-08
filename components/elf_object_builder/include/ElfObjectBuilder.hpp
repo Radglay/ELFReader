@@ -30,6 +30,8 @@ public:
     void buildElfStructureInfo() override;
     void buildSymbolHeaders() override;
     void buildNoteHeaders() override;
+    void buildRelocationHeaders() override;
+    void buildRelocationWithAddendHeaders() override;
     T* getResult() override;
 
 private:

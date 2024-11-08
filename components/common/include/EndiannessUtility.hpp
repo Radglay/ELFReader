@@ -15,4 +15,7 @@ void convertEndianness(uint32_t& p_toConvert);
 
 void convertEndianness(uint64_t& p_toConvert);
 
+void convertEndianness(int32_t& p_toConvert);
+
 void convertEndianness(int64_t& p_toConvert);
+

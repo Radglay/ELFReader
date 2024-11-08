@@ -9,6 +9,8 @@ public:
     virtual void buildElfStructureInfo() = 0;
     virtual void buildSymbolHeaders() = 0;
     virtual void buildNoteHeaders() = 0;
+    virtual void buildRelocationHeaders() = 0;
+    virtual void buildRelocationWithAddendHeaders() = 0;
     virtual T* getResult() = 0;
 
     virtual ~IElfObjectBuilder() = default;
