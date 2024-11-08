@@ -12,4 +12,6 @@ struct ElfObjectX64
     ElfStructureInfoX64 elfStructureInfo;
     std::vector<Elf64_Sym> symbolHeaders;
     std::vector<Elf64_Nhdr> noteHeaders;
+    std::vector<Elf64_Rel> relocationHeaders;
+    std::vector<Elf64_Rela> relocationWithAddendHeaders;
 };

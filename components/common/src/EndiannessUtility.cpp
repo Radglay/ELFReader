@@ -37,6 +37,11 @@ void convertEndianness(uint64_t& p_toConvert)
     p_toConvert = bswap_64(p_toConvert);
 }
 
+void convertEndianness(int32_t& p_toConvert)
+{
+    p_toConvert = bswap_32(p_toConvert);
+}
+
 void convertEndianness(int64_t& p_toConvert)
 {
     p_toConvert = bswap_64(p_toConvert);
