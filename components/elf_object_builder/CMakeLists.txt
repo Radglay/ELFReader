@@ -5,6 +5,7 @@ add_library(ElfObjectBuilder
 
 target_include_directories(ElfObjectBuilder PUBLIC
             include
+            include/sections
             ${PROJECT_SOURCE_DIR}/components/common/include
             ${PROJECT_SOURCE_DIR}/components/common/include/structures
             )

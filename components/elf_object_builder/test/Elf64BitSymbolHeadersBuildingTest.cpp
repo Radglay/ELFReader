@@ -8,6 +8,8 @@
 #include "ElfStructureInfoX64.hpp"
 #include <tuple>
 #include <vector>
+#include "IElfSection.hpp"
+#include "SymbolTableSection.hpp"
 
 
 namespace
@@ -291,7 +293,8 @@ TEST_P(Elf64BitSymbolsBuildingTestSuite, shouldNotReadAnySymbolWhenSizeIsZero)
 
     l_elfObjectBuilder.buildSymbolHeaders();
 
-    auto l_targetSymbols { l_elfObjectBuilder.getResult()->symbolHeaders };
+    auto l_section { dynamic_cast<SymbolTableSection<Elf64_Shdr, Elf64_Sym>&>(*l_elfObjectBuilder.getResult()->sections[0]) };
+    auto l_targetSymbols { l_section.m_symbols };
 
     std::vector<Elf64_Sym> l_expectedSymbols;
 
@@ -321,7 +324,8 @@ TEST_P(Elf64BitSymbolsBuildingTestSuite, shouldReadAllFiveSymbolsWhenSizeIsFive)
 
     l_elfObjectBuilder.buildSymbolHeaders();
 
-    auto l_targetSymbols { l_elfObjectBuilder.getResult()->symbolHeaders };
+    auto l_section { dynamic_cast<SymbolTableSection<Elf64_Shdr, Elf64_Sym>&>(*l_elfObjectBuilder.getResult()->sections[0]) };
+    auto l_targetSymbols { l_section.m_symbols };
 
     std::vector<Elf64_Sym> l_expectedSymbols {
         UNDEFINED_SYMBOL, TEST_CPP_SYMBOL, DYNAMIC_SYMBOL, MY_GLOBAL_VAR_SYMBOL, MAIN_FUNC_SYMBOL };

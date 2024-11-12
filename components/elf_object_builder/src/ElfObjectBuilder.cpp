@@ -8,6 +8,9 @@
 #include "EndiannessUtility.hpp"
 #include <plog/Log.h>
 #include <iterator>
+#include <utility>
+#include <memory>
+#include "SymbolTableSection.hpp"
 
 
 namespace
@@ -18,6 +21,21 @@ namespace
         return *std::find_if(p_sectionHeaders.begin(),
                              p_sectionHeaders.end(),
                              [p_type](auto& l_header) { return l_header.sh_type == p_type; } );
+    }
+
+    template <typename T>
+    std::vector<std::pair<int, T>> findSectionHeadersWithIndicesByType(std::vector<T>& p_sectionHeaders, int p_type)
+    {
+        std::vector<std::pair<int, T>> l_result;
+
+        auto l_size { p_sectionHeaders.size() };
+        for (int i = 0; i < l_size; ++i)
+        {
+            if (p_sectionHeaders[i].sh_type == p_type)
+                l_result.emplace_back(i, p_sectionHeaders[i]);
+        }
+
+        return l_result;
     }
 }
 
@@ -56,7 +74,7 @@ void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildSymbo
         if (isEndiannessCorrect(m_targetMachineInfo.endianness)
             and shouldConvertEndianness(m_targetMachineInfo.endianness))
         {
-            LOG_INFO << "Converting Endianness";
+            LOG_INFO << "Converting Section Header Endianness";
 
             convertEndianness(l_symbol.st_name);
             convertEndianness(l_symbol.st_value);
@@ -67,7 +85,10 @@ void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildSymbo
         l_currentOffset += sizeof(typename ElfObjectTraits::symbol_header_type);
     }
 
-    m_elfObject->symbolHeaders = l_symbolHeaders;
+    m_elfObject->sections.emplace_back(
+        std::make_shared<SymbolTableSection<typename ElfStructureInfoTraits::section_header_type,
+                                            typename ElfObjectTraits::symbol_header_type>>(&l_symbolSectionHeader, l_symbolHeaders));
+
 }
 
 template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>
@@ -106,60 +127,78 @@ void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildNoteH
 template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>
 void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildRelocationHeaders()
 {
-    auto& l_relSectionHeader = findSectionHeaderByType(m_elfObject->elfStructureInfo.sectionHeaders, SHT_REL);
+    auto l_relSectionHeadersWithIndices { findSectionHeadersWithIndicesByType(m_elfObject->elfStructureInfo.sectionHeaders, SHT_REL) };
 
-    std::vector<typename ElfObjectTraits::rel_header_type> l_relHeaders (
-        l_relSectionHeader.sh_size / sizeof(typename ElfObjectTraits::rel_header_type));
+    for (auto& l_relSectionHeaderWithIndex : l_relSectionHeadersWithIndices)
+    { 
+        auto& l_relSectionHeader { l_relSectionHeaderWithIndex.second };
+        auto l_sectionHeaderIndex = l_relSectionHeaderWithIndex.first;
 
-    auto l_currentOffset { l_relSectionHeader.sh_offset };
+        std::vector<typename ElfObjectTraits::rel_header_type> l_relHeaders (
+            l_relSectionHeader.sh_size / sizeof(typename ElfObjectTraits::rel_header_type));
 
-    for (auto& l_relHeader : l_relHeaders)
-    {
-        readBytesFromFile(l_relHeader, l_currentOffset, m_fileStream);
+        auto l_currentOffset { l_relSectionHeader.sh_offset };
 
-        if (isEndiannessCorrect(m_targetMachineInfo.endianness)
-            and shouldConvertEndianness(m_targetMachineInfo.endianness))
+        for (auto& l_relHeader : l_relHeaders)
         {
-            LOG_INFO << "Converting Relocation Section Header Endianness";
+            readBytesFromFile(l_relHeader, l_currentOffset, m_fileStream);
 
-            convertEndianness(l_relHeader.r_offset);
-            convertEndianness(l_relHeader.r_info);
+            if (isEndiannessCorrect(m_targetMachineInfo.endianness)
+                and shouldConvertEndianness(m_targetMachineInfo.endianness))
+            {
+                LOG_INFO << "Converting Relocation Section Header Endiannes";
+
+                convertEndianness(l_relHeader.r_offset);
+                convertEndianness(l_relHeader.r_info);
+            }
+
+            l_currentOffset += sizeof(typename ElfObjectTraits::rel_header_type);
         }
 
-        l_currentOffset += sizeof(typename ElfObjectTraits::rel_header_type);
+        m_elfObject->relocationHeaders[l_sectionHeaderIndex].insert(
+            m_elfObject->relocationHeaders[l_sectionHeaderIndex].end(),
+            l_relHeaders.begin(),
+            l_relHeaders.end());
     }
-
-    m_elfObject->relocationHeaders = l_relHeaders;
 }
 
 template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>
 void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildRelocationWithAddendHeaders()
 {
-    auto& l_relaSectionHeader = findSectionHeaderByType(m_elfObject->elfStructureInfo.sectionHeaders, SHT_RELA);
+    auto l_relaSectionHeadersWithIndices { findSectionHeadersWithIndicesByType(m_elfObject->elfStructureInfo.sectionHeaders, SHT_RELA) };
 
-    std::vector<typename ElfObjectTraits::rel_with_addend_header_type> l_relaHeaders (
-        l_relaSectionHeader.sh_size / sizeof(typename ElfObjectTraits::rel_with_addend_header_type));
+    for (auto& l_relaSectionHeaderWithIndex : l_relaSectionHeadersWithIndices)
+    { 
+        auto& l_relaSectionHeader { l_relaSectionHeaderWithIndex.second };
+        auto l_sectionHeaderIndex = l_relaSectionHeaderWithIndex.first;
 
-    auto l_currentOffset { l_relaSectionHeader.sh_offset };
+        std::vector<typename ElfObjectTraits::rel_with_addend_header_type> l_relaHeaders (
+            l_relaSectionHeader.sh_size / sizeof(typename ElfObjectTraits::rel_with_addend_header_type));
 
-    for (auto& l_relaHeader : l_relaHeaders)
-    {
-        readBytesFromFile(l_relaHeader, l_currentOffset, m_fileStream);
+        auto l_currentOffset { l_relaSectionHeader.sh_offset };
 
-        if (isEndiannessCorrect(m_targetMachineInfo.endianness)
-            and shouldConvertEndianness(m_targetMachineInfo.endianness))
+        for (auto& l_relaHeader : l_relaHeaders)
         {
-            LOG_INFO << "Converting Relocation With Addend Section Header Endianness";
+            readBytesFromFile(l_relaHeader, l_currentOffset, m_fileStream);
 
-            convertEndianness(l_relaHeader.r_offset);
-            convertEndianness(l_relaHeader.r_info);
-            convertEndianness(l_relaHeader.r_addend);
+            if (isEndiannessCorrect(m_targetMachineInfo.endianness)
+                and shouldConvertEndianness(m_targetMachineInfo.endianness))
+            {
+                LOG_INFO << "Converting Relocation With Addend Section Header Endiannes";
+
+                convertEndianness(l_relaHeader.r_offset);
+                convertEndianness(l_relaHeader.r_info);
+                convertEndianness(l_relaHeader.r_addend);
+            }
+
+            l_currentOffset += sizeof(typename ElfObjectTraits::rel_with_addend_header_type);
         }
 
-        l_currentOffset += sizeof(typename ElfObjectTraits::rel_with_addend_header_type);
+        m_elfObject->relocationWithAddendHeaders[l_sectionHeaderIndex].insert(
+            m_elfObject->relocationWithAddendHeaders[l_sectionHeaderIndex].end(),
+            l_relaHeaders.begin(),
+            l_relaHeaders.end());
     }
-
-    m_elfObject->relocationWithAddendHeaders = l_relaHeaders;
 }
 
 template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>
