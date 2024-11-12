@@ -3,15 +3,19 @@
 #include "TargetMachineInfo.hpp"
 #include "ElfStructureInfoX64.hpp"
 #include <vector>
+#include <map>
 #include <elf.h>
+#include "IElfSection.hpp"
+#include <memory>
 
 
 struct ElfObjectX64
 {
     TargetMachineInfo targetMachineInfo;
     ElfStructureInfoX64 elfStructureInfo;
-    std::vector<Elf64_Sym> symbolHeaders;
+    std::vector<std::shared_ptr<IElfSection<Elf64_Shdr>>> sections;
+
     std::vector<Elf64_Nhdr> noteHeaders;
-    std::vector<Elf64_Rel> relocationHeaders;
-    std::vector<Elf64_Rela> relocationWithAddendHeaders;
+    std::map<Elf64_Word, std::vector<Elf64_Rel>> relocationHeaders;
+    std::map<Elf64_Word, std::vector<Elf64_Rela>> relocationWithAddendHeaders;
 };

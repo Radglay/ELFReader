@@ -19,6 +19,9 @@ constexpr int LITTLE_ENDIAN_VALUE { ELFDATA2LSB };
 constexpr int BIG_ENDIAN_VALUE { ELFDATA2MSB };
 
 
+constexpr int FIRST_RELA_HEADER_INDEX { 0 };
+
+
 constexpr Elf32_Shdr REL_SECTION_HEADER_WITH_ZERO_REL_HEADERS
 {
     .sh_type = SHT_REL,
@@ -196,7 +199,7 @@ TEST_P(Elf32BitRelocationHeaderBuildingTestSuite, shouldNotReadAnyRelocationHead
 
     l_elfObjectBuilder.buildRelocationHeaders();
 
-    auto l_targetRelocationHeaders { l_elfObjectBuilder.getResult()->relocationHeaders };
+    auto l_targetRelocationHeaders { l_elfObjectBuilder.getResult()->relocationHeaders[FIRST_RELA_HEADER_INDEX] };
 
     std::vector<Elf32_Rel> l_expectedRelocationHeaders;
 
@@ -226,7 +229,7 @@ TEST_P(Elf32BitRelocationHeaderBuildingTestSuite, shouldReadAllRelocationsHeader
 
     l_elfObjectBuilder.buildRelocationHeaders();
 
-    auto l_targetRelocationHeaders { l_elfObjectBuilder.getResult()->relocationHeaders };
+    auto l_targetRelocationHeaders { l_elfObjectBuilder.getResult()->relocationHeaders[FIRST_RELA_HEADER_INDEX] };
 
     std::vector<Elf32_Rel> l_expectedRelocationHeaders {
         REL_HEADER_1, REL_HEADER_2, REL_HEADER_3, REL_HEADER_4, REL_HEADER_5 };

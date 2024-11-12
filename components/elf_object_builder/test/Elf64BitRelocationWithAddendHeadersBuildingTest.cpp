@@ -18,6 +18,7 @@ namespace
 constexpr int LITTLE_ENDIAN_VALUE { ELFDATA2LSB };
 constexpr int BIG_ENDIAN_VALUE { ELFDATA2MSB };
 
+constexpr int FIRST_RELA_HEADER_INDEX { 0 };
 
 constexpr Elf64_Shdr RELA_SECTION_HEADER_WITH_ZERO_RELA_HEADERS
 {
@@ -221,7 +222,7 @@ TEST_P(Elf64BitRelocationWithAddendHeaderBuildingTestSuite, shouldNotReadAnyRelo
 
     l_elfObjectBuilder.buildRelocationWithAddendHeaders();
 
-    auto l_targetRelocationWithAddendHeaders { l_elfObjectBuilder.getResult()->relocationWithAddendHeaders };
+    auto l_targetRelocationWithAddendHeaders { l_elfObjectBuilder.getResult()->relocationWithAddendHeaders[FIRST_RELA_HEADER_INDEX] };
 
     std::vector<Elf64_Rela> l_expectedRelocationWithAddendHeaders;
 
@@ -251,7 +252,7 @@ TEST_P(Elf64BitRelocationWithAddendHeaderBuildingTestSuite, shouldReadAllRelocat
 
     l_elfObjectBuilder.buildRelocationWithAddendHeaders();
 
-    auto l_targetRelocationWithAddendHeaders { l_elfObjectBuilder.getResult()->relocationWithAddendHeaders };
+    auto l_targetRelocationWithAddendHeaders { l_elfObjectBuilder.getResult()->relocationWithAddendHeaders[FIRST_RELA_HEADER_INDEX] };
 
     std::vector<Elf64_Rela> l_expectedRelocationWithAddendHeaders {
         RELA_HEADER_1, RELA_HEADER_2, RELA_HEADER_3, RELA_HEADER_4, RELA_HEADER_5 };
