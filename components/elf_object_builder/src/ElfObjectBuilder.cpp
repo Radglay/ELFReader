@@ -11,6 +11,9 @@
 #include <utility>
 #include <memory>
 #include "SymbolTableSection.hpp"
+#include "RelocationSection.hpp"
+#include "RelocationWithAddendSection.hpp"
+
 
 
 namespace
@@ -88,7 +91,6 @@ void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildSymbo
     m_elfObject->sections.emplace_back(
         std::make_shared<SymbolTableSection<typename ElfStructureInfoTraits::section_header_type,
                                             typename ElfObjectTraits::symbol_header_type>>(&l_symbolSectionHeader, l_symbolHeaders));
-
 }
 
 template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>
@@ -155,10 +157,10 @@ void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildReloc
             l_currentOffset += sizeof(typename ElfObjectTraits::rel_header_type);
         }
 
-        m_elfObject->relocationHeaders[l_sectionHeaderIndex].insert(
-            m_elfObject->relocationHeaders[l_sectionHeaderIndex].end(),
-            l_relHeaders.begin(),
-            l_relHeaders.end());
+
+        m_elfObject->sections.emplace_back(
+            std::make_shared<RelocationSection<typename ElfStructureInfoTraits::section_header_type,
+                                               typename ElfObjectTraits::rel_header_type>>(&l_relSectionHeader, l_relHeaders));
     }
 }
 
@@ -194,10 +196,9 @@ void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildReloc
             l_currentOffset += sizeof(typename ElfObjectTraits::rel_with_addend_header_type);
         }
 
-        m_elfObject->relocationWithAddendHeaders[l_sectionHeaderIndex].insert(
-            m_elfObject->relocationWithAddendHeaders[l_sectionHeaderIndex].end(),
-            l_relaHeaders.begin(),
-            l_relaHeaders.end());
+        m_elfObject->sections.emplace_back(
+            std::make_shared<RelocationWithAddendSection<typename ElfStructureInfoTraits::section_header_type,
+                                                         typename ElfObjectTraits::rel_with_addend_header_type>>(&l_relaSectionHeader, l_relaHeaders));
     }
 }
 
