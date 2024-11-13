@@ -28,10 +28,10 @@ public:
 
     void reset() override;
     void buildElfStructureInfo() override;
-    void buildSymbolHeaders() override;
-    void buildNoteHeaders() override;
-    void buildRelocationHeaders() override;
-    void buildRelocationWithAddendHeaders() override;
+    void buildSymbolSections() override;
+    void buildNoteSections() override;
+    void buildRelocationSections() override;
+    void buildRelocationWithAddendSections() override;
     T* getResult() override;
 
 private:

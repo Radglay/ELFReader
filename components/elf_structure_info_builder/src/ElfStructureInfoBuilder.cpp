@@ -2,6 +2,7 @@
 #include <plog/Log.h>
 #include "BytesReadingUtility.hpp"
 #include "EndiannessUtility.hpp"
+#include <memory>
 
 
 template <typename T, typename Traits>
@@ -14,7 +15,7 @@ void ElfStructureInfoBuilder<T, Traits>::reset()
 template <typename T, typename Traits>
 void ElfStructureInfoBuilder<T, Traits>::buildFileHeader()
 {
-    LOG_INFO << "Building X32 File Header";
+    LOG_INFO << "Building File Header";
 
     readBytesFromFile(m_elfStructureInfo->fileHeader, 0, m_fileStream);
 
@@ -42,12 +43,14 @@ void ElfStructureInfoBuilder<T, Traits>::buildFileHeader()
 template <typename T, typename Traits>
 void ElfStructureInfoBuilder<T, Traits>::buildSectionHeaders()
 {
-    LOG_INFO << "Building X32 Section Headers";
-    std::vector<typename Traits::section_header_type> l_sectionHeaders(m_elfStructureInfo->fileHeader.e_shnum);
+    LOG_INFO << "Building Section Headers";
+    std::vector<std::shared_ptr<typename Traits::section_header_type>> l_sectionHeaders;
 
-    int l_offset = m_elfStructureInfo->fileHeader.e_shoff;
-    for (auto& l_sectionHeader : l_sectionHeaders)
+    auto l_offset { m_elfStructureInfo->fileHeader.e_shoff };
+    auto l_size { m_elfStructureInfo->fileHeader.e_shnum }; 
+    for (int i = 0; i < l_size; ++i)
     {
+        typename Traits::section_header_type l_sectionHeader;
         readBytesFromFile(l_sectionHeader, l_offset, m_fileStream);
 
         if (isEndiannessCorrect(m_targetMachineEndianness)
@@ -67,6 +70,7 @@ void ElfStructureInfoBuilder<T, Traits>::buildSectionHeaders()
             convertEndianness(l_sectionHeader.sh_entsize);
         }
 
+        l_sectionHeaders.emplace_back(std::make_shared<typename Traits::section_header_type>(l_sectionHeader));
         l_offset += sizeof(typename Traits::section_header_type);
     }
 
@@ -76,7 +80,7 @@ void ElfStructureInfoBuilder<T, Traits>::buildSectionHeaders()
 template <typename T, typename Traits>
 void ElfStructureInfoBuilder<T, Traits>::buildProgramHeaders()
 {
-    LOG_INFO << "Building X32 Program Headers";
+    LOG_INFO << "Building Program Headers";
 
     std::vector<typename Traits::program_header_type> l_programHeaders(m_elfStructureInfo->fileHeader.e_phnum);
 

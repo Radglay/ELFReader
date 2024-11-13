@@ -10,6 +10,7 @@
 #include <vector>
 #include "IElfSection.hpp"
 #include "SymbolTableSection.hpp"
+#include <memory>
 
 
 namespace
@@ -18,7 +19,7 @@ namespace
 constexpr int LITTLE_ENDIAN_VALUE { ELFDATA2LSB };
 constexpr int BIG_ENDIAN_VALUE { ELFDATA2MSB };
 
-constexpr Elf64_Shdr SYMBOL_TABLE_SECTION_WITH_ZERO_ELEMENTS
+Elf64_Shdr SYMBOL_TABLE_SECTION_WITH_ZERO_ELEMENTS
 {
     .sh_name = 0x1,
     .sh_type = SHT_SYMTAB,
@@ -32,7 +33,8 @@ constexpr Elf64_Shdr SYMBOL_TABLE_SECTION_WITH_ZERO_ELEMENTS
     .sh_entsize = 0x18
 };
 
-constexpr Elf64_Shdr SYMBOL_TABLE_SECTION_WITH_FIVE_ELEMENTS
+
+Elf64_Shdr SYMBOL_TABLE_SECTION_WITH_FIVE_ELEMENTS
 {
     .sh_name = 0x1,
     .sh_type = SHT_SYMTAB,
@@ -240,37 +242,42 @@ using namespace ::testing;
 
 
 
-class Elf64BitSymbolsBuildingTestSuite : public TestWithParam<std::tuple<int, std::string>>
+class Elf64BitSymbolTableSectionsBuildingTestSuite : public TestWithParam<std::tuple<int, std::string>>
 {
 protected:
-    void expectSymbolHeadersAreEqual(const std::vector<Elf64_Sym>& p_targetSymbols,
-                                     const std::vector<Elf64_Sym>& p_expectedSymbols);
+    void expectSymbolTableSectionsAreEqual(const SymbolTableSection<Elf64_Shdr, Elf64_Sym>& p_targetSymbolTableSection,
+                                           const SymbolTableSection<Elf64_Shdr, Elf64_Sym>& p_expectedSymbolTableSection);
 };
 
-void Elf64BitSymbolsBuildingTestSuite::expectSymbolHeadersAreEqual(const std::vector<Elf64_Sym>& p_targetSymbols,
-                                                                   const std::vector<Elf64_Sym>& p_expectedSymbols)
+void Elf64BitSymbolTableSectionsBuildingTestSuite::expectSymbolTableSectionsAreEqual(const SymbolTableSection<Elf64_Shdr, Elf64_Sym>& p_targetSymbolTableSection,
+                                                                                     const SymbolTableSection<Elf64_Shdr, Elf64_Sym>& p_expectedSymbolTableSection)
 {
-    EXPECT_EQ(p_targetSymbols.size(), p_expectedSymbols.size());
+    auto l_targetSectionHeader { p_targetSymbolTableSection.getSectionHeader() };
+    auto l_expectedSectionHeader { p_expectedSymbolTableSection.getSectionHeader() };
 
-    int l_size = p_expectedSymbols.size();
-    for (int i = 0; i < l_size; ++i)
+    EXPECT_EQ(std::addressof(*l_targetSectionHeader), std::addressof(*l_expectedSectionHeader));
+    
+    
+    auto l_targetSymbolHeaders { p_targetSymbolTableSection.getSymbolHeaders() };
+    auto l_expectedSymbolHeaders { p_expectedSymbolTableSection.getSymbolHeaders() };
+
+    
+    ASSERT_EQ(l_targetSymbolHeaders.size(), l_expectedSymbolHeaders.size());
+
+    for (int i = 0; i < l_expectedSymbolHeaders.size(); ++i)
     {
-        const auto& l_targetSymbol { p_targetSymbols[i] };
-        const auto& l_expectedSymbol { p_expectedSymbols[i] };
-        EXPECT_THAT(l_targetSymbol, FieldsAre(
-            l_expectedSymbol.st_name,
-            l_expectedSymbol.st_info,
-            l_expectedSymbol.st_other,
-            l_expectedSymbol.st_shndx,
-            l_expectedSymbol.st_value,
-            l_expectedSymbol.st_size
+        EXPECT_THAT(l_targetSymbolHeaders[i], FieldsAre(
+            l_expectedSymbolHeaders[i].st_name,
+            l_expectedSymbolHeaders[i].st_info,
+            l_expectedSymbolHeaders[i].st_other,
+            l_expectedSymbolHeaders[i].st_shndx,
+            l_expectedSymbolHeaders[i].st_value,
+            l_expectedSymbolHeaders[i].st_size
         ));
     }
 } 
 
-
-
-TEST_P(Elf64BitSymbolsBuildingTestSuite, shouldNotReadAnySymbolWhenSizeIsZero)
+TEST_P(Elf64BitSymbolTableSectionsBuildingTestSuite, shouldNotReadAnySymbolHeaderWhenSizeIsZero)
 {
     auto l_params { GetParam() };
     auto l_endianness { std::get<0>(l_params) };
@@ -283,25 +290,31 @@ TEST_P(Elf64BitSymbolsBuildingTestSuite, shouldNotReadAnySymbolWhenSizeIsZero)
 
     ElfObjectBuilder<ElfObjectX64, ElfStructureInfoX64> l_elfObjectBuilder (&l_stubStream, l_elfStructureInfoBuilderMock, l_targetMachineInfo);
 
+    auto l_sectionHeader { std::shared_ptr<Elf64_Shdr>(&SYMBOL_TABLE_SECTION_WITH_ZERO_ELEMENTS) };
+
     ElfStructureInfoX64 l_stubElfStructureInfo;
-    l_stubElfStructureInfo.sectionHeaders.push_back(SYMBOL_TABLE_SECTION_WITH_ZERO_ELEMENTS);
+    l_stubElfStructureInfo.sectionHeaders.push_back(l_sectionHeader);
 
     EXPECT_CALL(l_elfStructureInfoBuilderMock, getResult)
         .WillOnce(Return(&l_stubElfStructureInfo));
 
     l_elfObjectBuilder.buildElfStructureInfo();
 
-    l_elfObjectBuilder.buildSymbolHeaders();
+    l_elfObjectBuilder.buildSymbolSections();
 
-    auto l_section { dynamic_cast<SymbolTableSection<Elf64_Shdr, Elf64_Sym>&>(*l_elfObjectBuilder.getResult()->sections[0]) };
-    auto l_targetSymbols { l_section.m_symbols };
+    auto l_sections { (l_elfObjectBuilder.getResult()->sections)};
+    ASSERT_EQ(l_sections.size(), 1);
 
-    std::vector<Elf64_Sym> l_expectedSymbols;
+    auto l_targetSymbolTableSection { dynamic_cast<SymbolTableSection<Elf64_Shdr, Elf64_Sym>&>(*l_sections[0]) };
+ 
+    std::vector<Elf64_Sym> l_expectedSymbolHeaders {};
 
-    expectSymbolHeadersAreEqual(l_targetSymbols, l_expectedSymbols);
+    auto l_expectedSymbolTableSection { SymbolTableSection<Elf64_Shdr, Elf64_Sym>(l_sectionHeader, l_expectedSymbolHeaders) };
+
+    expectSymbolTableSectionsAreEqual(l_targetSymbolTableSection, l_expectedSymbolTableSection);
 }
 
-TEST_P(Elf64BitSymbolsBuildingTestSuite, shouldReadAllFiveSymbolsWhenSizeIsFive)
+TEST_P(Elf64BitSymbolTableSectionsBuildingTestSuite, shouldReadAllFiveSymbolHeadersWhenSizeIsFive)
 {
     auto l_params { GetParam() };
     auto l_endianness { std::get<0>(l_params) };
@@ -314,27 +327,33 @@ TEST_P(Elf64BitSymbolsBuildingTestSuite, shouldReadAllFiveSymbolsWhenSizeIsFive)
 
     ElfObjectBuilder<ElfObjectX64, ElfStructureInfoX64> l_elfObjectBuilder (&l_stubStream, l_elfStructureInfoBuilderMock, l_targetMachineInfo);
 
+    auto l_sectionHeader { std::shared_ptr<Elf64_Shdr>(&SYMBOL_TABLE_SECTION_WITH_FIVE_ELEMENTS) };
+
     ElfStructureInfoX64 l_stubElfStructureInfo;
-    l_stubElfStructureInfo.sectionHeaders.push_back(SYMBOL_TABLE_SECTION_WITH_FIVE_ELEMENTS);
+    l_stubElfStructureInfo.sectionHeaders.push_back(l_sectionHeader);
 
     EXPECT_CALL(l_elfStructureInfoBuilderMock, getResult)
         .WillOnce(Return(&l_stubElfStructureInfo));
 
     l_elfObjectBuilder.buildElfStructureInfo();
 
-    l_elfObjectBuilder.buildSymbolHeaders();
+    l_elfObjectBuilder.buildSymbolSections();
 
-    auto l_section { dynamic_cast<SymbolTableSection<Elf64_Shdr, Elf64_Sym>&>(*l_elfObjectBuilder.getResult()->sections[0]) };
-    auto l_targetSymbols { l_section.m_symbols };
+    auto l_sections { (l_elfObjectBuilder.getResult()->sections)};
+    ASSERT_EQ(l_sections.size(), 1);
 
-    std::vector<Elf64_Sym> l_expectedSymbols {
+    auto l_targetSymbolTableSection { dynamic_cast<SymbolTableSection<Elf64_Shdr, Elf64_Sym>&>(*l_sections[0]) };
+ 
+    std::vector<Elf64_Sym> l_expectedSymbolHeaders {
         UNDEFINED_SYMBOL, TEST_CPP_SYMBOL, DYNAMIC_SYMBOL, MY_GLOBAL_VAR_SYMBOL, MAIN_FUNC_SYMBOL };
 
-    expectSymbolHeadersAreEqual(l_targetSymbols, l_expectedSymbols);
+    auto l_expectedSymbolTableSection { SymbolTableSection<Elf64_Shdr, Elf64_Sym>(l_sectionHeader, l_expectedSymbolHeaders) };
+
+    expectSymbolTableSectionsAreEqual(l_targetSymbolTableSection, l_expectedSymbolTableSection);
 }
 
 
-INSTANTIATE_TEST_SUITE_P(FileHeaderWithSectionHeaderTableEntriesNumberEqualToFive,
-                         Elf64BitSymbolsBuildingTestSuite,
+INSTANTIATE_TEST_SUITE_P(SymbolTableSectionsBuilding,
+                         Elf64BitSymbolTableSectionsBuildingTestSuite,
                          Values(std::make_tuple(LITTLE_ENDIAN_VALUE, generate64BitLittleEndianSymbolTable()),
                                 std::make_tuple(BIG_ENDIAN_VALUE, generate64BitBigEndianSymbolTable())));

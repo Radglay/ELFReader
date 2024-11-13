@@ -20,13 +20,13 @@ constexpr int LITTLE_ENDIAN_VALUE { ELFDATA2LSB };
 constexpr int BIG_ENDIAN_VALUE { ELFDATA2MSB };
 
 
-constexpr Elf64_Shdr RELA_SECTION_HEADER_WITH_ZERO_RELA_HEADERS
+Elf64_Shdr RELA_SECTION_HEADER_WITH_ZERO_RELA_HEADERS
 {
     .sh_type = SHT_RELA,
     .sh_size = 0x0
 };
 
-constexpr Elf64_Shdr RELA_SECTION_HEADER_WITH_FIVE_RELA_HEADERS
+Elf64_Shdr RELA_SECTION_HEADER_WITH_FIVE_RELA_HEADERS
 {
     .sh_type = SHT_RELA,
     .sh_size = 5 * sizeof(Elf64_Rela)
@@ -172,34 +172,39 @@ std::string generate64BitBigEndianRelocationWithAddendHeaders()
 using namespace ::testing;
 
 
-class Elf64BitRelocationWithAddendHeaderBuildingTestSuite : public TestWithParam<std::tuple<int, std::string>>
+class Elf64BitRelocationWithAddendSectionBuildingTestSuite : public TestWithParam<std::tuple<int, std::string>>
 {
 protected:
-    void expectRelocationWithAddendHeadersAreEqual(const std::vector<Elf64_Rela>& p_targetRelocationWithAddendHeaders,
-                                                   const std::vector<Elf64_Rela>& p_expectedRelocationWithAddendHeaders);
+    void expectRelocationWithAddendSectionsAreEqual(const RelocationWithAddendSection<Elf64_Shdr, Elf64_Rela>& p_targetRelaSection,
+                                                    const RelocationWithAddendSection<Elf64_Shdr, Elf64_Rela>& p_expectedRelaSection);
 };
 
-void Elf64BitRelocationWithAddendHeaderBuildingTestSuite::expectRelocationWithAddendHeadersAreEqual(
-    const std::vector<Elf64_Rela>& p_targetRelocationWithAddendHeaders,
-    const std::vector<Elf64_Rela>& p_expectedRelocationWithAddendHeaders)
+void Elf64BitRelocationWithAddendSectionBuildingTestSuite::expectRelocationWithAddendSectionsAreEqual(
+    const RelocationWithAddendSection<Elf64_Shdr, Elf64_Rela>& p_targetRelaSection,
+    const RelocationWithAddendSection<Elf64_Shdr, Elf64_Rela>& p_expectedRelaSection)
 {
-    ASSERT_EQ(p_targetRelocationWithAddendHeaders.size(), p_expectedRelocationWithAddendHeaders.size());
+    auto l_targetSectionHeader { p_targetRelaSection.getSectionHeader() };
+    auto l_expectedSectionHeader { p_expectedRelaSection.getSectionHeader() };
 
-    auto l_size = p_expectedRelocationWithAddendHeaders.size();
+    EXPECT_EQ(std::addressof(*l_targetSectionHeader), std::addressof(*l_expectedSectionHeader));
 
-    for (int i = 0; i < l_size; ++i)
+    auto l_targetRelaHeaders { p_targetRelaSection.getRelocationWithAddendHeaders() };
+    auto l_expectedRelaHeaders { p_expectedRelaSection.getRelocationWithAddendHeaders() };
+
+    ASSERT_EQ(l_targetRelaHeaders.size(), l_expectedRelaHeaders.size());
+
+    for (int i = 0; i < l_expectedRelaHeaders.size(); ++i)
     {
-        const auto& l_targetRelaHeader { p_targetRelocationWithAddendHeaders[i] };
-        const auto& l_expectedRelaHeader { p_expectedRelocationWithAddendHeaders[i] };
-        EXPECT_THAT(l_targetRelaHeader, FieldsAre(
-            l_expectedRelaHeader.r_offset,
-            l_expectedRelaHeader.r_info,
-            l_expectedRelaHeader.r_addend         
+        EXPECT_THAT(l_targetRelaHeaders[i], FieldsAre(
+            l_expectedRelaHeaders[i].r_offset,
+            l_expectedRelaHeaders[i].r_info,
+            l_expectedRelaHeaders[i].r_addend
         ));
     }
 }
 
-TEST_P(Elf64BitRelocationWithAddendHeaderBuildingTestSuite, shouldNotReadAnyRelocationWithAddendHeaderWhenThereIsNoRelocationSectionHeader)
+
+TEST_P(Elf64BitRelocationWithAddendSectionBuildingTestSuite, shouldNotReadAnyRelocationWithAddendHeaderWhenThereIsNoRelocationSectionHeader)
 {
     auto l_params { GetParam() };
     auto l_endianness { std::get<0>(l_params) };
@@ -212,25 +217,30 @@ TEST_P(Elf64BitRelocationWithAddendHeaderBuildingTestSuite, shouldNotReadAnyRelo
 
     ElfObjectBuilder<ElfObjectX64, ElfStructureInfoX64> l_elfObjectBuilder (&l_stubStream, l_elfStructureInfoBuilderMock, l_targetMachineInfo);
 
+    auto l_sectionHeader { std::shared_ptr<Elf64_Shdr>(&RELA_SECTION_HEADER_WITH_ZERO_RELA_HEADERS) };
+
     ElfStructureInfoX64 l_stubElfStructureInfo;
-    l_stubElfStructureInfo.sectionHeaders.push_back(RELA_SECTION_HEADER_WITH_ZERO_RELA_HEADERS);
+    l_stubElfStructureInfo.sectionHeaders.push_back(l_sectionHeader);
 
     EXPECT_CALL(l_elfStructureInfoBuilderMock, getResult)
         .WillOnce(Return(&l_stubElfStructureInfo));
 
     l_elfObjectBuilder.buildElfStructureInfo();
 
-    l_elfObjectBuilder.buildRelocationWithAddendHeaders();
+    l_elfObjectBuilder.buildRelocationWithAddendSections();
 
-    auto l_section { dynamic_cast<RelocationWithAddendSection<Elf64_Shdr, Elf64_Rela>&>(*l_elfObjectBuilder.getResult()->sections[0])};
-    auto l_targetRelocationWithAddendHeaders { l_section.getRelocationWithAddendHeaders() };
+    auto l_sections { (l_elfObjectBuilder.getResult()->sections)};
+    ASSERT_EQ(l_sections.size(), 1);
 
-    std::vector<Elf64_Rela> l_expectedRelocationWithAddendHeaders;
+    auto l_targetRelocationSection { dynamic_cast<RelocationWithAddendSection<Elf64_Shdr, Elf64_Rela>&>(*l_sections[0])};
+    
+    std::vector<Elf64_Rela> l_expectedRelocationHeaders {};
 
-    expectRelocationWithAddendHeadersAreEqual(l_targetRelocationWithAddendHeaders, l_expectedRelocationWithAddendHeaders);
+    auto l_expectedRelocationSection { RelocationWithAddendSection<Elf64_Shdr, Elf64_Rela>(l_sectionHeader, l_expectedRelocationHeaders) };
+    expectRelocationWithAddendSectionsAreEqual(l_targetRelocationSection, l_expectedRelocationSection);
 }
 
-TEST_P(Elf64BitRelocationWithAddendHeaderBuildingTestSuite, shouldReadAllRelocationsWithAddendHeaderWhenThereIsRelocationSectionHeader)
+TEST_P(Elf64BitRelocationWithAddendSectionBuildingTestSuite, shouldReadAllRelocationsWithAddendHeaderWhenThereIsRelocationSectionHeader)
 {
     auto l_params { GetParam() };
     auto l_endianness { std::get<0>(l_params) };
@@ -243,26 +253,30 @@ TEST_P(Elf64BitRelocationWithAddendHeaderBuildingTestSuite, shouldReadAllRelocat
 
     ElfObjectBuilder<ElfObjectX64, ElfStructureInfoX64> l_elfObjectBuilder (&l_stubStream, l_elfStructureInfoBuilderMock, l_targetMachineInfo);
 
+    auto l_sectionHeader { std::shared_ptr<Elf64_Shdr>(&RELA_SECTION_HEADER_WITH_FIVE_RELA_HEADERS) };
     ElfStructureInfoX64 l_stubElfStructureInfo;
-    l_stubElfStructureInfo.sectionHeaders.push_back(RELA_SECTION_HEADER_WITH_FIVE_RELA_HEADERS);
+    l_stubElfStructureInfo.sectionHeaders.push_back(l_sectionHeader);
 
     EXPECT_CALL(l_elfStructureInfoBuilderMock, getResult)
         .WillOnce(Return(&l_stubElfStructureInfo));
 
     l_elfObjectBuilder.buildElfStructureInfo();
 
-    l_elfObjectBuilder.buildRelocationWithAddendHeaders();
+    l_elfObjectBuilder.buildRelocationWithAddendSections();
 
-    auto l_section { dynamic_cast<RelocationWithAddendSection<Elf64_Shdr, Elf64_Rela>&>(*l_elfObjectBuilder.getResult()->sections[0])};
-    auto l_targetRelocationWithAddendHeaders { l_section.getRelocationWithAddendHeaders() };
+    auto l_sections { (l_elfObjectBuilder.getResult()->sections)};
+    ASSERT_EQ(l_sections.size(), 1);
 
-    std::vector<Elf64_Rela> l_expectedRelocationWithAddendHeaders {
+    auto l_targetRelocationSection { dynamic_cast<RelocationWithAddendSection<Elf64_Shdr, Elf64_Rela>&>(*l_sections[0])};
+
+    std::vector<Elf64_Rela> l_expectedRelocationHeaders {
         RELA_HEADER_1, RELA_HEADER_2, RELA_HEADER_3, RELA_HEADER_4, RELA_HEADER_5 };
 
-    expectRelocationWithAddendHeadersAreEqual(l_targetRelocationWithAddendHeaders, l_expectedRelocationWithAddendHeaders);
+    auto l_expectedRelocationSection { RelocationWithAddendSection<Elf64_Shdr, Elf64_Rela>(l_sectionHeader, l_expectedRelocationHeaders) };
+    expectRelocationWithAddendSectionsAreEqual(l_targetRelocationSection, l_expectedRelocationSection);
 }
 
-INSTANTIATE_TEST_SUITE_P(RelocationWithAddendHeadersBuilding,
-                         Elf64BitRelocationWithAddendHeaderBuildingTestSuite,
+INSTANTIATE_TEST_SUITE_P(RelocationWithAddendSectionsBuilding,
+                         Elf64BitRelocationWithAddendSectionBuildingTestSuite,
                          Values(std::make_tuple(LITTLE_ENDIAN_VALUE, generate64BitLittleEndianRelocationWithAddendHeaders()),
                                 std::make_tuple(BIG_ENDIAN_VALUE, generate64BitBigEndianRelocationWithAddendHeaders())));

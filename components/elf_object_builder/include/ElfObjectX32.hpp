@@ -14,8 +14,4 @@ struct ElfObjectX32
     TargetMachineInfo targetMachineInfo;
     ElfStructureInfoX32 elfStructureInfo;
     std::vector<std::shared_ptr<IElfSection<Elf32_Shdr>>> sections;
-
-    std::vector<Elf32_Nhdr> noteHeaders;
-    
-    std::map<Elf32_Word, std::vector<Elf32_Rela>> relocationWithAddendHeaders;
 };

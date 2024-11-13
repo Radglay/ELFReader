@@ -6,7 +6,7 @@
 #include <elf.h>
 #include <algorithm>
 #include <cstring>
-
+#include <iostream>
 
 namespace
 {
@@ -305,20 +305,20 @@ TEST(Elf32BitSectionHeadersBuildingTestSuite, shouldReadAll32BitLittleEndianSect
     l_elfStructureInfoBuilder.buildSectionHeaders();
     auto l_targetElfStructureInfo { l_elfStructureInfoBuilder.getResult() };
 
-    EXPECT_THAT(l_targetElfStructureInfo->sectionHeaders.size(), THREE_ELEMENTS_SIZE);
-    EXPECT_THAT(l_targetElfStructureInfo->sectionHeaders[0],
+    ASSERT_EQ(l_targetElfStructureInfo->sectionHeaders.size(), THREE_ELEMENTS_SIZE);
+    EXPECT_THAT(*l_targetElfStructureInfo->sectionHeaders[0],
                 FieldsAre(SH_NAME_1_VALUE, SH_TYPE_SECTION_HEADER_TABLE_ENTRY_VALUE, SH_FLAGS_1_VALUE,
                           SH_ADDR_1_VALUE, SH_OFFSET_1_VALUE, SH_SIZE_1_VALUE,
                           SH_LINK_1_VALUE, SH_INFO_1_VALUE, SH_ADDRALIGN_1_VALUE,
                           SH_ENTSIZE_1_VALUE));
     
-    EXPECT_THAT(l_targetElfStructureInfo->sectionHeaders[1],
+    EXPECT_THAT(*l_targetElfStructureInfo->sectionHeaders[1],
                 FieldsAre(SH_NAME_2_VALUE, SH_TYPE_PROGBITS_VALUE, SH_FLAGS_2_VALUE,
                           SH_ADDR_2_VALUE, SH_OFFSET_2_VALUE, SH_SIZE_2_VALUE,
                           SH_LINK_2_VALUE, SH_INFO_2_VALUE, SH_ADDRALIGN_2_VALUE,
                           SH_ENTSIZE_2_VALUE));
 
-    EXPECT_THAT(l_targetElfStructureInfo->sectionHeaders[2],
+    EXPECT_THAT(*l_targetElfStructureInfo->sectionHeaders[2],
                 FieldsAre(SH_NAME_3_VALUE, SH_TYPE_NOTES_VALUE, SH_FLAGS_3_VALUE,
                           SH_ADDR_3_VALUE, SH_OFFSET_3_VALUE, SH_SIZE_3_VALUE,
                           SH_LINK_3_VALUE, SH_INFO_3_VALUE, SH_ADDRALIGN_3_VALUE,
@@ -341,20 +341,20 @@ TEST(Elf32BitSectionHeadersBuildingTestSuite, shouldReadAll32BitBigEndianSection
     l_elfStructureInfoBuilder.buildSectionHeaders();
     auto l_targetElfStructureInfo { l_elfStructureInfoBuilder.getResult() };
 
-    EXPECT_THAT(l_targetElfStructureInfo->sectionHeaders.size(), THREE_ELEMENTS_SIZE);
-    EXPECT_THAT(l_targetElfStructureInfo->sectionHeaders[0],
+    ASSERT_EQ(l_targetElfStructureInfo->sectionHeaders.size(), THREE_ELEMENTS_SIZE);
+    EXPECT_THAT(*l_targetElfStructureInfo->sectionHeaders[0],
                 FieldsAre(SH_NAME_1_VALUE, SH_TYPE_SECTION_HEADER_TABLE_ENTRY_VALUE, SH_FLAGS_1_VALUE,
                           SH_ADDR_1_VALUE, SH_OFFSET_1_VALUE, SH_SIZE_1_VALUE,
                           SH_LINK_1_VALUE, SH_INFO_1_VALUE, SH_ADDRALIGN_1_VALUE,
                           SH_ENTSIZE_1_VALUE));
     
-    EXPECT_THAT(l_targetElfStructureInfo->sectionHeaders[1],
+    EXPECT_THAT(*l_targetElfStructureInfo->sectionHeaders[1],
                 FieldsAre(SH_NAME_2_VALUE, SH_TYPE_PROGBITS_VALUE, SH_FLAGS_2_VALUE,
                           SH_ADDR_2_VALUE, SH_OFFSET_2_VALUE, SH_SIZE_2_VALUE,
                           SH_LINK_2_VALUE, SH_INFO_2_VALUE, SH_ADDRALIGN_2_VALUE,
                           SH_ENTSIZE_2_VALUE));
 
-    EXPECT_THAT(l_targetElfStructureInfo->sectionHeaders[2],
+    EXPECT_THAT(*l_targetElfStructureInfo->sectionHeaders[2],
                 FieldsAre(SH_NAME_3_VALUE, SH_TYPE_NOTES_VALUE, SH_FLAGS_3_VALUE,
                           SH_ADDR_3_VALUE, SH_OFFSET_3_VALUE, SH_SIZE_3_VALUE,
                           SH_LINK_3_VALUE, SH_INFO_3_VALUE, SH_ADDRALIGN_3_VALUE,
@@ -378,7 +378,7 @@ TEST(Elf32BitSectionHeadersBuildingTestSuite,
     l_elfStructureInfoBuilder.buildSectionHeaders();
     auto l_targetElfStructureInfo { l_elfStructureInfoBuilder.getResult() };
     
-    EXPECT_EQ(l_targetElfStructureInfo->sectionHeaders.size(), ZERO_ELEMENTS_SIZE);
+    ASSERT_EQ(l_targetElfStructureInfo->sectionHeaders.size(), ZERO_ELEMENTS_SIZE);
 }
 
 TEST(Elf32BitSectionHeadersBuildingTestSuite,
@@ -398,5 +398,5 @@ TEST(Elf32BitSectionHeadersBuildingTestSuite,
     l_elfStructureInfoBuilder.buildSectionHeaders();
     auto l_targetElfStructureInfo { l_elfStructureInfoBuilder.getResult() };
     
-    EXPECT_EQ(l_targetElfStructureInfo->sectionHeaders.size(), ZERO_ELEMENTS_SIZE);
+    ASSERT_EQ(l_targetElfStructureInfo->sectionHeaders.size(), ZERO_ELEMENTS_SIZE);
 }
