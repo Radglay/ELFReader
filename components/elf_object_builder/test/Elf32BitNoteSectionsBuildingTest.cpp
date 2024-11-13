@@ -10,6 +10,7 @@
 #include <vector>
 #include <elf.h>
 #include <algorithm>
+#include "NoteSection.hpp"
 
 
 namespace
@@ -30,7 +31,7 @@ constexpr Elf32_Nhdr NOTE_GNU_PROPERTY
     .n_type = 0x05
 };
 
-constexpr Elf32_Shdr NOTE_GNU_PROPERTY_SECTION_HEADER
+Elf32_Shdr NOTE_GNU_PROPERTY_SECTION_HEADER
 {
     .sh_type = SHT_NOTE,
     .sh_offset = 0x0
@@ -42,14 +43,14 @@ constexpr char N_NAMESZ_LITTLE_ENDIAN_NOTE_GNU_BUILD_ID[] { 0x04, 0x0, 0x0, 0x0 
 constexpr char N_DESCSZ_LITTLE_ENDIAN_NOTE_GNU_BUILD_ID[] { 0x14, 0x0, 0x0, 0x0 };
 constexpr char N_TYPE_LITTLE_ENDIAN_NOTE_GNU_BUILD_ID[] { 0x03, 0x0, 0x0, 0x0 };
 
-constexpr Elf32_Nhdr NOTE_GNU_BUILD_ID
+Elf32_Nhdr NOTE_GNU_BUILD_ID
 {
     .n_namesz = 0x04,
     .n_descsz = 0x14,
     .n_type = 0x03
 };
 
-constexpr Elf32_Shdr NOTE_GNU_BUILD_ID_SECTION_HEADER
+Elf32_Shdr NOTE_GNU_BUILD_ID_SECTION_HEADER
 {
     .sh_type = SHT_NOTE,
     .sh_offset = sizeof(Elf32_Nhdr)
@@ -67,7 +68,7 @@ constexpr Elf32_Nhdr NOTE_ABI_TAG
     .n_type = 0x01
 };
 
-constexpr Elf32_Shdr NOTE_ABI_TAG_SECTION_HEADER
+Elf32_Shdr NOTE_ABI_TAG_SECTION_HEADER
 {
     .sh_type = SHT_NOTE,
     .sh_offset = 2 * sizeof(Elf32_Nhdr)
@@ -125,94 +126,105 @@ std::string generate32BitBigEndianNoteHeaders()
 
 using namespace ::testing;
 
-class Elf32BitNoteHeaderBuildingTestSuite : public TestWithParam<std::tuple<int, std::string>>
+class Elf32BitNoteSectionsBuildingTestSuite : public TestWithParam<std::tuple<int, std::string>>
 {
 protected:
-    void expectNoteHeadersAreEqual(const std::vector<Elf32_Nhdr>& p_targetNoteHeaders,
-                                   const std::vector<Elf32_Nhdr>& p_expectedNoteHeaders);
+    void expectNoteSectionsAreEqual(const NoteSection<Elf32_Shdr, Elf32_Nhdr>& p_targetNoteSection,
+                                    const NoteSection<Elf32_Shdr, Elf32_Nhdr>& p_expectedNoteSection);
 };
 
-void Elf32BitNoteHeaderBuildingTestSuite::expectNoteHeadersAreEqual(const std::vector<Elf32_Nhdr>& p_targetNoteHeaders,
-                                                                    const std::vector<Elf32_Nhdr>& p_expectedNoteHeaders)
+void Elf32BitNoteSectionsBuildingTestSuite::expectNoteSectionsAreEqual(const NoteSection<Elf32_Shdr, Elf32_Nhdr>& p_targetNoteSection,
+                                                                       const NoteSection<Elf32_Shdr, Elf32_Nhdr>& p_expectedNoteSection)
 {
-    ASSERT_EQ(p_targetNoteHeaders.size(), p_expectedNoteHeaders.size());
+    auto l_targetSectionHeader { p_targetNoteSection.getSectionHeader() };
+    auto l_expectedSectionHeader { p_expectedNoteSection.getSectionHeader() };
 
-    int l_size = p_expectedNoteHeaders.size();
-    for (int i = 0; i < l_size; ++i)
+    EXPECT_EQ(std::addressof(*l_targetSectionHeader), std::addressof(*l_expectedSectionHeader));
+
+    auto l_targetNoteHeader { p_targetNoteSection.getNoteHeader() };
+    auto l_expectedNoteHeader { p_expectedNoteSection.getNoteHeader() };
+    EXPECT_THAT(l_targetNoteHeader, FieldsAre(
+        l_expectedNoteHeader.n_namesz,
+        l_expectedNoteHeader.n_descsz,
+        l_expectedNoteHeader.n_type
+    ));
+}
+
+
+TEST_P(Elf32BitNoteSectionsBuildingTestSuite, shouldNotReadNoteHeaderWhenThereIsNoNoteSectionHeader)
+{
+    auto l_params { GetParam() };
+    auto l_endianness { std::get<0>(l_params) };
+    auto l_streamContent { std::get<1>(l_params) };
+
+    std::stringstream l_stubStream { l_streamContent };
+    NiceMock<ElfStructureInfoBuilderMock<ElfStructureInfoX32>> l_elfStructureInfoBuilderMock;
+    TargetMachineInfo l_targetMachineInfo;
+    l_targetMachineInfo.endianness = l_endianness;
+
+    ElfObjectBuilder<ElfObjectX32, ElfStructureInfoX32> l_elfObjectBuilder (&l_stubStream, l_elfStructureInfoBuilderMock, l_targetMachineInfo);
+
+    ElfStructureInfoX32 l_stubElfStructureInfo;
+
+    EXPECT_CALL(l_elfStructureInfoBuilderMock, getResult)
+        .WillOnce(Return(&l_stubElfStructureInfo));
+
+    l_elfObjectBuilder.buildElfStructureInfo();
+
+    l_elfObjectBuilder.buildNoteSections();
+
+    auto l_sections { (l_elfObjectBuilder.getResult()->sections)};
+    ASSERT_EQ(l_sections.size(), 0);
+}
+
+TEST_P(Elf32BitNoteSectionsBuildingTestSuite, shouldReadAllThreeNoteHeadersWhenThereAreThreeNoteSectionHeaders)
+{
+    auto l_params { GetParam() };
+    auto l_endianness { std::get<0>(l_params) };
+    auto l_streamContent { std::get<1>(l_params) };
+
+    std::stringstream l_stubStream { l_streamContent };
+    NiceMock<ElfStructureInfoBuilderMock<ElfStructureInfoX32>> l_elfStructureInfoBuilderMock;
+    TargetMachineInfo l_targetMachineInfo;
+    l_targetMachineInfo.endianness = l_endianness;
+
+    ElfObjectBuilder<ElfObjectX32, ElfStructureInfoX32> l_elfObjectBuilder (&l_stubStream, l_elfStructureInfoBuilderMock, l_targetMachineInfo);
+
+    auto l_sectionHeader1 { std::shared_ptr<Elf32_Shdr>(&NOTE_GNU_PROPERTY_SECTION_HEADER) };
+    auto l_sectionHeader2 { std::shared_ptr<Elf32_Shdr>(&NOTE_GNU_BUILD_ID_SECTION_HEADER) };
+    auto l_sectionHeader3 { std::shared_ptr<Elf32_Shdr>(&NOTE_ABI_TAG_SECTION_HEADER) };
+
+    ElfStructureInfoX32 l_stubElfStructureInfo;
+    l_stubElfStructureInfo.sectionHeaders.push_back(l_sectionHeader1);
+    l_stubElfStructureInfo.sectionHeaders.push_back(l_sectionHeader2);
+    l_stubElfStructureInfo.sectionHeaders.push_back(l_sectionHeader3);
+
+    EXPECT_CALL(l_elfStructureInfoBuilderMock, getResult)
+        .WillOnce(Return(&l_stubElfStructureInfo));
+
+    l_elfObjectBuilder.buildElfStructureInfo();
+
+    l_elfObjectBuilder.buildNoteSections();
+
+    auto l_sections { (l_elfObjectBuilder.getResult()->sections)};
+    ASSERT_EQ(l_sections.size(), 3);
+
+    std::vector<NoteSection<Elf32_Shdr, Elf32_Nhdr>> l_expectedNoteSections
+        { 
+            NoteSection<Elf32_Shdr, Elf32_Nhdr>(l_sectionHeader1, NOTE_GNU_PROPERTY),
+            NoteSection<Elf32_Shdr, Elf32_Nhdr>(l_sectionHeader2, NOTE_GNU_BUILD_ID),
+            NoteSection<Elf32_Shdr, Elf32_Nhdr>(l_sectionHeader3, NOTE_ABI_TAG)
+        };
+
+    for (int i = 0; i < 3; ++i)
     {
-        const auto& l_targetNoteHeader { p_targetNoteHeaders[i] };
-        const auto& l_expectedNoteHeader { p_expectedNoteHeaders[i] };
-        EXPECT_THAT(l_targetNoteHeader, FieldsAre(
-            l_expectedNoteHeader.n_namesz,
-            l_expectedNoteHeader.n_descsz,
-            l_expectedNoteHeader.n_type
-        ));
+        auto& l_targetNoteSection { dynamic_cast<NoteSection<Elf32_Shdr, Elf32_Nhdr>&>(*l_sections[i])};
+        auto& l_expectedNoteSection { l_expectedNoteSections[i] };
+        expectNoteSectionsAreEqual(l_targetNoteSection, l_expectedNoteSection);
     }
 }
 
-
-TEST_P(Elf32BitNoteHeaderBuildingTestSuite, shouldNotReadNoteHeaderWhenThereIsNoNoteSectionHeader)
-{
-    auto l_params { GetParam() };
-    auto l_endianness { std::get<0>(l_params) };
-    auto l_streamContent { std::get<1>(l_params) };
-
-    std::stringstream l_stubStream { l_streamContent };
-    NiceMock<ElfStructureInfoBuilderMock<ElfStructureInfoX32>> l_elfStructureInfoBuilderMock;
-    TargetMachineInfo l_targetMachineInfo;
-    l_targetMachineInfo.endianness = l_endianness;
-
-    ElfObjectBuilder<ElfObjectX32, ElfStructureInfoX32> l_elfObjectBuilder (&l_stubStream, l_elfStructureInfoBuilderMock, l_targetMachineInfo);
-
-    ElfStructureInfoX32 l_stubElfStructureInfo;
-
-    EXPECT_CALL(l_elfStructureInfoBuilderMock, getResult)
-        .WillOnce(Return(&l_stubElfStructureInfo));
-
-    l_elfObjectBuilder.buildElfStructureInfo();
-
-    l_elfObjectBuilder.buildNoteHeaders();
-
-    auto l_targetNoteHeaders { l_elfObjectBuilder.getResult()->noteHeaders };
-
-    std::vector<Elf32_Nhdr> l_expectedNoteHeaders;
-
-    expectNoteHeadersAreEqual(l_targetNoteHeaders, l_expectedNoteHeaders);
-}
-
-TEST_P(Elf32BitNoteHeaderBuildingTestSuite, shouldReadAllThreeNoteHeadersWhenThereAreThreeNoteSectionHeaders)
-{
-    auto l_params { GetParam() };
-    auto l_endianness { std::get<0>(l_params) };
-    auto l_streamContent { std::get<1>(l_params) };
-
-    std::stringstream l_stubStream { l_streamContent };
-    NiceMock<ElfStructureInfoBuilderMock<ElfStructureInfoX32>> l_elfStructureInfoBuilderMock;
-    TargetMachineInfo l_targetMachineInfo;
-    l_targetMachineInfo.endianness = l_endianness;
-
-    ElfObjectBuilder<ElfObjectX32, ElfStructureInfoX32> l_elfObjectBuilder (&l_stubStream, l_elfStructureInfoBuilderMock, l_targetMachineInfo);
-
-    ElfStructureInfoX32 l_stubElfStructureInfo;
-    l_stubElfStructureInfo.sectionHeaders.push_back(NOTE_GNU_PROPERTY_SECTION_HEADER);
-    l_stubElfStructureInfo.sectionHeaders.push_back(NOTE_GNU_BUILD_ID_SECTION_HEADER);
-    l_stubElfStructureInfo.sectionHeaders.push_back(NOTE_ABI_TAG_SECTION_HEADER);
-
-    EXPECT_CALL(l_elfStructureInfoBuilderMock, getResult)
-        .WillOnce(Return(&l_stubElfStructureInfo));
-
-    l_elfObjectBuilder.buildElfStructureInfo();
-
-    l_elfObjectBuilder.buildNoteHeaders();
-
-    auto l_targetNoteHeaders { l_elfObjectBuilder.getResult()->noteHeaders };
-
-    std::vector<Elf32_Nhdr> l_expectedNoteHeaders { NOTE_GNU_PROPERTY, NOTE_GNU_BUILD_ID, NOTE_ABI_TAG };
-
-    expectNoteHeadersAreEqual(l_targetNoteHeaders, l_expectedNoteHeaders);
-}
-
-INSTANTIATE_TEST_SUITE_P(NoteHeadersBuilding,
-                         Elf32BitNoteHeaderBuildingTestSuite,
+INSTANTIATE_TEST_SUITE_P(NoteSectionsBuilding,
+                         Elf32BitNoteSectionsBuildingTestSuite,
                          Values(std::make_tuple(LITTLE_ENDIAN_VALUE, generate32BitLittleEndianNoteHeaders()),
                                 std::make_tuple(BIG_ENDIAN_VALUE, generate32BitBigEndianNoteHeaders())));

@@ -2,19 +2,29 @@
 
 #include "IElfSection.hpp"
 #include <vector>
+#include <memory>
 
 
-template <typename SectionHeader, typename Symbol>
+template <typename SectionHeader, typename SymbolHeader>
 class SymbolTableSection : public IElfSection<SectionHeader>
 {
 public:
-    SymbolTableSection(SectionHeader* p_sectionHeader, std::vector<Symbol> p_symbols)
+    SymbolTableSection(std::shared_ptr<SectionHeader> p_sectionHeader, std::vector<SymbolHeader> p_symbolHeaders)
         : m_sectionHeader { p_sectionHeader }
-        , m_symbols { p_symbols }
+        , m_symbolHeaders { p_symbolHeaders }
     {}
 
+    std::shared_ptr<SectionHeader> getSectionHeader() const
+    {
+        return m_sectionHeader;
+    }
+
+    std::vector<SymbolHeader> getSymbolHeaders() const
+    {
+        return m_symbolHeaders;
+    }
+
 private:
-    SectionHeader* m_sectionHeader;
-public:
-    std::vector<Symbol> m_symbols;
+    std::shared_ptr<SectionHeader> m_sectionHeader;
+    std::vector<SymbolHeader> m_symbolHeaders;
 };

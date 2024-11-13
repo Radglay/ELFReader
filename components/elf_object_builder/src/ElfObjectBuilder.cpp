@@ -13,28 +13,28 @@
 #include "SymbolTableSection.hpp"
 #include "RelocationSection.hpp"
 #include "RelocationWithAddendSection.hpp"
-
+#include "NoteSection.hpp"
 
 
 namespace
 {
     template <typename T>
-    T& findSectionHeaderByType(std::vector<T>& p_sectionHeaders, int p_type)
+    std::shared_ptr<T>& findSectionHeaderByType(std::vector<std::shared_ptr<T>>& p_sectionHeaders, int p_type)
     {
         return *std::find_if(p_sectionHeaders.begin(),
                              p_sectionHeaders.end(),
-                             [p_type](auto& l_header) { return l_header.sh_type == p_type; } );
+                             [p_type](auto& l_header) { return l_header->sh_type == p_type; } );
     }
 
     template <typename T>
-    std::vector<std::pair<int, T>> findSectionHeadersWithIndicesByType(std::vector<T>& p_sectionHeaders, int p_type)
+    std::vector<std::pair<int, std::shared_ptr<T>>> findSectionHeadersWithIndicesByType(std::vector<std::shared_ptr<T>>& p_sectionHeaders, int p_type)
     {
-        std::vector<std::pair<int, T>> l_result;
+        std::vector<std::pair<int, std::shared_ptr<T>>> l_result;
 
         auto l_size { p_sectionHeaders.size() };
         for (int i = 0; i < l_size; ++i)
         {
-            if (p_sectionHeaders[i].sh_type == p_type)
+            if (p_sectionHeaders[i]->sh_type == p_type)
                 l_result.emplace_back(i, p_sectionHeaders[i]);
         }
 
@@ -62,13 +62,13 @@ void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildElfSt
 }
 
 template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>
-void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildSymbolHeaders()
+void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildSymbolSections()
 {
     auto& l_symbolSectionHeader = findSectionHeaderByType(m_elfObject->elfStructureInfo.sectionHeaders, SHT_SYMTAB);
 
-    std::vector<typename ElfObjectTraits::symbol_header_type> l_symbolHeaders (l_symbolSectionHeader.sh_size / sizeof(typename ElfObjectTraits::symbol_header_type));
+    std::vector<typename ElfObjectTraits::symbol_header_type> l_symbolHeaders (l_symbolSectionHeader->sh_size / sizeof(typename ElfObjectTraits::symbol_header_type));
 
-    auto l_currentOffset { l_symbolSectionHeader.sh_offset };
+    auto l_currentOffset { l_symbolSectionHeader->sh_offset };
 
     for (auto& l_symbol : l_symbolHeaders)
     {
@@ -90,26 +90,25 @@ void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildSymbo
 
     m_elfObject->sections.emplace_back(
         std::make_shared<SymbolTableSection<typename ElfStructureInfoTraits::section_header_type,
-                                            typename ElfObjectTraits::symbol_header_type>>(&l_symbolSectionHeader, l_symbolHeaders));
+                                            typename ElfObjectTraits::symbol_header_type>>(l_symbolSectionHeader, l_symbolHeaders));
 }
 
 template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>
-void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildNoteHeaders()
+void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildNoteSections()
 {
-    std::vector<typename ElfStructureInfoTraits::section_header_type> l_noteSectionHeaders;
+    std::vector<std::shared_ptr<typename ElfStructureInfoTraits::section_header_type>> l_noteSectionHeaders;
     std::copy_if(m_elfObject->elfStructureInfo.sectionHeaders.begin(),
                  m_elfObject->elfStructureInfo.sectionHeaders.end(),
                  std::back_inserter(l_noteSectionHeaders),
-                 [](const auto& p_sectionHeader)
+                 [](auto& p_sectionHeader)
                  {
-                    return p_sectionHeader.sh_type == SHT_NOTE;
+                    return p_sectionHeader->sh_type == SHT_NOTE;
                  });
 
-    std::vector<typename ElfObjectTraits::note_header_type> l_noteHeaders;
     for (auto& l_noteSectionHeader : l_noteSectionHeaders)
     {
         typename ElfObjectTraits::note_header_type l_noteHeader {};
-        auto l_currentOffset  { l_noteSectionHeader.sh_offset };
+        auto l_currentOffset  { l_noteSectionHeader->sh_offset };
         readBytesFromFile(l_noteHeader, l_currentOffset, m_fileStream);
 
         if (isEndiannessCorrect(m_targetMachineInfo.endianness)
@@ -120,14 +119,14 @@ void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildNoteH
             convertEndianness(l_noteHeader.n_type);
         }
 
-        l_noteHeaders.push_back(l_noteHeader);
+        m_elfObject->sections.emplace_back(
+            std::make_shared<NoteSection<typename ElfStructureInfoTraits::section_header_type,
+                                         typename ElfObjectTraits::note_header_type>>(l_noteSectionHeader, l_noteHeader));
     }
-
-    m_elfObject->noteHeaders = l_noteHeaders;
 }
 
 template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>
-void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildRelocationHeaders()
+void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildRelocationSections()
 {
     auto l_relSectionHeadersWithIndices { findSectionHeadersWithIndicesByType(m_elfObject->elfStructureInfo.sectionHeaders, SHT_REL) };
 
@@ -137,9 +136,9 @@ void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildReloc
         auto l_sectionHeaderIndex = l_relSectionHeaderWithIndex.first;
 
         std::vector<typename ElfObjectTraits::rel_header_type> l_relHeaders (
-            l_relSectionHeader.sh_size / sizeof(typename ElfObjectTraits::rel_header_type));
+            l_relSectionHeader->sh_size / sizeof(typename ElfObjectTraits::rel_header_type));
 
-        auto l_currentOffset { l_relSectionHeader.sh_offset };
+        auto l_currentOffset { l_relSectionHeader->sh_offset };
 
         for (auto& l_relHeader : l_relHeaders)
         {
@@ -160,12 +159,12 @@ void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildReloc
 
         m_elfObject->sections.emplace_back(
             std::make_shared<RelocationSection<typename ElfStructureInfoTraits::section_header_type,
-                                               typename ElfObjectTraits::rel_header_type>>(&l_relSectionHeader, l_relHeaders));
+                                               typename ElfObjectTraits::rel_header_type>>(l_relSectionHeader, l_relHeaders));
     }
 }
 
 template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>
-void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildRelocationWithAddendHeaders()
+void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildRelocationWithAddendSections()
 {
     auto l_relaSectionHeadersWithIndices { findSectionHeadersWithIndicesByType(m_elfObject->elfStructureInfo.sectionHeaders, SHT_RELA) };
 
@@ -175,9 +174,9 @@ void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildReloc
         auto l_sectionHeaderIndex = l_relaSectionHeaderWithIndex.first;
 
         std::vector<typename ElfObjectTraits::rel_with_addend_header_type> l_relaHeaders (
-            l_relaSectionHeader.sh_size / sizeof(typename ElfObjectTraits::rel_with_addend_header_type));
+            l_relaSectionHeader->sh_size / sizeof(typename ElfObjectTraits::rel_with_addend_header_type));
 
-        auto l_currentOffset { l_relaSectionHeader.sh_offset };
+        auto l_currentOffset { l_relaSectionHeader->sh_offset };
 
         for (auto& l_relaHeader : l_relaHeaders)
         {
@@ -198,7 +197,7 @@ void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildReloc
 
         m_elfObject->sections.emplace_back(
             std::make_shared<RelocationWithAddendSection<typename ElfStructureInfoTraits::section_header_type,
-                                                         typename ElfObjectTraits::rel_with_addend_header_type>>(&l_relaSectionHeader, l_relaHeaders));
+                                                         typename ElfObjectTraits::rel_with_addend_header_type>>(l_relaSectionHeader, l_relaHeaders));
     }
 }
 
