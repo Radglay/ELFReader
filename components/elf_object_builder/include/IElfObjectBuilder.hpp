@@ -11,6 +11,7 @@ public:
     virtual void buildNoteSections() = 0;
     virtual void buildRelocationSections() = 0;
     virtual void buildRelocationWithAddendSections() = 0;
+    virtual void buildStringTableSections() = 0;
     virtual T* getResult() = 0;
 
     virtual ~IElfObjectBuilder() = default;
