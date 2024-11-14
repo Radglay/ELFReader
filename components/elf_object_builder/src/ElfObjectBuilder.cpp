@@ -14,6 +14,7 @@
 #include "RelocationSection.hpp"
 #include "RelocationWithAddendSection.hpp"
 #include "NoteSection.hpp"
+#include "StringTableSection.hpp"
 
 
 namespace
@@ -133,7 +134,7 @@ void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildReloc
     for (auto& l_relSectionHeaderWithIndex : l_relSectionHeadersWithIndices)
     { 
         auto& l_relSectionHeader { l_relSectionHeaderWithIndex.second };
-        auto l_sectionHeaderIndex = l_relSectionHeaderWithIndex.first;
+        auto l_sectionHeaderIndex { l_relSectionHeaderWithIndex.first };
 
         std::vector<typename ElfObjectTraits::rel_header_type> l_relHeaders (
             l_relSectionHeader->sh_size / sizeof(typename ElfObjectTraits::rel_header_type));
@@ -171,7 +172,7 @@ void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildReloc
     for (auto& l_relaSectionHeaderWithIndex : l_relaSectionHeadersWithIndices)
     { 
         auto& l_relaSectionHeader { l_relaSectionHeaderWithIndex.second };
-        auto l_sectionHeaderIndex = l_relaSectionHeaderWithIndex.first;
+        auto l_sectionHeaderIndex { l_relaSectionHeaderWithIndex.first };
 
         std::vector<typename ElfObjectTraits::rel_with_addend_header_type> l_relaHeaders (
             l_relaSectionHeader->sh_size / sizeof(typename ElfObjectTraits::rel_with_addend_header_type));
@@ -198,6 +199,39 @@ void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildReloc
         m_elfObject->sections.emplace_back(
             std::make_shared<RelocationWithAddendSection<typename ElfStructureInfoTraits::section_header_type,
                                                          typename ElfObjectTraits::rel_with_addend_header_type>>(l_relaSectionHeader, l_relaHeaders));
+    }
+}
+
+template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>
+void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildStringTableSections()
+{
+    auto l_stringTableSectionHeadersWithIndices { findSectionHeadersWithIndicesByType(m_elfObject->elfStructureInfo.sectionHeaders, SHT_STRTAB) };
+
+    for (auto& l_stringTabSectionHeaderWithIndex : l_stringTableSectionHeadersWithIndices)
+    {
+        std::map<int, std::string> l_stringTable;
+
+        auto& l_strTabSectionHeader { l_stringTabSectionHeaderWithIndex.second };
+        auto l_sectionHeaderIndex { l_stringTabSectionHeaderWithIndex.first };
+
+        auto l_currentOffset { l_strTabSectionHeader->sh_offset };
+        auto l_size { l_strTabSectionHeader->sh_size };
+        auto l_endOffset { l_currentOffset + l_size };
+        auto l_relativeOffset { 0x0 };
+
+        while (l_currentOffset < l_endOffset)
+        {
+            std::string l_name;
+            readNullTerminatedStringFromFile(l_name, l_currentOffset, m_fileStream);
+            auto l_readBytes { m_fileStream->gcount()};
+            l_stringTable[l_relativeOffset] = l_name;
+    
+            l_relativeOffset += l_readBytes;
+            l_currentOffset += l_readBytes;
+        }
+
+        m_elfObject->sections.emplace_back(
+            std::make_shared<StringTableSection<typename ElfStructureInfoTraits::section_header_type>>(l_strTabSectionHeader, l_stringTable));        
     }
 }
 

@@ -32,6 +32,7 @@ public:
     void buildNoteSections() override;
     void buildRelocationSections() override;
     void buildRelocationWithAddendSections() override;
+    void buildStringTableSections() override;
     T* getResult() override;
 
 private:
