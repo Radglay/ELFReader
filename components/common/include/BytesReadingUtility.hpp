@@ -3,6 +3,7 @@
 #include <istream>
 #include <cstring>
 #include <string>
+#include <vector>
 
 
 template <typename T>
@@ -21,4 +22,12 @@ inline void readNullTerminatedStringFromFile(std::string& p_name, int p_offset, 
     p_fileStream->getline(l_buffer, 100, '\0');
 
     p_name = std::string { l_buffer };
+}
+
+inline void readBytesFromFileToVector(std::vector<unsigned char>& p_toFill, int p_offset, int p_size, std::istream* p_fileStream)
+{
+    p_fileStream->seekg(p_offset);
+    unsigned char l_buffer[p_size];
+    p_fileStream->read(reinterpret_cast<char*>(l_buffer), sizeof(unsigned char));
+    p_toFill.assign(l_buffer[0], l_buffer[p_size]);
 }

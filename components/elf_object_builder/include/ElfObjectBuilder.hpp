@@ -33,6 +33,8 @@ public:
     void buildRelocationSections() override;
     void buildRelocationWithAddendSections() override;
     void buildStringTableSections() override;
+    void buildProgbitsSections() override;
+    void buildNobitsSections() override;
     T* getResult() override;
 
 private:
