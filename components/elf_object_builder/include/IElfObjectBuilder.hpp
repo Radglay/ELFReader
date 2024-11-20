@@ -12,6 +12,8 @@ public:
     virtual void buildRelocationSections() = 0;
     virtual void buildRelocationWithAddendSections() = 0;
     virtual void buildStringTableSections() = 0;
+    virtual void buildProgbitsSections() = 0;
+    virtual void buildNobitsSections() = 0;
     virtual T* getResult() = 0;
 
     virtual ~IElfObjectBuilder() = default;

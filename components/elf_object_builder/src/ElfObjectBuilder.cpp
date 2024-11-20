@@ -15,6 +15,8 @@
 #include "RelocationWithAddendSection.hpp"
 #include "NoteSection.hpp"
 #include "StringTableSection.hpp"
+#include "ProgbitsSection.hpp"
+#include "NobitsSection.hpp"
 
 
 namespace
@@ -233,6 +235,43 @@ void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildStrin
         m_elfObject->sections.emplace_back(
             std::make_shared<StringTableSection<typename ElfStructureInfoTraits::section_header_type>>(l_strTabSectionHeader, l_stringTable));        
     }
+}
+
+template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>
+void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildProgbitsSections()
+{
+    auto l_progbitsSectionHeadersWithIndices { findSectionHeadersWithIndicesByType(m_elfObject->elfStructureInfo.sectionHeaders, SHT_PROGBITS) };
+
+    for (auto& l_sectionHeaderWithIndex : l_progbitsSectionHeadersWithIndices)
+    {
+        auto& l_progbitSectionHeader { l_sectionHeaderWithIndex.second };
+        auto l_sectionHeaderIndex { l_sectionHeaderWithIndex.first };
+
+        std::vector<unsigned char> l_bytes;
+        auto l_offset { l_progbitSectionHeader->sh_offset};
+        auto l_size { l_progbitSectionHeader->sh_size };
+
+        l_bytes.reserve(l_size);    
+        readBytesFromFileToVector(l_bytes, l_offset, l_size, m_fileStream);
+
+        m_elfObject->sections.emplace_back(
+            std::make_shared<ProgbitsSection<typename ElfStructureInfoTraits::section_header_type>>(l_progbitSectionHeader, l_bytes)); 
+    }
+}
+
+template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>
+void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildNobitsSections()
+{
+    auto l_nobitsSectionHeadersWithIndices { findSectionHeadersWithIndicesByType(m_elfObject->elfStructureInfo.sectionHeaders, SHT_NOBITS) };
+
+    for (auto& l_sectionHeaderWithIndex : l_nobitsSectionHeadersWithIndices)
+    {
+        auto& l_nobitSectionHeader { l_sectionHeaderWithIndex.second };
+        auto l_sectionHeaderIndex { l_sectionHeaderWithIndex.first };
+
+        m_elfObject->sections.emplace_back(
+            std::make_shared<NobitsSection<typename ElfStructureInfoTraits::section_header_type>>(l_nobitSectionHeader)); 
+    }  
 }
 
 template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>

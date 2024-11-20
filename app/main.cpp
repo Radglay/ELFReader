@@ -38,6 +38,16 @@ int main(int argc, char** argv)
         ElfStructureInfoBuilder<ElfStructureInfoX64> l_elfStructureInfoBuilder(l_fileStream, l_targetMachineInfo.endianness);
         auto l_elfObjectBuilder = ElfObjectBuilder<ElfObjectX64, ElfStructureInfoX64>(l_fileStream, l_elfStructureInfoBuilder, l_targetMachineInfo);
         l_elfObjectBuilder.buildElfStructureInfo();
+        l_elfObjectBuilder.buildSymbolSections();
+        l_elfObjectBuilder.buildNoteSections();
+        l_elfObjectBuilder.buildRelocationSections();
+        l_elfObjectBuilder.buildRelocationWithAddendSections();
+        l_elfObjectBuilder.buildStringTableSections();
+        l_elfObjectBuilder.buildProgbitsSections();
+        l_elfObjectBuilder.buildNobitsSections();
+
+        auto l_result { l_elfObjectBuilder.getResult() };
+        auto l_sections { l_result->sections };
     }
 
 
