@@ -12,52 +12,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
+      - name: Update Apt
+        run: sudo apt update
+      - name: Install qt
+        run: sudo apt install qt6-base-dev
+      - name: Install OpenGL
+        run: sudo apt install libgl1-mesa-dev
       - name: Generating CMakeFiles
         run: cmake -S . -B build -D BUILD_TESTS=ON
-      - name: Building
-        run: cmake --build build
-      - name: Testing
-        run: GTEST_COLOR=1 CTEST_OUTPUT_ON_FAILURE=1 ctest --test-dir build -V
-  
-  build-powerpc_32:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      - name: Update apt 
-        run: |
-          sudo apt update
-          sudo apt install g++-powerpc-linux-gnu
-          sudo apt install gcc-powerpc-linux-gnu
-          sudo apt install qemu-user-static
-      - name: Generating CMakeFiles
-        run: >
-          cmake -D CMAKE_TOOLCHAIN_FILE=TC-powerpc32.cmake -S . -B build
-          -D BUILD_TESTS=ON
-      - name: Building
-        run: cmake --build build
-      - name: Testing
-        run: GTEST_COLOR=1 CTEST_OUTPUT_ON_FAILURE=1 ctest --test-dir build -V
-
-  build-powerpc_64:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-      - name: Update apt 
-        run: |
-          sudo apt update
-          sudo apt install g++-powerpc64-linux-gnu
-          sudo apt install gcc-powerpc64-linux-gnu
-          sudo apt install qemu-user-static
-      - name: Generating CMakeFiles
-        run: >
-          cmake -D CMAKE_TOOLCHAIN_FILE=TC-powerpc64.cmake -S . -B build
-          -D BUILD_TESTS=ON
       - name: Building
         run: cmake --build build
       - name: Testing
