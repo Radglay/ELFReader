@@ -18,6 +18,7 @@ file(MAKE_DIRECTORY logs)
 add_subdirectory(components/ui)
 add_subdirectory(components/common)
 add_subdirectory(components/elf_structure_info_builder)
+add_subdirectory(components/elf_parts_assembler)
 add_subdirectory(components/elf_object_builder)
 add_subdirectory(app)
 

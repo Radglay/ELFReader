@@ -12,3 +12,4 @@ target_include_directories(ElfObjectBuilder PUBLIC
 
 target_link_libraries(ElfObjectBuilder PRIVATE Logger)
 target_link_libraries(ElfObjectBuilder PUBLIC ElfStructureInfoBuilder)
+target_link_libraries(ElfObjectBuilder PUBLIC ElfPartAssembler)
