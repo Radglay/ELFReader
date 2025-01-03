@@ -1,5 +1,4 @@
 # ELFReader
-![example workflow](https://github.com/Radglay/ELFReader/actions/workflows/ci.yml/badge.svg)
 
 ## Downloading
 1) `git clone https://github.com/Radglay/ELFReader`
