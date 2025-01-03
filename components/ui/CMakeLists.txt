@@ -8,12 +8,19 @@ set(CMAKE_AUTORCC ON)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-qt_add_library(MainWindowUI
+add_library(MainWindowUI
     form/mainwindow.ui
     src/mainwindow.cpp
-    include/mainwindow.h)
+    include/mainwindow.h
+    src/ObjectCodeContent.cpp
+    include/ObjectCodeContent.h
+    src/NavigationPanel.cpp
+    include/NavigationPanel.h
+    include/StructureDetails.h
+    src/StructureDetails.cpp)
 
 target_include_directories(MainWindowUI PUBLIC
     include)
 
 target_link_libraries(MainWindowUI Qt6::Widgets)
+target_link_libraries(MainWindowUI ElfObjectBuilder)
