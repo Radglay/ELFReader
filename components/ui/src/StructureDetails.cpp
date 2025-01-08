@@ -55,8 +55,12 @@ namespace
             l_fieldItem->setData(2, Qt::DisplayRole, p_field.value);
         }
 
-        l_fieldItem->addChild(createFieldDetails(p_field));
+        if (not (p_field.description.isEmpty() or p_field.description.isNull()))
+        {
+            auto l_child { createFieldDetails(p_field) };
+            l_fieldItem->addChild(l_child);
 
+        }
         return l_fieldItem;
     }
 
@@ -95,18 +99,20 @@ void StructureDetails::loadStructureFields(ElfPart* p_elfPart)
     for (auto& p_field : p_elfPart->fields)
     {
         auto l_topLevelItem { createFieldItem(p_field) };
+        m_fields->addTopLevelItem(l_topLevelItem);
 
         if (not p_field.fields.empty())
         {
             for (auto& p_childField : p_field.fields)
             {
-                l_topLevelItem->addChild(createFieldItem(p_childField));
+                auto l_child { createFieldItem(p_childField) };
+                l_topLevelItem->addChild(l_child);
+
+                m_fields->setFirstColumnSpanned(0, m_fields->indexFromItem(l_child), true);
             }
         }
-
-        m_fields->addTopLevelItem(l_topLevelItem);
-        qDebug() << m_fields->indexFromItem(l_topLevelItem);
-        m_fields->setFirstColumnSpanned(0, m_fields->indexFromItem(l_topLevelItem), true);
+        else
+            m_fields->setFirstColumnSpanned(0, m_fields->indexFromItem(l_topLevelItem), true);
     }
 }
 
