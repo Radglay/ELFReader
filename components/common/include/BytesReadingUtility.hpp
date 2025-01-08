@@ -28,6 +28,6 @@ inline void readBytesFromFileToVector(std::vector<unsigned char>& p_toFill, int 
 {
     p_fileStream->seekg(p_offset);
     unsigned char l_buffer[p_size];
-    p_fileStream->read(reinterpret_cast<char*>(l_buffer), sizeof(unsigned char));
-    p_toFill.assign(l_buffer[0], l_buffer[p_size]);
+    p_fileStream->read(reinterpret_cast<char*>(l_buffer), p_size);
+    p_toFill.assign(&l_buffer[0], &l_buffer[p_size]);
 }

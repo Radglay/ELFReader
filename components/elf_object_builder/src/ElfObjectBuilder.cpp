@@ -122,9 +122,23 @@ void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildNoteS
             convertEndianness(l_noteHeader.n_type);
         }
 
+        l_currentOffset += sizeof(typename ElfObjectTraits::note_header_type);
+        std::string l_namespace;
+        readNullTerminatedStringFromFile(l_namespace, l_currentOffset, m_fileStream);
+        l_currentOffset += l_noteHeader.n_namesz;
+
+        std::vector<unsigned char> l_descriptionBytes;
+        readBytesFromFileToVector(l_descriptionBytes,
+                                  l_currentOffset,
+                                  l_noteHeader.n_descsz,
+                                  m_fileStream);
+
         m_elfObject->sections.emplace_back(
             std::make_shared<NoteSection<typename ElfStructureInfoTraits::section_header_type,
-                                         typename ElfObjectTraits::note_header_type>>(l_noteSectionHeader, l_noteHeader));
+                                         typename ElfObjectTraits::note_header_type>>(l_noteSectionHeader,
+                                                                                      l_noteHeader,
+                                                                                      l_namespace,
+                                                                                      l_descriptionBytes));
     }
 }
 

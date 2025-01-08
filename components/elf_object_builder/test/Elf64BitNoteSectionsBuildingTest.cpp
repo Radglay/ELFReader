@@ -25,6 +25,15 @@ constexpr char N_NAMESZ_LITTLE_ENDIAN_NOTE_GNU_PROPERTY[] { 0x04, 0x0, 0x0, 0x0 
 constexpr char N_DESCSZ_LITTLE_ENDIAN_NOTE_GNU_PROPERTY[] { 0x20, 0x0, 0x0, 0x0 };
 constexpr char N_TYPE_LITTLE_ENDIAN_NOTE_GNU_PROPERTY[] { 0x05, 0x0, 0x0, 0x0 };
 
+constexpr char GNU_NAMESPACE_BOTH_ENDIANNESS[] {'G', 'N', 'U', '\0' };
+std::string GNU_NAMESPACE { "GNU" };
+
+std::vector<unsigned char> NOTE_GNU_PROPERTY_DESCRIPTION_BOTH_ENDIANNESS {
+    0x02, 0x00, 0x00, 0xc0, 0x04, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x02, 0x80, 0x00, 0xc0, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+
 constexpr Elf64_Nhdr NOTE_GNU_PROPERTY
 {
     .n_namesz = 0x04,
@@ -44,6 +53,11 @@ constexpr char N_NAMESZ_LITTLE_ENDIAN_NOTE_GNU_BUILD_ID[] { 0x04, 0x0, 0x0, 0x0 
 constexpr char N_DESCSZ_LITTLE_ENDIAN_NOTE_GNU_BUILD_ID[] { 0x14, 0x0, 0x0, 0x0 };
 constexpr char N_TYPE_LITTLE_ENDIAN_NOTE_GNU_BUILD_ID[] { 0x03, 0x0, 0x0, 0x0 };
 
+std::vector<unsigned char> NOTE_GNU_BUILD_ID_DESCRIPTION_BOTH_ENDIANNESS {
+    0x87, 0xf7, 0xb0, 0x6c, 0xa1, 0xce, 0x3f, 0x0b, 0x73, 0xc8, 0x91,
+    0x1d, 0x06, 0x8b, 0xcd, 0xa1, 0xa9, 0xbc, 0x32, 0xf4
+};
+
 constexpr Elf64_Nhdr NOTE_GNU_BUILD_ID
 {
     .n_namesz = 0x04,
@@ -54,13 +68,17 @@ constexpr Elf64_Nhdr NOTE_GNU_BUILD_ID
 Elf64_Shdr NOTE_GNU_BUILD_ID_SECTION_HEADER
 {
     .sh_type = SHT_NOTE,
-    .sh_offset = sizeof(Elf64_Nhdr)
+    .sh_offset = sizeof(Elf64_Nhdr) + NOTE_GNU_PROPERTY.n_namesz + NOTE_GNU_PROPERTY.n_descsz
 };
 
 // (3) NOTE_ABI_TAG
 constexpr char N_NAMESZ_LITTLE_ENDIAN_NOTE_ABI_TAG[] { 0x04, 0x0, 0x0, 0x0 };
 constexpr char N_DESCSZ_LITTLE_ENDIAN_NOTE_ABI_TAG[] { 0x10, 0x0, 0x0, 0x0 };
 constexpr char N_TYPE_LITTLE_ENDIAN_NOTE_ABI_TAG[] { 0x01, 0x0, 0x0, 0x0 };
+
+std::vector<unsigned char> NOTE_ABI_TAG_DESCRIPTION_BOTH_ENDIANNESS {
+    0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
 
 constexpr Elf64_Nhdr NOTE_ABI_TAG
 {
@@ -72,7 +90,7 @@ constexpr Elf64_Nhdr NOTE_ABI_TAG
 Elf64_Shdr NOTE_ABI_TAG_SECTION_HEADER
 {
     .sh_type = SHT_NOTE,
-    .sh_offset = 2 * sizeof(Elf64_Nhdr)
+    .sh_offset = NOTE_GNU_BUILD_ID_SECTION_HEADER.sh_offset + sizeof(Elf64_Nhdr) + NOTE_GNU_BUILD_ID.n_namesz + NOTE_GNU_BUILD_ID.n_descsz
 };
 
 std::string generate64BitLittleEndianNoteHeaders()
@@ -82,14 +100,20 @@ std::string generate64BitLittleEndianNoteHeaders()
     l_streamContent.append(N_NAMESZ_LITTLE_ENDIAN_NOTE_GNU_PROPERTY, sizeof(Elf64_Word));
     l_streamContent.append(N_DESCSZ_LITTLE_ENDIAN_NOTE_GNU_PROPERTY, sizeof(Elf64_Word));
     l_streamContent.append(N_TYPE_LITTLE_ENDIAN_NOTE_GNU_PROPERTY, sizeof(Elf64_Word));
+    l_streamContent.append(GNU_NAMESPACE_BOTH_ENDIANNESS, NOTE_GNU_PROPERTY.n_namesz);
+    l_streamContent.append(reinterpret_cast<const char*>(NOTE_GNU_PROPERTY_DESCRIPTION_BOTH_ENDIANNESS.data()), NOTE_GNU_PROPERTY.n_descsz);
 
     l_streamContent.append(N_NAMESZ_LITTLE_ENDIAN_NOTE_GNU_BUILD_ID, sizeof(Elf64_Word));
     l_streamContent.append(N_DESCSZ_LITTLE_ENDIAN_NOTE_GNU_BUILD_ID, sizeof(Elf64_Word));
     l_streamContent.append(N_TYPE_LITTLE_ENDIAN_NOTE_GNU_BUILD_ID, sizeof(Elf64_Word));
+    l_streamContent.append(GNU_NAMESPACE_BOTH_ENDIANNESS, NOTE_GNU_BUILD_ID.n_namesz);
+    l_streamContent.append(reinterpret_cast<const char*>(NOTE_GNU_BUILD_ID_DESCRIPTION_BOTH_ENDIANNESS.data()), NOTE_GNU_BUILD_ID.n_descsz);
 
     l_streamContent.append(N_NAMESZ_LITTLE_ENDIAN_NOTE_ABI_TAG, sizeof(Elf64_Word));
     l_streamContent.append(N_DESCSZ_LITTLE_ENDIAN_NOTE_ABI_TAG, sizeof(Elf64_Word));
     l_streamContent.append(N_TYPE_LITTLE_ENDIAN_NOTE_ABI_TAG, sizeof(Elf64_Word));
+    l_streamContent.append(GNU_NAMESPACE_BOTH_ENDIANNESS, NOTE_ABI_TAG.n_namesz);
+    l_streamContent.append(reinterpret_cast<const char*>(NOTE_ABI_TAG_DESCRIPTION_BOTH_ENDIANNESS.data()), NOTE_ABI_TAG.n_descsz);
 
     return l_streamContent;
 }
@@ -104,6 +128,8 @@ std::string generate64BitBigEndianNoteHeaders()
                            std::rend(N_DESCSZ_LITTLE_ENDIAN_NOTE_GNU_PROPERTY));
     l_streamContent.append(std::rbegin(N_TYPE_LITTLE_ENDIAN_NOTE_GNU_PROPERTY),
                            std::rend(N_TYPE_LITTLE_ENDIAN_NOTE_GNU_PROPERTY));
+    l_streamContent.append(GNU_NAMESPACE_BOTH_ENDIANNESS, NOTE_GNU_PROPERTY.n_namesz);
+    l_streamContent.append(reinterpret_cast<const char*>(NOTE_GNU_PROPERTY_DESCRIPTION_BOTH_ENDIANNESS.data()), NOTE_GNU_PROPERTY.n_descsz);
 
     l_streamContent.append(std::rbegin(N_NAMESZ_LITTLE_ENDIAN_NOTE_GNU_BUILD_ID),
                            std::rend(N_NAMESZ_LITTLE_ENDIAN_NOTE_GNU_BUILD_ID));
@@ -111,6 +137,8 @@ std::string generate64BitBigEndianNoteHeaders()
                            std::rend(N_DESCSZ_LITTLE_ENDIAN_NOTE_GNU_BUILD_ID));
     l_streamContent.append(std::rbegin(N_TYPE_LITTLE_ENDIAN_NOTE_GNU_BUILD_ID),
                            std::rend(N_TYPE_LITTLE_ENDIAN_NOTE_GNU_BUILD_ID));
+    l_streamContent.append(GNU_NAMESPACE_BOTH_ENDIANNESS, NOTE_GNU_BUILD_ID.n_namesz);
+    l_streamContent.append(reinterpret_cast<const char*>(NOTE_GNU_BUILD_ID_DESCRIPTION_BOTH_ENDIANNESS.data()), NOTE_GNU_BUILD_ID.n_descsz);
 
     l_streamContent.append(std::rbegin(N_NAMESZ_LITTLE_ENDIAN_NOTE_ABI_TAG),
                            std::rend(N_NAMESZ_LITTLE_ENDIAN_NOTE_ABI_TAG));
@@ -118,6 +146,9 @@ std::string generate64BitBigEndianNoteHeaders()
                            std::rend(N_DESCSZ_LITTLE_ENDIAN_NOTE_ABI_TAG));
     l_streamContent.append(std::rbegin(N_TYPE_LITTLE_ENDIAN_NOTE_ABI_TAG),
                            std::rend(N_TYPE_LITTLE_ENDIAN_NOTE_ABI_TAG));
+    l_streamContent.append(GNU_NAMESPACE_BOTH_ENDIANNESS, NOTE_ABI_TAG.n_namesz);
+    l_streamContent.append(reinterpret_cast<const char*>(NOTE_ABI_TAG_DESCRIPTION_BOTH_ENDIANNESS.data()), NOTE_ABI_TAG.n_descsz);
+
     return l_streamContent;
 }
 
@@ -211,9 +242,9 @@ TEST_P(Elf64BitNoteSectionBuildingTestSuite, shouldReadAllThreeNoteHeadersWhenTh
 
     std::vector<NoteSection<Elf64_Shdr, Elf64_Nhdr>> l_expectedNoteSections
         { 
-            NoteSection<Elf64_Shdr, Elf64_Nhdr>(l_sectionHeader1, NOTE_GNU_PROPERTY),
-            NoteSection<Elf64_Shdr, Elf64_Nhdr>(l_sectionHeader2, NOTE_GNU_BUILD_ID),
-            NoteSection<Elf64_Shdr, Elf64_Nhdr>(l_sectionHeader3, NOTE_ABI_TAG)
+            NoteSection<Elf64_Shdr, Elf64_Nhdr>(l_sectionHeader1, NOTE_GNU_PROPERTY, GNU_NAMESPACE, NOTE_GNU_PROPERTY_DESCRIPTION_BOTH_ENDIANNESS),
+            NoteSection<Elf64_Shdr, Elf64_Nhdr>(l_sectionHeader2, NOTE_GNU_BUILD_ID, GNU_NAMESPACE, NOTE_GNU_BUILD_ID_DESCRIPTION_BOTH_ENDIANNESS),
+            NoteSection<Elf64_Shdr, Elf64_Nhdr>(l_sectionHeader3, NOTE_ABI_TAG, GNU_NAMESPACE, NOTE_ABI_TAG_DESCRIPTION_BOTH_ENDIANNESS)
         };
 
     for (int i = 0; i < 3; ++i)
