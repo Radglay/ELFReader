@@ -24,4 +24,3 @@ target_include_directories(MainWindowUI PUBLIC
 
 target_link_libraries(MainWindowUI Qt6::Widgets)
 target_link_libraries(MainWindowUI ElfPartAssembler)
-target_link_libraries(MainWindowUI ElfObjectBuilder)

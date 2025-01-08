@@ -23,6 +23,9 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+public slots:
+    void openFile();
+
 private:
     Ui::MainWindow *ui;
     NavigationPanel* m_navigationPanel;
