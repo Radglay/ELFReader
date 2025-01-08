@@ -35,14 +35,16 @@ struct ElfPart
 {
     ElfPart() = default;
 
-    ElfPart(ElfPartType p_elfPartType, int p_offset, int p_size, QString p_description = "", std::vector<Field> p_fields = std::vector<Field>())
-        : type { p_elfPartType }
+    ElfPart(QString p_name, ElfPartType p_elfPartType, int p_offset, int p_size, QString p_description = "", std::vector<Field> p_fields = std::vector<Field>())
+        : name { p_name }
+        , type { p_elfPartType }
         , offset { p_offset }
         , size { p_size }
         , description { p_description }
         , fields { p_fields }
     {}
 
+    QString name;
     ElfPartType type;
     int offset;
     int size;

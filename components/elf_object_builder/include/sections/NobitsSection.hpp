@@ -3,6 +3,8 @@
 #include "IElfSection.hpp"
 #include <vector>
 #include <memory>
+#include "ElfPart.hpp"
+#include "IElfPartAssembler.hpp"
 
 
 template <typename SectionHeader>
@@ -13,7 +15,12 @@ public:
         : m_sectionHeader { p_sectionHeader }
     {}
 
-    std::shared_ptr<SectionHeader> getSectionHeader() const
+    ElfPart acceptElfPartAssembler(IElfPartAssembler& p_visitor, const std::string& p_sectionName) override
+    {
+        // return p_visitor.assembleElfPartFromSection(*this);
+    }
+
+    std::shared_ptr<SectionHeader> getSectionHeader() const override
     {
         return m_sectionHeader;
     }

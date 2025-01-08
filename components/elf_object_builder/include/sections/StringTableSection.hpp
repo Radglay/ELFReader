@@ -4,6 +4,8 @@
 #include <map>
 #include <memory>
 #include <string>
+#include "ElfPart.hpp"
+#include "IElfPartAssembler.hpp"
 
 
 template <typename SectionHeader>
@@ -15,12 +17,22 @@ public:
         , m_stringTable { p_stringTable }
     {}
 
-    std::shared_ptr<SectionHeader> getSectionHeader() const
+    ElfPart acceptElfPartAssembler(IElfPartAssembler& p_visitor, const std::string& p_sectionName) override
+    {
+        // return p_visitor.assembleElfPartFromSection(*this);
+    }
+
+    std::shared_ptr<SectionHeader> getSectionHeader() const override
     {
         return m_sectionHeader;
     }
 
-    std::map<int, std::string> getStringTable() const
+    std::string getStringByOffset(int p_offset)
+    {
+        return m_stringTable[p_offset];
+    }
+
+    const std::map<int, std::string> getStringTable() const
     {
         return m_stringTable;
     }

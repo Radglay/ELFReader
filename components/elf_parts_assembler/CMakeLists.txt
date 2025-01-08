@@ -1,7 +1,12 @@
 find_package(Qt6 REQUIRED COMPONENTS Core)
 
 add_library(ElfPartAssembler
+            src/ReadingFileContentUtility.cpp
+            src/ElfPartAssembler.cpp
+            src/FieldDescriptionUtility.cpp
             )
+
+target_compile_options(ElfPartAssembler PUBLIC -fPIC)
 
 target_include_directories(ElfPartAssembler PUBLIC
             include
