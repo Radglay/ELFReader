@@ -65,19 +65,19 @@ void NavigationPanel::loadNavigationItems(std::vector<ElfPart>& p_elfParts)
             break;
             case ElfPartType::ProgramHeader:
                 m_programHeaders.push_back(p_elfPart);
-                l_programHeadersTopLevelItem->addChild(new QTreeWidgetItem({"ProgramHeader",
+                l_programHeadersTopLevelItem->addChild(new QTreeWidgetItem({p_elfPart.name,
                                                                            QString::number(p_elfPart.offset, 16),
                                                                            QString::number(p_elfPart.size, 16)}));
             break;
             case ElfPartType::Section:
                 m_sections.push_back(p_elfPart);
-                l_sectionsTopLevelItem->addChild(new QTreeWidgetItem({"Section",
+                l_sectionsTopLevelItem->addChild(new QTreeWidgetItem({p_elfPart.name,
                                                                       QString::number(p_elfPart.offset, 16),
                                                                       QString::number(p_elfPart.size, 16)}));
             break;
             case ElfPartType::SectionHeader:
                 m_sectionHeaders.push_back(p_elfPart);
-                l_sectionHeadersTopLevelItem->addChild(new QTreeWidgetItem({"SectionHeader",
+                l_sectionHeadersTopLevelItem->addChild(new QTreeWidgetItem({p_elfPart.name,
                                                                            QString::number(p_elfPart.offset, 16),
                                                                            QString::number(p_elfPart.size, 16)}));
             break;
