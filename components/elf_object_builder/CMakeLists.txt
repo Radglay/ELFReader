@@ -1,5 +1,6 @@
 add_library(ElfObjectBuilder
             src/ElfObjectBuilder.cpp
+            src/ElfBuildDirector.cpp
             ${PROJECT_SOURCE_DIR}/components/common/src/EndiannessUtility.cpp
             )
 
