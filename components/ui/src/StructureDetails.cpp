@@ -30,7 +30,7 @@ namespace
         return QString();
     }
 
-    QTreeWidgetItem* createFieldDetails(Field& p_field)
+    QTreeWidgetItem* createFieldDetails(ElfField& p_field)
     {
         auto l_child { new QTreeWidgetItem() };
         l_child->setData(0, Qt::DisplayRole, p_field.description);
@@ -38,7 +38,7 @@ namespace
         return l_child;
     }
 
-    QTreeWidgetItem* createFieldItem(Field& p_field)
+    QTreeWidgetItem* createFieldItem(ElfField& p_field)
     {
         auto l_fieldItem { new QTreeWidgetItem() };
         if (not p_field.type.isEmpty())

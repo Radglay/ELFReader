@@ -48,9 +48,9 @@ namespace
         "NOTE section is used to provide system, compiler or linker specific information."
     };
 
-    Field createIdentField(unsigned char(&p_ident)[EI_NIDENT])
+    ElfField createIdentField(unsigned char(&p_ident)[EI_NIDENT])
     {
-        std::vector<Field> l_identFields;
+        std::vector<ElfField> l_identFields;
         l_identFields.reserve(EI_NIDENT);
 
         bool l_isMagicNumberCorrect = (p_ident[EI_MAG0] != ELFMAG0) ? true : false;
@@ -86,7 +86,7 @@ namespace
 
 ElfPart ElfPartAssembler::assembleElfPartFromFileHeader(Elf32_Ehdr& p_fileHeader)
 {
-    std::vector<Field> l_fields;
+    std::vector<ElfField> l_fields;
 
     l_fields.emplace_back(createIdentField(p_fileHeader.e_ident));
     l_fields.emplace_back("e_type", "Elf32_Half", QString::number(p_fileHeader.e_type, 16).toUpper(), "Object file type: " + getObjectTypeHighLevelValue(p_fileHeader.e_type));
@@ -108,7 +108,7 @@ ElfPart ElfPartAssembler::assembleElfPartFromFileHeader(Elf32_Ehdr& p_fileHeader
 
 ElfPart ElfPartAssembler::assembleElfPartFromFileHeader(Elf64_Ehdr& p_fileHeader)
 {
-    std::vector<Field> l_fields;
+    std::vector<ElfField> l_fields;
 
     l_fields.emplace_back(createIdentField(p_fileHeader.e_ident));
     l_fields.emplace_back("e_type", "Elf64_Half", QString::number(p_fileHeader.e_type, 16).toUpper(), "Object file type: " + getObjectTypeHighLevelValue(p_fileHeader.e_type));
@@ -130,7 +130,7 @@ ElfPart ElfPartAssembler::assembleElfPartFromFileHeader(Elf64_Ehdr& p_fileHeader
 
 ElfPart ElfPartAssembler::assembleElfPartFromSectionHeader(Elf32_Shdr& p_sectionHeader, int p_sectionHeaderOffset)
 {
-    std::vector<Field> l_fields;
+    std::vector<ElfField> l_fields;
 
     l_fields.emplace_back("sh_name", "Elf32_Word", QString::number(p_sectionHeader.sh_name, 16).toUpper(), "");
     l_fields.emplace_back("sh_type", "Elf32_Word", QString::number(p_sectionHeader.sh_type, 16).toUpper(), "");
@@ -148,7 +148,7 @@ ElfPart ElfPartAssembler::assembleElfPartFromSectionHeader(Elf32_Shdr& p_section
 
 ElfPart ElfPartAssembler::assembleElfPartFromSectionHeader(Elf64_Shdr& p_sectionHeader, int p_sectionHeaderOffset)
 {
-    std::vector<Field> l_fields;
+    std::vector<ElfField> l_fields;
 
     l_fields.emplace_back("sh_name", "Elf64_Word", QString::number(p_sectionHeader.sh_name, 16).toUpper(), "");
     l_fields.emplace_back("sh_type", "Elf64_Word", QString::number(p_sectionHeader.sh_type, 16).toUpper(), "");
@@ -166,7 +166,7 @@ ElfPart ElfPartAssembler::assembleElfPartFromSectionHeader(Elf64_Shdr& p_section
 
 ElfPart ElfPartAssembler::assembleElfPartFromProgramHeader(Elf32_Phdr& p_programHeader, int p_programHeaderOffset)
 {
-    std::vector<Field> l_fields;
+    std::vector<ElfField> l_fields;
 
     l_fields.emplace_back("p_type", "Elf32_Word", QString::number(p_programHeader.p_type, 16).toUpper(), getSegmentTypeHighLevelValue(p_programHeader.p_type));
     l_fields.emplace_back("p_offset", "Elf32_Off", QString::number(p_programHeader.p_offset, 16).toUpper(), "");
@@ -184,7 +184,7 @@ ElfPart ElfPartAssembler::assembleElfPartFromProgramHeader(Elf32_Phdr& p_program
 
 ElfPart ElfPartAssembler::assembleElfPartFromProgramHeader(Elf64_Phdr& p_programHeader, int p_programHeaderOffset)
 {
-    std::vector<Field> l_fields;
+    std::vector<ElfField> l_fields;
 
     l_fields.emplace_back("p_type", "Elf64_Word", QString::number(p_programHeader.p_type, 16).toUpper(), getSegmentTypeHighLevelValue(p_programHeader.p_type));
 
@@ -207,7 +207,7 @@ ElfPart ElfPartAssembler::assembleElfPartFromSection(NoteSection<Elf32_Shdr, Elf
 
     auto l_offset { static_cast<int>(p_noteSection.getSectionHeader()->sh_offset) };
 
-    std::vector<Field> l_fields;
+    std::vector<ElfField> l_fields;
 
     l_fields.emplace_back("n_namesz", "Elf32_Word", QString::number(l_noteHeader.n_namesz, 16).toUpper(), "");
     l_fields.emplace_back("n_descsz", "Elf32_Word", QString::number(l_noteHeader.n_descsz, 16).toUpper(), "");
@@ -222,7 +222,7 @@ ElfPart ElfPartAssembler::assembleElfPartFromSection(NoteSection<Elf64_Shdr, Elf
 
     auto l_offset { static_cast<int>(p_noteSection.getSectionHeader()->sh_offset) };
 
-    std::vector<Field> l_fields;
+    std::vector<ElfField> l_fields;
 
     l_fields.emplace_back("n_namesz", "Elf64_Word", QString::number(l_noteHeader.n_namesz, 16).toUpper(), "");
     l_fields.emplace_back("n_descsz", "Elf64_Word", QString::number(l_noteHeader.n_descsz, 16).toUpper(), "");
