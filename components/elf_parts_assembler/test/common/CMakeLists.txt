@@ -1,0 +1,8 @@
+find_package(Qt6 REQUIRED Core)
+
+add_library(ElfPartTestingUtility OBJECT ElfPartTestingUtility.cpp)
+
+target_link_libraries(ElfPartTestingUtility PRIVATE Qt6::Core)
+target_link_libraries(ElfPartTestingUtility PRIVATE gtest)
+target_link_libraries(ElfPartTestingUtility PRIVATE gmock)
+target_link_libraries(ElfPartTestingUtility PRIVATE ElfPartAssembler)
