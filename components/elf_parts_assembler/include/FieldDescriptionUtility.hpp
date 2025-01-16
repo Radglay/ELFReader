@@ -26,3 +26,5 @@ QString getSegmentFlagsHighLevelValues(uint32_t p_flags);
 
 QString getSectionTypeHighLevelValue(int p_type);
 QString getSectionAtrributesHighLevelValues(uint64_t p_attributes);
+QString getSectionInfoHighLevelValue(uint32_t p_sectionType, uint32_t p_info);
+QString getSectionLinkHighLevelValue(uint32_t p_sectionType, uint32_t p_link);

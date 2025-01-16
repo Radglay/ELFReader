@@ -117,11 +117,11 @@ namespace
 
     constexpr Elf32_Word SECOND_SECTION_HEADER_LINK_VALUE { 2 };
     const QString SECOND_SECTION_HEADER_LINK_VALUE_TEXT { "2" };
-    const QString SECOND_SECTION_HEADER_LINK_DESCRIPTION_TEXT {}; // READ DOCUMENT TO NAME THIS PART..... (depend on section type)
+    const QString SECOND_SECTION_HEADER_LINK_DESCRIPTION_TEXT { "The section header index of the associated string table: 2" };
 
-    constexpr Elf32_Word SECOND_SECTION_HEADER_INFO_VALUE {}; // READ DOCUMENT TO NAME THIS PART..... (depend on section type)
+    constexpr Elf32_Word SECOND_SECTION_HEADER_INFO_VALUE {};
     const QString SECOND_SECTION_HEADER_INFO_VALUE_TEXT { "0" };
-    const QString SECOND_SECTION_HEADER_INFO_DESCRIPTION_TEXT {};
+    const QString SECOND_SECTION_HEADER_INFO_DESCRIPTION_TEXT { "One greater than the last symbol table index of the local symbol (binding STB_LOCAL): 0" };
 
     constexpr Elf32_Word SECOND_SECTION_HEADER_ADDRALIGN_VALUE { 8 };
     const QString SECOND_SECTION_HEADER_ADDRALIGN_VALUE_TEXT { "8" };

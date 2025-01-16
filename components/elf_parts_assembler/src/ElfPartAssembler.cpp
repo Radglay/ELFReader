@@ -148,8 +148,8 @@ std::vector<ElfPart> ElfPartAssembler::assembleElfPartsFromSectionHeaders(const 
         l_fields.emplace_back("sh_addr", "Elf32_Addr", getHexNumberString(p_sectionHeader->sh_addr), getSectionHeaderAddressDescription(p_sectionHeader->sh_addr));
         l_fields.emplace_back("sh_offset", "Elf32_Off", getHexNumberString(p_sectionHeader->sh_offset), getSectionHeaderOffsetDescription(p_sectionHeader->sh_offset));
         l_fields.emplace_back("sh_size", "Elf32_Word", getDecimalNumberString(p_sectionHeader->sh_size), "Section size: " + getDecimalNumberString(p_sectionHeader->sh_size) + " bytes");
-        l_fields.emplace_back("sh_link", "Elf32_Word", getDecimalNumberString(p_sectionHeader->sh_link), "");
-        l_fields.emplace_back("sh_info", "Elf32_Word", getDecimalNumberString(p_sectionHeader->sh_info), "");
+        l_fields.emplace_back("sh_link", "Elf32_Word", getDecimalNumberString(p_sectionHeader->sh_link), getSectionLinkHighLevelValue(p_sectionHeader->sh_type, p_sectionHeader->sh_link));
+        l_fields.emplace_back("sh_info", "Elf32_Word", getDecimalNumberString(p_sectionHeader->sh_info), getSectionInfoHighLevelValue(p_sectionHeader->sh_type, p_sectionHeader->sh_info));
         l_fields.emplace_back("sh_addralign", "Elf32_Word", getDecimalNumberString(p_sectionHeader->sh_addralign), "Address align: " + getDecimalNumberString(p_sectionHeader->sh_addralign) + " bytes");
         l_fields.emplace_back("sh_entsize", "Elf32_Word", getDecimalNumberString(p_sectionHeader->sh_entsize), getSectionHeaderEntrySize(p_sectionHeader->sh_entsize));
 
@@ -176,8 +176,8 @@ std::vector<ElfPart> ElfPartAssembler::assembleElfPartsFromSectionHeaders(const 
         l_fields.emplace_back("sh_addr", "Elf64_Addr", getHexNumberString(p_sectionHeader->sh_addr), getSectionHeaderAddressDescription(p_sectionHeader->sh_addr));
         l_fields.emplace_back("sh_offset", "Elf64_Off", getHexNumberString(p_sectionHeader->sh_offset), getSectionHeaderOffsetDescription(p_sectionHeader->sh_offset));
         l_fields.emplace_back("sh_size", "Elf64_Xword", getDecimalNumberString(p_sectionHeader->sh_size), "Section size: " + getDecimalNumberString(p_sectionHeader->sh_size) + " bytes");
-        l_fields.emplace_back("sh_link", "Elf64_Word", getDecimalNumberString(p_sectionHeader->sh_link), "");
-        l_fields.emplace_back("sh_info", "Elf64_Word", getDecimalNumberString(p_sectionHeader->sh_info), "");
+        l_fields.emplace_back("sh_link", "Elf64_Word", getDecimalNumberString(p_sectionHeader->sh_link), getSectionLinkHighLevelValue(p_sectionHeader->sh_type, p_sectionHeader->sh_link));
+        l_fields.emplace_back("sh_info", "Elf64_Word", getDecimalNumberString(p_sectionHeader->sh_info), getSectionInfoHighLevelValue(p_sectionHeader->sh_type, p_sectionHeader->sh_info));
         l_fields.emplace_back("sh_addralign", "Elf64_Xword", getDecimalNumberString(p_sectionHeader->sh_addralign), "Address align: " + getDecimalNumberString(p_sectionHeader->sh_addralign) + " bytes");
         l_fields.emplace_back("sh_entsize", "Elf64_Xword", getDecimalNumberString(p_sectionHeader->sh_entsize), getSectionHeaderEntrySize(p_sectionHeader->sh_entsize));
 

@@ -79,6 +79,9 @@ namespace
     constexpr int PREINIT_ARRAY_TYPE_VALUE { 16 };
     constexpr int GROUP_TYPE_VALUE { 17 };
 
+    constexpr int SECTION_TYPE_WITHOUT_LINK_OR_INFO_VALUE { 99999 };
+
+
     const QString UNUSED_SECTION_HEADER_TABLE_TYPE_TEXT_VALUE { "Section header table entry unused" };
     const QString PROGBITS_TYPE_TEXT_VALUE { "Program data" };
     const QString SYMTAB_TYPE_TEXT_VALUE { "Symbol table" };
@@ -95,6 +98,32 @@ namespace
     const QString FINI_ARRAY_TYPE_TEXT_VALUE { "Array of destructors" };
     const QString PREINIT_ARRAY_TYPE_TEXT_VALUE { "Array of pre-constructors" };
     const QString GROUP_TYPE_TEXT_VALUE { "Section group" };
+
+
+    constexpr uint32_t DYNAMIC_SH_TYPE_VALUE { 6u };
+    constexpr uint32_t HASH_SH_TYPE_VALUE { 5u };
+    constexpr uint32_t REL_SH_TYPE_VALUE { 9u };
+    constexpr uint32_t RELA_SH_TYPE_VALUE { 4u };
+    constexpr uint32_t SYMTAB_SH_TYPE_VALUE { 2u };
+    constexpr uint32_t DYNAMIC_SYMTAB_SH_TYPE_VALUE { 11u };
+    constexpr uint32_t GROUP_SH_TYPE_VALUE { 17u };
+
+
+    constexpr int SH_LINK_VALUE { 3 };
+
+    const QString DYNAMIC_SH_LINK_TEXT_VALUE { "The section header index of the associated string table: 3" };
+    const QString HASH_SH_LINK_TEXT_VALUE { "The section header index of the associated symbol table: 3" };
+    const QString RELOCATION_SH_LINK_TEXT_VALUE { "The section header index of the associated symbol table: 3" };
+    const QString SYMTAB_SH_LINK_TEXT_VALUE { "The section header index of the associated string table: 3" };
+    const QString GROUP_SH_LINK_TEXT_VALUE { "The section header index of the associated symbol table: 3" };
+
+    constexpr int SH_INFO_VALUE { 5 };
+
+    const QString RELOCATION_SH_INFO_TEXT_VALUE { "Section header index to which the relocation applies: 5" };
+    const QString SYMTAB_SH_INFO_TEXT_VALUE { "One greater than the last symbol table index of the local symbol (binding STB_LOCAL): 5" };
+    const QString GROUP_SH_INFO_TEXT_VALUE { "The index in the associated symbol table. Symbol's name is the signature for the section group: 5" };
+
+    const QString EMPTY_TEXT_VALUE {};
 }
 
 
@@ -238,4 +267,42 @@ TEST_F(FieldDescriptionUtilitySectionTypeTestSuite, shouldGetProperSectionTypeHi
     EXPECT_EQ(getSectionTypeHighLevelValue(FINI_ARRAY_TYPE_VALUE), FINI_ARRAY_TYPE_TEXT_VALUE);
     EXPECT_EQ(getSectionTypeHighLevelValue(PREINIT_ARRAY_TYPE_VALUE), PREINIT_ARRAY_TYPE_TEXT_VALUE);
     EXPECT_EQ(getSectionTypeHighLevelValue(GROUP_TYPE_VALUE), GROUP_TYPE_TEXT_VALUE);
+}
+
+
+struct FieldDescriptionUtilitySectionInfoTestSuite : public Test
+{};
+
+TEST_F(FieldDescriptionUtilitySectionInfoTestSuite, shouldGetProperSectionInfoHighLevelValue)
+{
+    EXPECT_EQ(getSectionInfoHighLevelValue(REL_SH_TYPE_VALUE, SH_INFO_VALUE), RELOCATION_SH_INFO_TEXT_VALUE);
+    EXPECT_EQ(getSectionInfoHighLevelValue(RELA_SH_TYPE_VALUE, SH_INFO_VALUE), RELOCATION_SH_INFO_TEXT_VALUE);
+    EXPECT_EQ(getSectionInfoHighLevelValue(SYMTAB_SH_TYPE_VALUE, SH_INFO_VALUE), SYMTAB_SH_INFO_TEXT_VALUE);
+    EXPECT_EQ(getSectionInfoHighLevelValue(DYNAMIC_SYMTAB_SH_TYPE_VALUE, SH_INFO_VALUE), SYMTAB_SH_INFO_TEXT_VALUE);
+    EXPECT_EQ(getSectionInfoHighLevelValue(GROUP_SH_TYPE_VALUE, SH_INFO_VALUE), GROUP_SH_INFO_TEXT_VALUE);
+}
+
+TEST_F(FieldDescriptionUtilitySectionInfoTestSuite, shouldNotGetSectionInfoHighLevelValueWhenNotValidSectionType)
+{
+    EXPECT_EQ(getSectionInfoHighLevelValue(SECTION_TYPE_WITHOUT_LINK_OR_INFO_VALUE, SH_INFO_VALUE), EMPTY_TEXT_VALUE);
+}
+
+
+struct FieldDescriptionUtilitySectionLinkTestSuite : public Test
+{};
+
+TEST_F(FieldDescriptionUtilitySectionLinkTestSuite, shouldGetProperSectionLinkHighLevelValue)
+{
+    EXPECT_EQ(getSectionLinkHighLevelValue(DYNAMIC_SH_TYPE_VALUE, SH_LINK_VALUE), DYNAMIC_SH_LINK_TEXT_VALUE);
+    EXPECT_EQ(getSectionLinkHighLevelValue(HASH_SH_TYPE_VALUE, SH_LINK_VALUE), HASH_SH_LINK_TEXT_VALUE);
+    EXPECT_EQ(getSectionLinkHighLevelValue(REL_SH_TYPE_VALUE, SH_LINK_VALUE), RELOCATION_SH_LINK_TEXT_VALUE);
+    EXPECT_EQ(getSectionLinkHighLevelValue(RELA_SH_TYPE_VALUE, SH_LINK_VALUE), RELOCATION_SH_LINK_TEXT_VALUE);
+    EXPECT_EQ(getSectionLinkHighLevelValue(SYMTAB_SH_TYPE_VALUE, SH_LINK_VALUE), SYMTAB_SH_LINK_TEXT_VALUE);
+    EXPECT_EQ(getSectionLinkHighLevelValue(DYNAMIC_SYMTAB_SH_TYPE_VALUE, SH_LINK_VALUE), SYMTAB_SH_LINK_TEXT_VALUE);
+    EXPECT_EQ(getSectionLinkHighLevelValue(GROUP_SH_TYPE_VALUE, SH_LINK_VALUE), GROUP_SH_LINK_TEXT_VALUE);
+}
+
+TEST_F(FieldDescriptionUtilitySectionLinkTestSuite, shouldNotGetSectionLinkHighLevelValueWhenNotValidSectionType)
+{
+    EXPECT_EQ(getSectionLinkHighLevelValue(SECTION_TYPE_WITHOUT_LINK_OR_INFO_VALUE, SH_LINK_VALUE), EMPTY_TEXT_VALUE);
 }

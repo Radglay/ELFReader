@@ -211,3 +211,41 @@ QString getSectionAtrributesHighLevelValues(uint64_t p_attributes)
 
     return l_attributesValues.join("\n");
 }
+
+QString getSectionInfoHighLevelValue(uint32_t p_sectionType, uint32_t p_info)
+{
+    switch (p_sectionType)
+    {
+        case SHT_REL:
+        case SHT_RELA:
+            return "Section header index to which the relocation applies: " + getDecimalNumberString(p_info);
+        case SHT_SYMTAB:
+        case SHT_DYNSYM:
+            return "One greater than the last symbol table index of the local symbol (binding STB_LOCAL): " + getDecimalNumberString(p_info);
+        case SHT_GROUP:
+            return "The index in the associated symbol table. Symbol's name is the signature for the section group: " + getDecimalNumberString(p_info);
+        default:
+            return "";
+    }
+}
+
+QString getSectionLinkHighLevelValue(uint32_t p_sectionType, uint32_t p_link)
+{
+    switch (p_sectionType)
+    {
+        case SHT_DYNAMIC:
+            return "The section header index of the associated string table: " + getDecimalNumberString(p_link);
+        case SHT_HASH:
+            return "The section header index of the associated symbol table: " + getDecimalNumberString(p_link);
+        case SHT_REL:
+        case SHT_RELA:
+            return "The section header index of the associated symbol table: " + getDecimalNumberString(p_link);
+        case SHT_SYMTAB:
+        case SHT_DYNSYM:
+            return "The section header index of the associated string table: " + getDecimalNumberString(p_link);
+        case SHT_GROUP:
+            return "The section header index of the associated symbol table: " + getDecimalNumberString(p_link);
+        default:
+            return "";
+    }
+}
