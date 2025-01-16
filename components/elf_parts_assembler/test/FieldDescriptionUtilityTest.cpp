@@ -42,6 +42,59 @@ namespace
 
     constexpr int AMD_X86_64_ARCHITECTURE_VALUE { 0x3E };
     const QString AMD_X86_64_HIGH_LEVEL_VALUE { "AMD x86-64 architecture" };
+
+
+    constexpr int NUMBER_10 { 10 };
+    constexpr int NUMBER_0 {};
+
+    const QString DECIMAL_10_TEXT_VALUE { "10" };
+    const QString DECIMAL_0_TEXT_VALUE { "0" };
+
+    const QString HEX_10_TEXT_VALUE { "0xA" };
+    const QString HEX_0_TEXT_VALUE { "0x0" };
+
+    constexpr int BINARY_LENGTH_4 { 4 };
+    constexpr int BINARY_LENGTH_8 { 8 };
+    const QString BINARY_10_WITH_8_BITS_LENGTH_TEXT_VALUE { "0b00001010" };
+    const QString BINARY_10_WITH_4_BITS_LENGTH_TEXT_VALUE { "0b1010" };
+    const QString BINARY_0_WITH_8_BITS_LENGTH_TEXT_VALUE { "0b00000000" };
+    const QString BINARY_0_WITH_4_BITS_LENGTH_TEXT_VALUE { "0b0000" };
+
+
+    
+    constexpr int UNUSED_SECTION_HEADER_TABLE_TYPE_VALUE {};
+    constexpr int PROGBITS_TYPE_VALUE { 1 };
+    constexpr int SYMTAB_TYPE_VALUE { 2 };
+    constexpr int STRTAB_TYPE_VALUE { 3 };
+    constexpr int RELA_TYPE_VALUE { 4 };
+    constexpr int HASH_TYPE_VALUE { 5 };
+    constexpr int DYNAMIC_TYPE_VALUE { 6 };
+    constexpr int NOTE_TYPE_VALUE { 7 };
+    constexpr int NOBITS_TYPE_VALUE { 8 };
+    constexpr int REL_TYPE_VALUE { 9 };
+    constexpr int SHLIB_TYPE_VALUE { 10 };
+    constexpr int DYNSYM_TYPE_VALUE { 11 };
+    constexpr int INIT_ARRAY_TYPE_VALUE { 14 };
+    constexpr int FINI_ARRAY_TYPE_VALUE { 15 };
+    constexpr int PREINIT_ARRAY_TYPE_VALUE { 16 };
+    constexpr int GROUP_TYPE_VALUE { 17 };
+
+    const QString UNUSED_SECTION_HEADER_TABLE_TYPE_TEXT_VALUE { "Section header table entry unused" };
+    const QString PROGBITS_TYPE_TEXT_VALUE { "Program data" };
+    const QString SYMTAB_TYPE_TEXT_VALUE { "Symbol table" };
+    const QString STRTAB_TYPE_TEXT_VALUE { "String table" };
+    const QString RELA_TYPE_TEXT_VALUE { "Relocation entries with addends" };
+    const QString HASH_TYPE_TEXT_VALUE { "Symbol hash table" };
+    const QString DYNAMIC_TYPE_TEXT_VALUE { "Dynamic linking information" };
+    const QString NOTE_TYPE_TEXT_VALUE { "Notes" };
+    const QString NOBITS_TYPE_TEXT_VALUE { "Program space with no data (bss)" };
+    const QString REL_TYPE_TEXT_VALUE { "Relocation entries, no addends" };
+    const QString SHLIB_TYPE_TEXT_VALUE { "Reserved" };
+    const QString DYNSYM_TYPE_TEXT_VALUE { "Dynamic linker symbol table" };
+    const QString INIT_ARRAY_TYPE_TEXT_VALUE { "Array of constructors" };
+    const QString FINI_ARRAY_TYPE_TEXT_VALUE { "Array of destructors" };
+    const QString PREINIT_ARRAY_TYPE_TEXT_VALUE { "Array of pre-constructors" };
+    const QString GROUP_TYPE_TEXT_VALUE { "Section group" };
 }
 
 
@@ -133,4 +186,56 @@ struct FieldDescriptionUtilityIdentPartInstructionSetArchitectureTestSuite : pub
 TEST_F(FieldDescriptionUtilityIdentPartInstructionSetArchitectureTestSuite, shouldGetProperInstructionSetArchitectureHighLevelValue)
 {
     EXPECT_EQ(getInstructionSetArchitectureHighLevelValue(AMD_X86_64_ARCHITECTURE_VALUE), AMD_X86_64_HIGH_LEVEL_VALUE);
+}
+
+
+
+struct FieldDescriptionUtilityNumberConversionsTestSuite : public Test
+{};
+
+TEST_F(FieldDescriptionUtilityNumberConversionsTestSuite, shouldConvertNumberToDecimalNumberString)
+{
+
+    EXPECT_EQ(getDecimalNumberString(NUMBER_10), DECIMAL_10_TEXT_VALUE);
+    EXPECT_EQ(getDecimalNumberString(NUMBER_0), DECIMAL_0_TEXT_VALUE);
+}
+
+TEST_F(FieldDescriptionUtilityNumberConversionsTestSuite, shouldConvertNumberToHexNumberString)
+{
+
+    EXPECT_EQ(getHexNumberString(NUMBER_10), HEX_10_TEXT_VALUE);
+    EXPECT_EQ(getHexNumberString(NUMBER_0), HEX_0_TEXT_VALUE);
+}
+
+TEST_F(FieldDescriptionUtilityNumberConversionsTestSuite, shouldConvertNumberToBinaryNumberString)
+{
+
+    EXPECT_EQ(getBinaryNumberString(NUMBER_10, BINARY_LENGTH_8), BINARY_10_WITH_8_BITS_LENGTH_TEXT_VALUE);
+    EXPECT_EQ(getBinaryNumberString(NUMBER_10, BINARY_LENGTH_4), BINARY_10_WITH_4_BITS_LENGTH_TEXT_VALUE);
+    EXPECT_EQ(getBinaryNumberString(NUMBER_0, BINARY_LENGTH_8), BINARY_0_WITH_8_BITS_LENGTH_TEXT_VALUE);
+    EXPECT_EQ(getBinaryNumberString(NUMBER_0, BINARY_LENGTH_4), BINARY_0_WITH_4_BITS_LENGTH_TEXT_VALUE);
+}
+
+
+struct FieldDescriptionUtilitySectionTypeTestSuite : public Test
+{};
+
+TEST_F(FieldDescriptionUtilitySectionTypeTestSuite, shouldGetProperSectionTypeHighLevelValue)
+{
+    EXPECT_EQ(getSectionTypeHighLevelValue(UNUSED_SECTION_HEADER_TABLE_TYPE_VALUE), UNUSED_SECTION_HEADER_TABLE_TYPE_TEXT_VALUE);
+    EXPECT_EQ(getSectionTypeHighLevelValue(PROGBITS_TYPE_VALUE), PROGBITS_TYPE_TEXT_VALUE);
+    EXPECT_EQ(getSectionTypeHighLevelValue(SYMTAB_TYPE_VALUE), SYMTAB_TYPE_TEXT_VALUE);
+    EXPECT_EQ(getSectionTypeHighLevelValue(STRTAB_TYPE_VALUE), STRTAB_TYPE_TEXT_VALUE);
+    EXPECT_EQ(getSectionTypeHighLevelValue(RELA_TYPE_VALUE), RELA_TYPE_TEXT_VALUE);
+    EXPECT_EQ(getSectionTypeHighLevelValue(HASH_TYPE_VALUE), HASH_TYPE_TEXT_VALUE);
+    EXPECT_EQ(getSectionTypeHighLevelValue(DYNAMIC_TYPE_VALUE), DYNAMIC_TYPE_TEXT_VALUE);
+    EXPECT_EQ(getSectionTypeHighLevelValue(NOTE_TYPE_VALUE), NOTE_TYPE_TEXT_VALUE);
+    EXPECT_EQ(getSectionTypeHighLevelValue(NOBITS_TYPE_VALUE), NOBITS_TYPE_TEXT_VALUE);
+    EXPECT_EQ(getSectionTypeHighLevelValue(REL_TYPE_VALUE), REL_TYPE_TEXT_VALUE);
+    EXPECT_EQ(getSectionTypeHighLevelValue(SHLIB_TYPE_VALUE), SHLIB_TYPE_TEXT_VALUE);
+    EXPECT_EQ(getSectionTypeHighLevelValue(DYNSYM_TYPE_VALUE), DYNSYM_TYPE_TEXT_VALUE);
+    EXPECT_EQ(getSectionTypeHighLevelValue(INIT_ARRAY_TYPE_VALUE), INIT_ARRAY_TYPE_TEXT_VALUE);
+    EXPECT_EQ(getSectionTypeHighLevelValue(FINI_ARRAY_TYPE_VALUE), FINI_ARRAY_TYPE_TEXT_VALUE);
+    EXPECT_EQ(getSectionTypeHighLevelValue(PREINIT_ARRAY_TYPE_VALUE), PREINIT_ARRAY_TYPE_TEXT_VALUE);
+    EXPECT_EQ(getSectionTypeHighLevelValue(GROUP_TYPE_VALUE), GROUP_TYPE_TEXT_VALUE);
 }

@@ -2,7 +2,6 @@
 #include "ElfPart.hpp"
 
 
-
 void ElfPartAssemblerTestSuite::expectElfPartsAreEqual(const ElfPart& p_targetElfPart, const ElfPart& p_expectedElfPart)
 {
     expectElfPartTextContentsAreEqual(p_targetElfPart, p_expectedElfPart);
@@ -41,4 +40,14 @@ void ElfPartAssemblerTestSuite::expectElfPartTextContentsAreEqual(const ElfPart&
     EXPECT_EQ(p_targetElfPart.offset, p_expectedElfPart.offset);
     EXPECT_EQ(p_targetElfPart.size, p_expectedElfPart.size);
     EXPECT_EQ(p_targetElfPart.description, p_expectedElfPart.description);
+}
+
+void ElfPartAssemblerTestSuite::expectElfPartContainersAreEqual(const std::vector<ElfPart>& p_targetElfParts, const std::vector<ElfPart>& p_expectedElfParts)
+{
+    ASSERT_EQ(p_targetElfParts.size(), p_expectedElfParts.size());
+
+    for (int i = 0; i < p_targetElfParts.size(); ++i)
+    {
+        expectElfPartsAreEqual(p_targetElfParts[i], p_expectedElfParts[i]);
+    }
 }

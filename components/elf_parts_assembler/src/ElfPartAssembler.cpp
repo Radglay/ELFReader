@@ -15,22 +15,29 @@
 
 namespace
 {
-    QString getBinaryNumberString(uint64_t p_number, int p_length)
+    QString getSectionHeaderOffsetDescription(uint64_t p_offset)
     {
-        return QString("0b") + QStringLiteral("%1").arg(p_number, p_length, 2, QLatin1Char('0'));
+        if (p_offset == 0u)
+            return "Section doesn't occupy space in the file";
+        return "Section offset in the file: " + getHexNumberString(p_offset);
+
     }
 
-    QString getHexNumberString(uint64_t p_number)
+    QString getSectionHeaderAddressDescription(uint64_t p_address)
     {
-        return QString("0x") + QString::number(p_number, 16).toUpper();
+        if (p_address == 0u)
+            return "Section not loadable";
+        return "Section address in the process image: " + getHexNumberString(p_address);
     }
 
-    QString getDecimalNumberString(uint64_t p_number)
+    QString getSectionHeaderEntrySize(uint64_t p_entsize)
     {
-        return QString::number(p_number, 10);
+        if (p_entsize == 0u)
+            return "Section contains no entries";
+        return "Entry size: " + getDecimalNumberString(p_entsize) + " bytes";
     }
 
-    const QString  FILE_HEADER_DESCRIPTION {
+    const QString FILE_HEADER_DESCRIPTION {
         "File Header provides information about the architecture on which the file was created and information necessary for parsing the whole file parts."
         "The architecture information part contains for example endianness and procesor architecture and bit version."
         "Information required during parsing of the other elf parts such as offsets to the appropriate header table and number of entries is provided in the second part of the file header."
@@ -125,40 +132,60 @@ ElfPart ElfPartAssembler::assembleElfPartFromFileHeader(Elf64_Ehdr& p_fileHeader
     return ElfPart{ "FileHeader", ElfPartType::FileHeader, 0, sizeof(Elf64_Ehdr), FILE_HEADER_DESCRIPTION, l_fields };
 }
 
-ElfPart ElfPartAssembler::assembleElfPartFromSectionHeader(Elf32_Shdr& p_sectionHeader, int p_sectionHeaderOffset)
+std::vector<ElfPart> ElfPartAssembler::assembleElfPartsFromSectionHeaders(const std::vector<std::shared_ptr<Elf32_Shdr>>& p_sectionHeaders, int p_sectionHeaderTableOffset)
 {
-    std::vector<ElfField> l_fields;
+    std::vector<ElfPart> l_elfParts;
 
-    l_fields.emplace_back("sh_name", "Elf32_Word", QString::number(p_sectionHeader.sh_name, 16).toUpper(), "");
-    l_fields.emplace_back("sh_type", "Elf32_Word", QString::number(p_sectionHeader.sh_type, 16).toUpper(), "");
-    l_fields.emplace_back("sh_flags", "Elf32_Word", QString::number(p_sectionHeader.sh_flags, 16).toUpper(), "");
-    l_fields.emplace_back("sh_addr", "Elf32_Addr", QString::number(p_sectionHeader.sh_addr, 16).toUpper(), "");
-    l_fields.emplace_back("sh_offset", "Elf32_Off", QString::number(p_sectionHeader.sh_offset, 16).toUpper(), "");
-    l_fields.emplace_back("sh_size", "Elf32_Word", QString::number(p_sectionHeader.sh_size, 16).toUpper(), "");
-    l_fields.emplace_back("sh_link", "Elf32_Word", QString::number(p_sectionHeader.sh_link, 16).toUpper(), "");
-    l_fields.emplace_back("sh_info", "Elf32_Word", QString::number(p_sectionHeader.sh_info, 16).toUpper(), "");
-    l_fields.emplace_back("sh_addralign", "Elf32_Word", QString::number(p_sectionHeader.sh_addralign, 16).toUpper(), "");
-    l_fields.emplace_back("sh_entsize", "Elf32_Word", QString::number(p_sectionHeader.sh_entsize, 16).toUpper(), "");
+    auto l_currentOffset { p_sectionHeaderTableOffset };
 
-    return ElfPart{"SectionHeader", ElfPartType::SectionHeader, p_sectionHeaderOffset, sizeof(Elf32_Shdr), SECTION_HEADER_DESCRIPTION, l_fields};
+    for (const auto& p_sectionHeader : p_sectionHeaders)
+    {
+        std::vector<ElfField> l_fields;
+
+        l_fields.emplace_back("sh_name", "Elf32_Word", getHexNumberString(p_sectionHeader->sh_name), "");
+        l_fields.emplace_back("sh_type", "Elf32_Word", getDecimalNumberString(p_sectionHeader->sh_type), "Section type: " + getSectionTypeHighLevelValue(p_sectionHeader->sh_type));
+        l_fields.emplace_back("sh_flags", "Elf32_Word", getHexNumberString(p_sectionHeader->sh_flags), "");
+        l_fields.emplace_back("sh_addr", "Elf32_Addr", getHexNumberString(p_sectionHeader->sh_addr), getSectionHeaderAddressDescription(p_sectionHeader->sh_addr));
+        l_fields.emplace_back("sh_offset", "Elf32_Off", getHexNumberString(p_sectionHeader->sh_offset), getSectionHeaderOffsetDescription(p_sectionHeader->sh_offset));
+        l_fields.emplace_back("sh_size", "Elf32_Word", getDecimalNumberString(p_sectionHeader->sh_size), "Section size: " + getDecimalNumberString(p_sectionHeader->sh_size) + " bytes");
+        l_fields.emplace_back("sh_link", "Elf32_Word", getDecimalNumberString(p_sectionHeader->sh_link), "");
+        l_fields.emplace_back("sh_info", "Elf32_Word", getDecimalNumberString(p_sectionHeader->sh_info), "");
+        l_fields.emplace_back("sh_addralign", "Elf32_Word", getDecimalNumberString(p_sectionHeader->sh_addralign), "Address align: " + getDecimalNumberString(p_sectionHeader->sh_addralign) + " bytes");
+        l_fields.emplace_back("sh_entsize", "Elf32_Word", getDecimalNumberString(p_sectionHeader->sh_entsize), getSectionHeaderEntrySize(p_sectionHeader->sh_entsize));
+
+        l_elfParts.emplace_back("SectionHeader", ElfPartType::SectionHeader, l_currentOffset, sizeof(Elf32_Shdr), SECTION_HEADER_DESCRIPTION, l_fields);
+        l_currentOffset += sizeof(Elf32_Shdr);
+    }
+
+    return l_elfParts;
 }
 
-ElfPart ElfPartAssembler::assembleElfPartFromSectionHeader(Elf64_Shdr& p_sectionHeader, int p_sectionHeaderOffset)
+std::vector<ElfPart> ElfPartAssembler::assembleElfPartsFromSectionHeaders(const std::vector<std::shared_ptr<Elf64_Shdr>>& p_sectionHeaders, int p_sectionHeaderTableOffset)
 {
-    std::vector<ElfField> l_fields;
+    std::vector<ElfPart> l_elfParts;
 
-    l_fields.emplace_back("sh_name", "Elf64_Word", QString::number(p_sectionHeader.sh_name, 16).toUpper(), "");
-    l_fields.emplace_back("sh_type", "Elf64_Word", QString::number(p_sectionHeader.sh_type, 16).toUpper(), "");
-    l_fields.emplace_back("sh_flags", "Elf64_Xword", QString::number(p_sectionHeader.sh_flags, 16).toUpper(), "");
-    l_fields.emplace_back("sh_addr", "Elf64_Addr", QString::number(p_sectionHeader.sh_addr, 16).toUpper(), "");
-    l_fields.emplace_back("sh_offset", "Elf64_Off", QString::number(p_sectionHeader.sh_offset, 16).toUpper(), "");
-    l_fields.emplace_back("sh_size", "Elf64_Xword", QString::number(p_sectionHeader.sh_size, 16).toUpper(), "");
-    l_fields.emplace_back("sh_link", "Elf64_Word", QString::number(p_sectionHeader.sh_link, 16).toUpper(), "");
-    l_fields.emplace_back("sh_info", "Elf64_Word", QString::number(p_sectionHeader.sh_info, 16).toUpper(), "");
-    l_fields.emplace_back("sh_addralign", "Elf64_Xword", QString::number(p_sectionHeader.sh_addralign, 16).toUpper(), "");
-    l_fields.emplace_back("sh_entsize", "Elf64_Xword", QString::number(p_sectionHeader.sh_entsize, 16).toUpper(), "");
+    auto l_currentOffset { p_sectionHeaderTableOffset };
 
-    return ElfPart{"SectionHeader", ElfPartType::SectionHeader, p_sectionHeaderOffset, sizeof(Elf64_Shdr), SECTION_HEADER_DESCRIPTION, l_fields};
+    for (const auto& p_sectionHeader : p_sectionHeaders)
+    {
+        std::vector<ElfField> l_fields;
+
+        l_fields.emplace_back("sh_name", "Elf64_Word", getHexNumberString(p_sectionHeader->sh_name), "");
+        l_fields.emplace_back("sh_type", "Elf64_Word", getDecimalNumberString(p_sectionHeader->sh_type), "Section type: " + getSectionTypeHighLevelValue(p_sectionHeader->sh_type));
+        l_fields.emplace_back("sh_flags", "Elf64_Xword", getHexNumberString(p_sectionHeader->sh_flags), "");
+        l_fields.emplace_back("sh_addr", "Elf64_Addr", getHexNumberString(p_sectionHeader->sh_addr), getSectionHeaderAddressDescription(p_sectionHeader->sh_addr));
+        l_fields.emplace_back("sh_offset", "Elf64_Off", getHexNumberString(p_sectionHeader->sh_offset), getSectionHeaderOffsetDescription(p_sectionHeader->sh_offset));
+        l_fields.emplace_back("sh_size", "Elf64_Xword", getDecimalNumberString(p_sectionHeader->sh_size), "Section size: " + getDecimalNumberString(p_sectionHeader->sh_size) + " bytes");
+        l_fields.emplace_back("sh_link", "Elf64_Word", getDecimalNumberString(p_sectionHeader->sh_link), "");
+        l_fields.emplace_back("sh_info", "Elf64_Word", getDecimalNumberString(p_sectionHeader->sh_info), "");
+        l_fields.emplace_back("sh_addralign", "Elf64_Xword", getDecimalNumberString(p_sectionHeader->sh_addralign), "Address align: " + getDecimalNumberString(p_sectionHeader->sh_addralign) + " bytes");
+        l_fields.emplace_back("sh_entsize", "Elf64_Xword", getDecimalNumberString(p_sectionHeader->sh_entsize), getSectionHeaderEntrySize(p_sectionHeader->sh_entsize));
+
+        l_elfParts.emplace_back("SectionHeader", ElfPartType::SectionHeader, l_currentOffset, sizeof(Elf64_Shdr), SECTION_HEADER_DESCRIPTION, l_fields);
+        l_currentOffset += sizeof(Elf64_Shdr);
+    }
+
+    return l_elfParts;
 }
 
 ElfPart ElfPartAssembler::assembleElfPartFromProgramHeader(Elf32_Phdr& p_programHeader, int p_programHeaderOffset)

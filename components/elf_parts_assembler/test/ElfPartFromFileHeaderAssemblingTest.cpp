@@ -4,7 +4,7 @@
 #include "ElfPartAssembler.hpp"
 #include "ElfPart.hpp"
 #include <elf.h>
-#include <stdint.h>
+#include <cstdint>
 #include <QString>
 #include <vector>
 

@@ -9,8 +9,8 @@ public:
     ElfPart assembleElfPartFromFileHeader(Elf32_Ehdr&) override;
     ElfPart assembleElfPartFromFileHeader(Elf64_Ehdr&) override;
 
-    ElfPart assembleElfPartFromSectionHeader(Elf32_Shdr&, int) override;
-    ElfPart assembleElfPartFromSectionHeader(Elf64_Shdr&, int) override;
+    std::vector<ElfPart> assembleElfPartsFromSectionHeaders(const std::vector<std::shared_ptr<Elf32_Shdr>>&, int) override;
+    std::vector<ElfPart> assembleElfPartsFromSectionHeaders(const std::vector<std::shared_ptr<Elf64_Shdr>>&, int) override;
 
     ElfPart assembleElfPartFromProgramHeader(Elf32_Phdr&, int) override;
     ElfPart assembleElfPartFromProgramHeader(Elf64_Phdr&, int) override;

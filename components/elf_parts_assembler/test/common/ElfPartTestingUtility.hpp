@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include "ElfPartAssembler.hpp"
+#include <vector>
 
 
 struct ElfPart;
@@ -19,6 +20,7 @@ const QString ELF32_OFF_TEXT { "Elf32_Off" };
 
 const QString ELF64_HALF_TEXT { "Elf64_Half" };
 const QString ELF64_WORD_TEXT { "Elf64_Word" };
+const QString ELF64_XWORD_TEXT { "Elf64_Xword" };
 const QString ELF64_ADDR_TEXT { "Elf64_Addr" };
 const QString ELF64_OFF_TEXT { "Elf64_Off" };
 
@@ -27,6 +29,7 @@ struct ElfPartAssemblerTestSuite : public ::testing::Test
 {
     void expectElfPartsAreEqual(const ElfPart&, const ElfPart&);
     void expectElfFieldsAreEqual(const ElfField&, const ElfField&);
+    void expectElfPartContainersAreEqual(const std::vector<ElfPart>&, const std::vector<ElfPart>&);
 
     ElfPartAssembler m_elfPartAssembler;
 

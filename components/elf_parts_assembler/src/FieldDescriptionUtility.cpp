@@ -3,6 +3,22 @@
 #include <QString>
 
 
+QString getBinaryNumberString(uint64_t p_number, int p_length)
+{
+    return QString("0b") + QStringLiteral("%1").arg(p_number, p_length, 2, QLatin1Char('0'));
+}
+
+QString getHexNumberString(uint64_t p_number)
+{
+    return QString("0x") + QString::number(p_number, 16).toUpper();
+}
+
+QString getDecimalNumberString(uint64_t p_number)
+{
+    return QString::number(p_number, 10);
+}
+
+
 QString getBitVersionHighLevelValue(int p_ident)
 {
     switch (p_ident)
@@ -42,7 +58,7 @@ QString getABIHighLevelValue(int p_abi)
 
 QString getABIVersionHighLevelValue(int p_version)
 {
-    return QString::number(p_version);
+    return getDecimalNumberString(p_version);
 }
 
 QString getObjectTypeHighLevelValue(int p_type)
@@ -151,29 +167,9 @@ QString getSectionTypeHighLevelValue(int p_type)
             return "Array of pre-constructors";
         case SHT_GROUP:
             return "Section group";
-        case SHT_SYMTAB_SHNDX:
-            return "Extended section indices";
-        default:
-            return "Unsupported section type";
+        // case SHT_SYMTAB_SHNDX:
+        //     return "Extended section indices";
     }
-        // case SHT_LOOS:	  0x60000000	/* Start OS-specific.  */
-        // case SHT_GNU_ATTRIBUTES: 0x6ffffff5	/* Object attributes.  */
-        // case SHT_GNU_HASH:	  0x6ffffff6	/* GNU-style hash table.  */
-        // case SHT_GNU_LIBLIST:	  0x6ffffff7	/* Prelink library list */
-        // case SHT_CHECKSUM:	  0x6ffffff8	/* Checksum for DSO content.  */
-        // case SHT_LOSUNW:	  0x6ffffffa	/* Sun-specific low bound.  */
-        // case SHT_SUNW_move:	  0x6ffffffa
-        // case SHT_SUNW_COMDAT:   0x6ffffffb
-        // case SHT_SUNW_syminfo:  0x6ffffffc
-        // case SHT_GNU_verdef:	  0x6ffffffd	/* Version definition section.  */
-        // case SHT_GNU_verneed:	  0x6ffffffe	/* Version needs section.  */
-        // case SHT_GNU_versym:	  0x6fffffff	/* Version symbol table.  */
-        // case SHT_HISUNW:	  0x6fffffff	/* Sun-specific high bound.  */
-        // case SHT_HIOS:	  0x6fffffff	/* End OS-specific type */
-        // case SHT_LOPROC:	  0x70000000	/* Start of processor-specific */
-        // case SHT_HIPROC:	  0x7fffffff	/* End of processor-specific */
-        // case SHT_LOUSER:	  0x80000000	/* Start of application-specific */
-        // case SHT_HIUSER:	  0x8fffffff	/* End of application-specific */
 }
 
 QString getSectionAtrributesHighLevelValues(uint64_t p_attributes)

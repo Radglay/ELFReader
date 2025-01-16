@@ -2,6 +2,8 @@
 
 #include <elf.h>
 #include <string>
+#include <vector>
+#include <memory>
 
 
 template <typename T, typename U>
@@ -32,8 +34,8 @@ public:
     virtual ElfPart assembleElfPartFromFileHeader(Elf32_Ehdr&) = 0;
     virtual ElfPart assembleElfPartFromFileHeader(Elf64_Ehdr&) = 0;
 
-    virtual ElfPart assembleElfPartFromSectionHeader(Elf32_Shdr&, int) = 0;
-    virtual ElfPart assembleElfPartFromSectionHeader(Elf64_Shdr&, int) = 0;
+    virtual std::vector<ElfPart> assembleElfPartsFromSectionHeaders(const std::vector<std::shared_ptr<Elf32_Shdr>>&, int) = 0;
+    virtual std::vector<ElfPart> assembleElfPartsFromSectionHeaders(const std::vector<std::shared_ptr<Elf64_Shdr>>&, int) = 0;
 
     virtual ElfPart assembleElfPartFromProgramHeader(Elf32_Phdr&, int) = 0;
     virtual ElfPart assembleElfPartFromProgramHeader(Elf64_Phdr&, int) = 0;

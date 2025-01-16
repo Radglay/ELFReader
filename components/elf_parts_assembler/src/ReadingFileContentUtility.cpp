@@ -36,25 +36,6 @@ std::vector<ElfPart> assembleElfPartsFromProgramHeaders(std::vector<T>& p_progra
     return l_elfParts;
 }
 
-template <typename T>
-std::vector<ElfPart> assembleElfPartsFromSectionHeaders(std::vector<std::shared_ptr<T>>& p_sectionHeaders,
-                                                        ElfPartAssembler& p_elfPartAssembler,
-                                                        int p_sectionHeaderTableOffset)
-{
-    std::vector<ElfPart> l_elfParts;
-
-    auto l_offset { p_sectionHeaderTableOffset };
-    for (auto& p_sectionHeader : p_sectionHeaders)
-    {
-        l_elfParts.push_back(p_elfPartAssembler.assembleElfPartFromSectionHeader(*p_sectionHeader, l_offset));
-        l_offset += sizeof(T);
-    }
-
-    return l_elfParts;
-}
-
-
-// , 
 template <typename T, typename U>
 std::vector<ElfPart> assembleElfPartsFromSections(std::vector<std::shared_ptr<T>>& p_sections,
                                                   ElfPartAssembler& p_elfPartAssembler,
@@ -122,9 +103,8 @@ std::vector<ElfPart> readElfPartsFromFile(std::istream* p_fileStream)
         auto l_sectionsElfParts { assembleElfPartsFromSections(l_elfObject->sections, l_elfPartAssembler, l_sectionNamesTable) };
         l_elfParts.insert(l_elfParts.end(), l_sectionsElfParts.begin(), l_sectionsElfParts.end());
 
-        auto l_sectionHeadersElfParts { assembleElfPartsFromSectionHeaders(l_elfObject->elfStructureInfo.sectionHeaders,
-                                                                           l_elfPartAssembler,
-                                                                           l_elfObject->elfStructureInfo.fileHeader.e_shoff) };
+        auto l_sectionHeadersElfParts { l_elfPartAssembler.assembleElfPartsFromSectionHeaders(l_elfObject->elfStructureInfo.sectionHeaders,
+                                                                                              l_elfObject->elfStructureInfo.fileHeader.e_shoff) };
         l_elfParts.insert(l_elfParts.end(), l_sectionHeadersElfParts.begin(), l_sectionHeadersElfParts.end());
     }
     else if (l_targetMachineInfo.bitVersion == ELFCLASS64)
@@ -152,9 +132,8 @@ std::vector<ElfPart> readElfPartsFromFile(std::istream* p_fileStream)
         l_elfParts.insert(l_elfParts.end(), l_sectionsElfParts.begin(), l_sectionsElfParts.end());
 
 
-        auto l_sectionHeadersElfParts { assembleElfPartsFromSectionHeaders(l_elfObject->elfStructureInfo.sectionHeaders,
-                                                                           l_elfPartAssembler,
-                                                                           l_elfObject->elfStructureInfo.fileHeader.e_shoff) };
+        auto l_sectionHeadersElfParts { l_elfPartAssembler.assembleElfPartsFromSectionHeaders(l_elfObject->elfStructureInfo.sectionHeaders,
+                                                                                              l_elfObject->elfStructureInfo.fileHeader.e_shoff) };
         l_elfParts.insert(l_elfParts.end(), l_sectionHeadersElfParts.begin(), l_sectionHeadersElfParts.end());  
     }
 
