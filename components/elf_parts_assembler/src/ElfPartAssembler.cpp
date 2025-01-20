@@ -20,7 +20,6 @@ namespace
         if (p_offset == 0u)
             return "Section doesn't occupy space in the file";
         return "Section offset in the file: " + getHexNumberString(p_offset);
-
     }
 
     QString getSectionHeaderAddressDescription(uint64_t p_address)
@@ -36,6 +35,7 @@ namespace
             return "Section contains no entries";
         return "Entry size: " + getDecimalNumberString(p_entsize) + " bytes";
     }
+
 
     const QString FILE_HEADER_DESCRIPTION {
         "File Header provides information about the architecture on which the file was created and information necessary for parsing the whole file parts."
@@ -188,41 +188,56 @@ std::vector<ElfPart> ElfPartAssembler::assembleElfPartsFromSectionHeaders(const 
     return l_elfParts;
 }
 
-ElfPart ElfPartAssembler::assembleElfPartFromProgramHeader(Elf32_Phdr& p_programHeader, int p_programHeaderOffset)
+std::vector<ElfPart> ElfPartAssembler::assembleElfPartsFromProgramHeaders(const std::vector<Elf32_Phdr>& p_programHeaders, int p_programHeaderTableOffset)
 {
-    std::vector<ElfField> l_fields;
+    std::vector<ElfPart> l_elfParts;
 
-    l_fields.emplace_back("p_type", "Elf32_Word", QString::number(p_programHeader.p_type, 16).toUpper(), getSegmentTypeHighLevelValue(p_programHeader.p_type));
-    l_fields.emplace_back("p_offset", "Elf32_Off", QString::number(p_programHeader.p_offset, 16).toUpper(), "");
-    l_fields.emplace_back("p_vaddr", "Elf32_Addr", QString::number(p_programHeader.p_vaddr, 16).toUpper(), "");
-    l_fields.emplace_back("p_paddr", "Elf32_Addr", QString::number(p_programHeader.p_paddr, 16).toUpper(), "");
-    l_fields.emplace_back("p_filesz", "Elf32_Word", QString::number(p_programHeader.p_filesz, 16).toUpper(), "");
-    l_fields.emplace_back("p_memsz", "Elf32_Word", QString::number(p_programHeader.p_memsz, 16).toUpper(), "");
+    auto l_currentOffset { p_programHeaderTableOffset };
 
-    auto l_binaryFormatFlags { QStringLiteral("%1").arg(p_programHeader.p_flags, 4, 2, QLatin1Char('0')) };
-    l_fields.emplace_back("p_flags", "Elf32_Word", l_binaryFormatFlags, getSegmentFlagsHighLevelValues(p_programHeader.p_flags));
-    l_fields.emplace_back("p_align", "Elf32_Word", QString::number(p_programHeader.p_align, 16).toUpper(), "");
+    for (const auto& p_programHeader : p_programHeaders)
+    {
+        std::vector<ElfField> l_fields;
 
-    return ElfPart{"ProgramHeader", ElfPartType::ProgramHeader, p_programHeaderOffset, sizeof(Elf32_Phdr), PROGRAM_HEADER_DESCRIPTION, l_fields};
+        l_fields.emplace_back("p_type", "Elf32_Word", getDecimalNumberString(p_programHeader.p_type), "Segment type: " + getSegmentTypeHighLevelValue(p_programHeader.p_type));
+        l_fields.emplace_back("p_offset", "Elf32_Off", getHexNumberString(p_programHeader.p_offset), "Segment offset in the file: " + getHexNumberString(p_programHeader.p_offset));
+        l_fields.emplace_back("p_vaddr", "Elf32_Addr", getHexNumberString(p_programHeader.p_vaddr), "Virtual address of the segment in the memory: " + getHexNumberString(p_programHeader.p_vaddr));
+        l_fields.emplace_back("p_paddr", "Elf32_Addr", getHexNumberString(p_programHeader.p_paddr), "Physical address of the segment: " + getHexNumberString(p_programHeader.p_paddr));
+        l_fields.emplace_back("p_filesz", "Elf32_Word", getDecimalNumberString(p_programHeader.p_filesz), "Size of the segment in the file: " + getDecimalNumberString(p_programHeader.p_filesz) + " bytes");
+        l_fields.emplace_back("p_memsz", "Elf32_Word", getDecimalNumberString(p_programHeader.p_memsz), "Size of the segment in the memory: " + getDecimalNumberString(p_programHeader.p_memsz) + " bytes");
+        l_fields.emplace_back("p_flags", "Elf32_Word", getHexNumberString(p_programHeader.p_flags), getSegmentFlagsHighLevelValues(p_programHeader.p_flags));
+        l_fields.emplace_back("p_align", "Elf32_Word", getDecimalNumberString(p_programHeader.p_align), "Address align: " + getDecimalNumberString(p_programHeader.p_align) + " bytes");
+   
+        l_elfParts.emplace_back("ProgramHeader", ElfPartType::ProgramHeader, l_currentOffset, sizeof(Elf32_Phdr), PROGRAM_HEADER_DESCRIPTION, l_fields);
+        l_currentOffset += sizeof(Elf32_Phdr);
+    }
+
+    return l_elfParts;
 }
 
-ElfPart ElfPartAssembler::assembleElfPartFromProgramHeader(Elf64_Phdr& p_programHeader, int p_programHeaderOffset)
+std::vector<ElfPart> ElfPartAssembler::assembleElfPartsFromProgramHeaders(const std::vector<Elf64_Phdr>& p_programHeaders, int p_programHeaderTableOffset)
 {
-    std::vector<ElfField> l_fields;
+    std::vector<ElfPart> l_elfParts;
 
-    l_fields.emplace_back("p_type", "Elf64_Word", QString::number(p_programHeader.p_type, 16).toUpper(), getSegmentTypeHighLevelValue(p_programHeader.p_type));
+    auto l_currentOffset { p_programHeaderTableOffset };
 
-    auto l_binaryFormatFlags { QStringLiteral("%1").arg(p_programHeader.p_flags, 4, 2, QLatin1Char('0')) };
-    l_fields.emplace_back("p_flags", "Elf64_Word", l_binaryFormatFlags, getSegmentFlagsHighLevelValues(p_programHeader.p_flags));
-    l_fields.emplace_back("p_offset", "Elf64_Off", QString::number(p_programHeader.p_offset, 16).toUpper(), "");
-    l_fields.emplace_back("p_vaddr", "Elf64_Addr", QString::number(p_programHeader.p_vaddr, 16).toUpper(), "");
-    l_fields.emplace_back("p_paddr", "Elf64_Addr", QString::number(p_programHeader.p_paddr, 16).toUpper(), "");
-    l_fields.emplace_back("p_filesz", "Elf64_Xword", QString::number(p_programHeader.p_filesz, 16).toUpper(), "");
-    l_fields.emplace_back("p_memsz", "Elf64_Xword", QString::number(p_programHeader.p_memsz, 16).toUpper(), "");
-    l_fields.emplace_back("p_align", "Elf64_Xword", QString::number(p_programHeader.p_align, 16).toUpper(), "");
+    for (const auto& p_programHeader : p_programHeaders)
+    {
+        std::vector<ElfField> l_fields;
 
-    return ElfPart{"ProgramHeader", ElfPartType::ProgramHeader, p_programHeaderOffset, sizeof(Elf64_Phdr), PROGRAM_HEADER_DESCRIPTION, l_fields};
-}
+        l_fields.emplace_back("p_type", "Elf64_Word", getDecimalNumberString(p_programHeader.p_type), "Segment type: " + getSegmentTypeHighLevelValue(p_programHeader.p_type));
+        l_fields.emplace_back("p_flags", "Elf64_Word", getHexNumberString(p_programHeader.p_flags), getSegmentFlagsHighLevelValues(p_programHeader.p_flags));
+        l_fields.emplace_back("p_offset", "Elf64_Off", getHexNumberString(p_programHeader.p_offset), "Segment offset in the file: " + getHexNumberString(p_programHeader.p_offset));
+        l_fields.emplace_back("p_vaddr", "Elf64_Addr", getHexNumberString(p_programHeader.p_vaddr), "Virtual address of the segment in the memory: " + getHexNumberString(p_programHeader.p_vaddr));
+        l_fields.emplace_back("p_paddr", "Elf64_Addr", getHexNumberString(p_programHeader.p_paddr), "Physical address of the segment: " + getHexNumberString(p_programHeader.p_paddr));
+        l_fields.emplace_back("p_filesz", "Elf64_Xword", getDecimalNumberString(p_programHeader.p_filesz), "Size of the segment in the file: " + getDecimalNumberString(p_programHeader.p_filesz) + " bytes");
+        l_fields.emplace_back("p_memsz", "Elf64_Xword", getDecimalNumberString(p_programHeader.p_memsz), "Size of the segment in the memory: " + getDecimalNumberString(p_programHeader.p_memsz) + " bytes");
+        l_fields.emplace_back("p_align", "Elf64_Xword", getDecimalNumberString(p_programHeader.p_align), "Address align: " + getDecimalNumberString(p_programHeader.p_align) + " bytes");
+
+        l_elfParts.emplace_back("ProgramHeader", ElfPartType::ProgramHeader, l_currentOffset, sizeof(Elf64_Phdr), PROGRAM_HEADER_DESCRIPTION, l_fields);
+        l_currentOffset += sizeof(Elf64_Phdr);
+    }
+
+    return l_elfParts;}
 
 
 ElfPart ElfPartAssembler::assembleElfPartFromSection(NoteSection<Elf32_Shdr, Elf32_Nhdr>& p_noteSection, const std::string& p_sectionName)

@@ -19,23 +19,6 @@
 namespace
 {
 
-template <typename T>
-std::vector<ElfPart> assembleElfPartsFromProgramHeaders(std::vector<T>& p_programHeaders,
-                                                        ElfPartAssembler& p_elfPartAssembler,
-                                                        int p_programHeaderTableOffset)
-{
-    std::vector<ElfPart> l_elfParts;
-
-    auto l_offset { p_programHeaderTableOffset };
-    for (auto& p_programHeader : p_programHeaders)
-    {
-        l_elfParts.push_back(p_elfPartAssembler.assembleElfPartFromProgramHeader(p_programHeader, l_offset));
-        l_offset += sizeof(T);
-    }
-
-    return l_elfParts;
-}
-
 template <typename T, typename U>
 std::vector<ElfPart> assembleElfPartsFromSections(std::vector<std::shared_ptr<T>>& p_sections,
                                                   ElfPartAssembler& p_elfPartAssembler,
@@ -95,9 +78,8 @@ std::vector<ElfPart> readElfPartsFromFile(std::istream* p_fileStream)
 
         l_elfParts.push_back(l_elfPartAssembler.assembleElfPartFromFileHeader(l_elfObject->elfStructureInfo.fileHeader) );
 
-        auto l_programHeadersElfParts { assembleElfPartsFromProgramHeaders(l_elfObject->elfStructureInfo.programHeaders,
-                                                                           l_elfPartAssembler,
-                                                                           l_elfObject->elfStructureInfo.fileHeader.e_phoff) };
+        auto l_programHeadersElfParts { l_elfPartAssembler.assembleElfPartsFromProgramHeaders(l_elfObject->elfStructureInfo.programHeaders,
+                                                                                              l_elfObject->elfStructureInfo.fileHeader.e_phoff) };
         l_elfParts.insert(l_elfParts.end(), l_programHeadersElfParts.begin(), l_programHeadersElfParts.end());
         
         auto l_sectionsElfParts { assembleElfPartsFromSections(l_elfObject->sections, l_elfPartAssembler, l_sectionNamesTable) };
@@ -122,9 +104,8 @@ std::vector<ElfPart> readElfPartsFromFile(std::istream* p_fileStream)
         l_elfParts.push_back(l_elfPartAssembler.assembleElfPartFromFileHeader(l_elfObject->elfStructureInfo.fileHeader) );
 
 
-        auto l_programHeadersElfParts { assembleElfPartsFromProgramHeaders(l_elfObject->elfStructureInfo.programHeaders,
-                                                                           l_elfPartAssembler,
-                                                                           l_elfObject->elfStructureInfo.fileHeader.e_phoff) };
+        auto l_programHeadersElfParts { l_elfPartAssembler.assembleElfPartsFromProgramHeaders(l_elfObject->elfStructureInfo.programHeaders,
+                                                                                              l_elfObject->elfStructureInfo.fileHeader.e_phoff) };
         l_elfParts.insert(l_elfParts.end(), l_programHeadersElfParts.begin(), l_programHeadersElfParts.end());
 
 

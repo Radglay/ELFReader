@@ -12,8 +12,8 @@ public:
     std::vector<ElfPart> assembleElfPartsFromSectionHeaders(const std::vector<std::shared_ptr<Elf32_Shdr>>&, int) override;
     std::vector<ElfPart> assembleElfPartsFromSectionHeaders(const std::vector<std::shared_ptr<Elf64_Shdr>>&, int) override;
 
-    ElfPart assembleElfPartFromProgramHeader(Elf32_Phdr&, int) override;
-    ElfPart assembleElfPartFromProgramHeader(Elf64_Phdr&, int) override;
+    std::vector<ElfPart> assembleElfPartsFromProgramHeaders(const std::vector<Elf32_Phdr>&, int) override;
+    std::vector<ElfPart> assembleElfPartsFromProgramHeaders(const std::vector<Elf64_Phdr>&, int) override;
 
     ElfPart assembleElfPartFromSection(NoteSection<Elf32_Shdr, Elf32_Nhdr>&, const std::string&) override;
     ElfPart assembleElfPartFromSection(NoteSection<Elf64_Shdr, Elf64_Nhdr>&, const std::string&) override;

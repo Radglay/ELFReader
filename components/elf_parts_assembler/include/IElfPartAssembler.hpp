@@ -37,8 +37,8 @@ public:
     virtual std::vector<ElfPart> assembleElfPartsFromSectionHeaders(const std::vector<std::shared_ptr<Elf32_Shdr>>&, int) = 0;
     virtual std::vector<ElfPart> assembleElfPartsFromSectionHeaders(const std::vector<std::shared_ptr<Elf64_Shdr>>&, int) = 0;
 
-    virtual ElfPart assembleElfPartFromProgramHeader(Elf32_Phdr&, int) = 0;
-    virtual ElfPart assembleElfPartFromProgramHeader(Elf64_Phdr&, int) = 0;
+    virtual std::vector<ElfPart> assembleElfPartsFromProgramHeaders(const std::vector<Elf32_Phdr>&, int) = 0;
+    virtual std::vector<ElfPart> assembleElfPartsFromProgramHeaders(const std::vector<Elf64_Phdr>&, int) = 0;
 
     virtual ElfPart assembleElfPartFromSection(NoteSection<Elf32_Shdr, Elf32_Nhdr>&, const std::string&) = 0;
     virtual ElfPart assembleElfPartFromSection(NoteSection<Elf64_Shdr, Elf64_Nhdr>&, const std::string&) = 0;

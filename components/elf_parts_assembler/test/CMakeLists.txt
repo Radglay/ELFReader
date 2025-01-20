@@ -14,7 +14,6 @@ endmacro()
 add_subdirectory(common)
 
 add_tests_from_file(FieldDescriptionUtilityTest FieldDescriptionUtilityTest.cpp)
-
 add_tests_from_file(ElfPartFromFileHeaderAssemblingTest ElfPartFromFileHeaderAssemblingTest.cpp)
-
 add_tests_from_file(ElfPartFromSectionHeadersAssemblingTest ElfPartFromSectionHeadersAssemblingTest.cpp)
+add_tests_from_file(ElfPartFromProgramHeadersAssemblingTest ElfPartFromProgramHeadersAssemblingTest.cpp)

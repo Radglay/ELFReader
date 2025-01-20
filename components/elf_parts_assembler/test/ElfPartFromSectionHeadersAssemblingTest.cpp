@@ -290,7 +290,7 @@ using namespace ::testing;
 struct ElfPartAssemblerSectionHeadersAssemblingX32TestSuite : public ElfPartAssemblerTestSuite
 {};
 
-TEST_F(ElfPartAssemblerSectionHeadersAssemblingX32TestSuite, shouldNotAssembleAnyCorrectElfPartsFromEmpty32BitSectionHeaderContainer)
+TEST_F(ElfPartAssemblerSectionHeadersAssemblingX32TestSuite, shouldNotAssembleAnyCorrectElfPartFromEmpty32BitSectionHeaderContainer)
 {
     std::vector<std::shared_ptr<Elf32_Shdr>> l_sectionHeaders;
 
@@ -356,7 +356,7 @@ TEST_F(ElfPartAssemblerSectionHeadersAssemblingX32TestSuite, shouldAssembleAllCo
 struct ElfPartAssemblerSectionHeadersAssemblingX64TestSuite : public ElfPartAssemblerTestSuite
 {};
 
-TEST_F(ElfPartAssemblerSectionHeadersAssemblingX64TestSuite, shouldNotAssembleAnyCorrectElfPartsFromEmpty64BitSectionHeaderContainer)
+TEST_F(ElfPartAssemblerSectionHeadersAssemblingX64TestSuite, shouldNotAssembleAnyCorrectElfPartFromEmpty64BitSectionHeaderContainer)
 {
     std::vector<std::shared_ptr<Elf64_Shdr>> l_sectionHeaders;
 
