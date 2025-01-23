@@ -9,9 +9,6 @@ macro(add_tests_from_file TESTNAME)
     gtest_discover_tests(${TESTNAME})
 endmacro()
 
-add_tests_from_file(Elf32BitElfStructureInfoBuildingTest Elf32BitElfStructureInfoBuildingTest.cpp)
-add_tests_from_file(Elf64BitElfStructureInfoBuildingTest Elf64BitElfStructureInfoBuildingTest.cpp)
-
 
 add_tests_from_file(Elf32BitSymbolTableSectionsBuildingTest Elf32BitSymbolTableSectionsBuildingTest.cpp)
 add_tests_from_file(Elf64BitSymbolTableSectionsBuildingTest Elf64BitSymbolTableSectionsBuildingTest.cpp)

@@ -7,8 +7,6 @@
 #include "ElfObjectX64.hpp"
 #include "ElfStructureInfoX32.hpp"
 #include "ElfStructureInfoX64.hpp"
-#include "ElfStructureInfoBuilder.hpp"
-#include "IElfStructureInfoBuilder.hpp"
 #include "ElfStructureInfoTraits.hpp"
 #include "ElfObjectTraits.hpp"
 
@@ -18,28 +16,24 @@ class ElfObjectBuilder : public IElfObjectBuilder<T, U, ElfStructureInfoTraits, 
 {
 public:
     ElfObjectBuilder(std::istream* p_fileStream, 
-                     IElfStructureInfoBuilder<U, ElfStructureInfoTraits>& p_elfStructureInfoBuilder,
                      TargetMachineInfo& p_targetMachineInfo)
         : m_fileStream { p_fileStream }
-        , m_elfStructureInfoBuilder { p_elfStructureInfoBuilder }
         , m_targetMachineInfo { p_targetMachineInfo }
         , m_elfObject { new T{} }
     {}
 
     void reset() override;
-    void buildElfStructureInfo() override;
-    void buildSymbolSections() override;
-    void buildNoteSections() override;
-    void buildRelocationSections() override;
-    void buildRelocationWithAddendSections() override;
-    void buildStringTableSections() override;
-    void buildProgbitsSections() override;
-    void buildNobitsSections() override;
+    void buildSymbolSection(std::shared_ptr<typename ElfStructureInfoTraits::section_header_type>) override;
+    void buildNoteSection(std::shared_ptr<typename ElfStructureInfoTraits::section_header_type>) override;
+    void buildRelocationSection(std::shared_ptr<typename ElfStructureInfoTraits::section_header_type>) override;
+    void buildRelocationWithAddendSection(std::shared_ptr<typename ElfStructureInfoTraits::section_header_type>) override;
+    void buildStringTableSection(std::shared_ptr<typename ElfStructureInfoTraits::section_header_type>) override;
+    void buildProgbitsSection(std::shared_ptr<typename ElfStructureInfoTraits::section_header_type>) override;
+    void buildNobitsSection(std::shared_ptr<typename ElfStructureInfoTraits::section_header_type>) override;
     T* getResult() override;
 
 private:
     std::istream* m_fileStream;
-    IElfStructureInfoBuilder<U, ElfStructureInfoTraits>& m_elfStructureInfoBuilder;
     TargetMachineInfo m_targetMachineInfo;
     T* m_elfObject;
 };

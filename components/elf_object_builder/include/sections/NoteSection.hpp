@@ -12,11 +12,11 @@ class NoteSection : public IElfSection<SectionHeader>
 {
 public:
     NoteSection(std::shared_ptr<SectionHeader> p_sectionHeader, NoteHeader p_noteHeader,
-                std::string p_namespace, std::vector<unsigned char> p_description)
+                std::string p_namespace, std::vector<unsigned char> p_descriptor)
         : m_sectionHeader { p_sectionHeader }
         , m_noteHeader { p_noteHeader }
         , m_namespace { p_namespace }
-        , m_description { p_description }
+        , m_descriptor { p_descriptor }
     {}
 
     std::shared_ptr<SectionHeader> getSectionHeader() const override
@@ -43,5 +43,5 @@ private:
     std::shared_ptr<SectionHeader> m_sectionHeader;
     NoteHeader m_noteHeader;
     std::string m_namespace;
-    std::vector<unsigned char> m_description { nullptr };
+    std::vector<unsigned char> m_descriptor { nullptr };
 };

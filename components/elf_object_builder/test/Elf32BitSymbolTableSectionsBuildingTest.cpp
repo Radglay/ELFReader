@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include "ElfObjectBuilder.hpp"
-#include "ElfStructureInfoBuilderMock.hpp"
 #include "TargetMachineInfo.hpp"
 #include <sstream>
 #include "ElfObjectX32.hpp"
@@ -277,30 +276,21 @@ void Elf32BitSymbolTableSectionsBuildingTestSuite::expectSymbolTableSectionsAreE
 } 
 
 
-TEST_P(Elf32BitSymbolTableSectionsBuildingTestSuite, shouldNotReadAnySymbolHeaderWhenSizeIsZero)
+TEST_P(Elf32BitSymbolTableSectionsBuildingTestSuite, shouldReadSymbolTableSectionWithoutAnySymbolHeaderWhenSectionHeaderSizeIsZero)
 {
     auto l_params { GetParam() };
     auto l_endianness { std::get<0>(l_params) };
     auto l_streamContent { std::get<1>(l_params) };
 
     std::stringstream l_stubStream { l_streamContent };
-    NiceMock<ElfStructureInfoBuilderMock<ElfStructureInfoX32>> l_elfStructureInfoBuilderMock;
     TargetMachineInfo l_targetMachineInfo;
     l_targetMachineInfo.endianness = l_endianness;
 
-    ElfObjectBuilder<ElfObjectX32, ElfStructureInfoX32> l_elfObjectBuilder (&l_stubStream, l_elfStructureInfoBuilderMock, l_targetMachineInfo);
+    ElfObjectBuilder<ElfObjectX32, ElfStructureInfoX32> l_elfObjectBuilder (&l_stubStream, l_targetMachineInfo);
 
     auto l_sectionHeader { std::shared_ptr<Elf32_Shdr>(&SYMBOL_TABLE_SECTION_WITH_ZERO_ELEMENTS) };
 
-    ElfStructureInfoX32 l_stubElfStructureInfo;
-    l_stubElfStructureInfo.sectionHeaders.push_back(l_sectionHeader);
-
-    EXPECT_CALL(l_elfStructureInfoBuilderMock, getResult)
-        .WillOnce(Return(&l_stubElfStructureInfo));
-
-    l_elfObjectBuilder.buildElfStructureInfo();
-
-    l_elfObjectBuilder.buildSymbolSections();
+    l_elfObjectBuilder.buildSymbolSection(l_sectionHeader);
 
     auto l_sections { (l_elfObjectBuilder.getResult()->sections)};
     ASSERT_EQ(l_sections.size(), 1);
@@ -314,30 +304,21 @@ TEST_P(Elf32BitSymbolTableSectionsBuildingTestSuite, shouldNotReadAnySymbolHeade
     expectSymbolTableSectionsAreEqual(l_targetSymbolTableSection, l_expectedSymbolTableSection);
 }
 
-TEST_P(Elf32BitSymbolTableSectionsBuildingTestSuite, shouldReadAllFiveSymbolHeadersWhenSizeIsFive)
+TEST_P(Elf32BitSymbolTableSectionsBuildingTestSuite, shouldReadSymbolTableSectionWithAllFiveSymbolHeaders)
 {
     auto l_params { GetParam() };
     auto l_endianness { std::get<0>(l_params) };
     auto l_streamContent { std::get<1>(l_params) };
 
     std::stringstream l_stubStream { l_streamContent };
-    NiceMock<ElfStructureInfoBuilderMock<ElfStructureInfoX32>> l_elfStructureInfoBuilderMock;
     TargetMachineInfo l_targetMachineInfo;
     l_targetMachineInfo.endianness = l_endianness;
 
-    ElfObjectBuilder<ElfObjectX32, ElfStructureInfoX32> l_elfObjectBuilder (&l_stubStream, l_elfStructureInfoBuilderMock, l_targetMachineInfo);
+    ElfObjectBuilder<ElfObjectX32, ElfStructureInfoX32> l_elfObjectBuilder (&l_stubStream, l_targetMachineInfo);
 
     auto l_sectionHeader { std::shared_ptr<Elf32_Shdr>(&SYMBOL_TABLE_SECTION_WITH_FIVE_ELEMENTS) };
 
-    ElfStructureInfoX32 l_stubElfStructureInfo;
-    l_stubElfStructureInfo.sectionHeaders.push_back(l_sectionHeader);
-
-    EXPECT_CALL(l_elfStructureInfoBuilderMock, getResult)
-        .WillOnce(Return(&l_stubElfStructureInfo));
-
-    l_elfObjectBuilder.buildElfStructureInfo();
-
-    l_elfObjectBuilder.buildSymbolSections();
+    l_elfObjectBuilder.buildSymbolSection(l_sectionHeader);
 
     auto l_sections { (l_elfObjectBuilder.getResult()->sections)};
     ASSERT_EQ(l_sections.size(), 1);

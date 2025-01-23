@@ -1,14 +1,12 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include "ElfObjectBuilder.hpp"
-#include "ElfStructureInfoBuilderMock.hpp"
 #include "TargetMachineInfo.hpp"
 #include <sstream>
 #include "ElfObjectX64.hpp"
 #include "ElfStructureInfoX64.hpp"
 #include <tuple>
 #include <vector>
-#include "IElfSection.hpp"
 #include "StringTableSection.hpp"
 #include <memory>
 #include <map>
@@ -163,30 +161,21 @@ void Elf64BitStringTableSectionsBuildingTestSuite::expectStringTableSectionsAreE
 }
 
 
-TEST_P(Elf64BitStringTableSectionsBuildingTestSuite, shouldNotReadAnyStringWhenTheSectionHeaderSizeIsZero)
+TEST_P(Elf64BitStringTableSectionsBuildingTestSuite, shouldReadEmptyStringTableSectionWhenTheSectionHeaderSizeIsZero)
 {
     auto l_params { GetParam() };
     auto l_endianness { std::get<0>(l_params) };
     auto l_streamContent { std::get<1>(l_params) };
 
     std::stringstream l_stubStream { l_streamContent };
-    NiceMock<ElfStructureInfoBuilderMock<ElfStructureInfoX64>> l_elfStructureInfoBuilderMock;
     TargetMachineInfo l_targetMachineInfo;
     l_targetMachineInfo.endianness = l_endianness;
 
-    ElfObjectBuilder<ElfObjectX64, ElfStructureInfoX64> l_elfObjectBuilder (&l_stubStream, l_elfStructureInfoBuilderMock, l_targetMachineInfo);
+    ElfObjectBuilder<ElfObjectX64, ElfStructureInfoX64> l_elfObjectBuilder (&l_stubStream, l_targetMachineInfo);
 
     auto l_sectionHeader { std::shared_ptr<Elf64_Shdr>(&STRING_TABLE_SECTION_WITH_ZERO_ELEMENTS) };
 
-    ElfStructureInfoX64 l_stubElfStructureInfo;
-    l_stubElfStructureInfo.sectionHeaders.push_back(l_sectionHeader);
-
-    EXPECT_CALL(l_elfStructureInfoBuilderMock, getResult)
-        .WillOnce(Return(&l_stubElfStructureInfo));
-
-    l_elfObjectBuilder.buildElfStructureInfo();
-
-    l_elfObjectBuilder.buildStringTableSections();
+    l_elfObjectBuilder.buildStringTableSection(l_sectionHeader);
 
     auto l_sections { (l_elfObjectBuilder.getResult()->sections)};
     ASSERT_EQ(l_sections.size(), 1);
@@ -200,30 +189,21 @@ TEST_P(Elf64BitStringTableSectionsBuildingTestSuite, shouldNotReadAnyStringWhenT
     expectStringTableSectionsAreEqual(l_targetStringTableSection, l_expectedStringTableSection);
 }
 
-TEST_P(Elf64BitStringTableSectionsBuildingTestSuite, shouldReadAllTenStringsWhenTheSectionHeaderSizeIsTen)
+TEST_P(Elf64BitStringTableSectionsBuildingTestSuite, shouldReadStringTableSectionWithAllTenStrings)
 {
     auto l_params { GetParam() };
     auto l_endianness { std::get<0>(l_params) };
     auto l_streamContent { std::get<1>(l_params) };
 
     std::stringstream l_stubStream { l_streamContent };
-    NiceMock<ElfStructureInfoBuilderMock<ElfStructureInfoX64>> l_elfStructureInfoBuilderMock;
     TargetMachineInfo l_targetMachineInfo;
     l_targetMachineInfo.endianness = l_endianness;
 
-    ElfObjectBuilder<ElfObjectX64, ElfStructureInfoX64> l_elfObjectBuilder (&l_stubStream, l_elfStructureInfoBuilderMock, l_targetMachineInfo);
+    ElfObjectBuilder<ElfObjectX64, ElfStructureInfoX64> l_elfObjectBuilder (&l_stubStream, l_targetMachineInfo);
 
     auto l_sectionHeader { std::shared_ptr<Elf64_Shdr>(&STRING_TABLE_SECTION_WITH_TEN_ELEMENTS) };
 
-    ElfStructureInfoX64 l_stubElfStructureInfo;
-    l_stubElfStructureInfo.sectionHeaders.push_back(l_sectionHeader);
-
-    EXPECT_CALL(l_elfStructureInfoBuilderMock, getResult)
-        .WillOnce(Return(&l_stubElfStructureInfo));
-
-    l_elfObjectBuilder.buildElfStructureInfo();
-
-    l_elfObjectBuilder.buildStringTableSections();
+    l_elfObjectBuilder.buildStringTableSection(l_sectionHeader);
 
     auto l_sections { (l_elfObjectBuilder.getResult()->sections)};
     ASSERT_EQ(l_sections.size(), 1);
@@ -247,74 +227,6 @@ TEST_P(Elf64BitStringTableSectionsBuildingTestSuite, shouldReadAllTenStringsWhen
     auto l_expectedStringTableSection { StringTableSection<Elf64_Shdr>(l_sectionHeader, l_expectedStringTable) };
 
     expectStringTableSectionsAreEqual(l_targetStringTableSection, l_expectedStringTableSection);
-}
-
-TEST_P(Elf64BitStringTableSectionsBuildingTestSuite, shouldReadAllTFifteenStringsFromAllTwoSectionHeadersWhenThereAreTwoSectionHeadersWithSizesGreaterThanZero)
-{
-    auto l_params { GetParam() };
-    auto l_endianness { std::get<0>(l_params) };
-    auto l_streamContent { std::get<1>(l_params) };
-    l_streamContent += generateSecondStringTableContent();
-
-    std::stringstream l_stubStream { l_streamContent };
-    NiceMock<ElfStructureInfoBuilderMock<ElfStructureInfoX64>> l_elfStructureInfoBuilderMock;
-    TargetMachineInfo l_targetMachineInfo;
-    l_targetMachineInfo.endianness = l_endianness;
-
-    ElfObjectBuilder<ElfObjectX64, ElfStructureInfoX64> l_elfObjectBuilder (&l_stubStream, l_elfStructureInfoBuilderMock, l_targetMachineInfo);
-
-    auto l_firstSectionHeader { std::shared_ptr<Elf64_Shdr>(&STRING_TABLE_SECTION_WITH_TEN_ELEMENTS) };
-    auto l_secondSectionHeader { std::shared_ptr<Elf64_Shdr>(&STRING_TABLE_SECTION_WITH_FIVE_ELEMENTS) };
-
-    ElfStructureInfoX64 l_stubElfStructureInfo;
-    l_stubElfStructureInfo.sectionHeaders.push_back(l_firstSectionHeader);
-    l_stubElfStructureInfo.sectionHeaders.push_back(l_secondSectionHeader);
-
-    EXPECT_CALL(l_elfStructureInfoBuilderMock, getResult)
-        .WillOnce(Return(&l_stubElfStructureInfo));
-
-    l_elfObjectBuilder.buildElfStructureInfo();
-
-    l_elfObjectBuilder.buildStringTableSections();
-
-    auto l_sections { (l_elfObjectBuilder.getResult()->sections)};
-    ASSERT_EQ(l_sections.size(), 2);
-
-    auto l_firstTargetStringTableSection { dynamic_cast<StringTableSection<Elf64_Shdr>&>(*l_sections[0]) };
- 
-    std::map<int, std::string> l_firstExpectedStringTable
-    {
-        std::make_pair(MAIN_CPP_INDEX, MAIN_CPP_NAME),
-        std::make_pair(STD_COUT_INDEX, STD_COUT_NAME),
-        std::make_pair(MAIN_INDEX, MAIN_NAME),
-        std::make_pair(DATA_START_INDEX, DATA_START_NAME),
-        std::make_pair(BSS_START_INDEX, BSS_START_NAME),
-        std::make_pair(MY_CONST_GLOBAL_VAR_INDEX, MY_CONST_GLOBAL_VAR_NAME),
-        std::make_pair(GLOBAL_OFFSET_TABLE_INDEX, GLOBAL_OFFSET_TABLE_NAME),
-        std::make_pair(MY_FUNC_INT_INDEX, MY_FUNC_INT_NAME),
-        std::make_pair(INIT_INDEX, INIT_NAME),
-        std::make_pair(GMON_START_INDEX, GMON_START_NAME)
-    };
-
-    auto l_firstExpectedStringTableSection { StringTableSection<Elf64_Shdr>(l_firstSectionHeader, l_firstExpectedStringTable) };
-
-    expectStringTableSectionsAreEqual(l_firstTargetStringTableSection, l_firstExpectedStringTableSection);
-
-
-    auto l_secondTargetStringTableSection { dynamic_cast<StringTableSection<Elf64_Shdr>&>(*l_sections[1]) };
- 
-    std::map<int, std::string> l_secondExpectedStringTable
-    {
-        std::make_pair(STRTAB_INDEX, STRTAB_NAME),
-        std::make_pair(TEXT_INDEX, TEXT_NAME),
-        std::make_pair(RODATA_INDEX, RODATA_NAME),
-        std::make_pair(DYN_INDEX, DYN_NAME),
-        std::make_pair(RELA_PLT_INDEX, RELA_PLT_NAME)
-    };
-
-    auto l_secondExpectedStringTableSection { StringTableSection<Elf64_Shdr>(l_secondSectionHeader, l_secondExpectedStringTable) };
-
-    expectStringTableSectionsAreEqual(l_secondTargetStringTableSection, l_secondExpectedStringTableSection);
 }
 
 INSTANTIATE_TEST_SUITE_P(StringTableSectionsBuilding,
