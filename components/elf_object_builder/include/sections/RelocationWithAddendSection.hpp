@@ -4,7 +4,7 @@
 #include <vector>
 #include <memory>
 #include "ElfPart.hpp"
-#include "IElfPartAssembler.hpp"
+#include "IElfPartFromSectionVisitor.hpp"
 
 
 template <typename SectionHeader, typename RelocationWithAddend>
@@ -16,7 +16,7 @@ public:
         , m_relocationWithAddendHeaders { p_relocationWithAddendHeaders }
     {}
 
-    ElfPart acceptElfPartAssembler(IElfPartAssembler& p_visitor, const std::string& p_sectionName) override
+    ElfPart acceptElfPartAssembler(IElfPartFromSectionVisitor& p_visitor, const std::string& p_sectionName) override
     {
         // return p_visitor.assembleElfPartFromSection(*this);
     }

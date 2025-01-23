@@ -14,30 +14,11 @@
 #include "IElfSection.hpp"
 #include "NoteSection.hpp"
 #include "StringTableSection.hpp"
+#include "ElfPartFromSectionVisitor.hpp"
 
 
 namespace
 {
-
-template <typename T, typename U>
-std::vector<ElfPart> assembleElfPartsFromSections(std::vector<std::shared_ptr<T>>& p_sections,
-                                                  ElfPartAssembler& p_elfPartAssembler,
-                                                  StringTableSection<U>* p_sectionNamesTable)
-{
-    std::vector<ElfPart> l_elfParts;
-
-    for (auto& p_section : p_sections)
-    {
-        if (dynamic_cast<NoteSection<Elf64_Shdr, Elf64_Nhdr>*>(p_section.get()))
-        {
-            l_elfParts.push_back(p_section->acceptElfPartAssembler(p_elfPartAssembler,
-                                                                   p_sectionNamesTable->getStringByOffset(p_section->getSectionHeader()->sh_name)));
-        }
-        // l_elfParts.push_back(p_section->acceptElfPartAssembler(p_elfPartAssembler));
-    }
-
-    return l_elfParts;
-}
 
 template <typename T>
 StringTableSection<T>* getStrtabSectionWithSectionNames(T& p_strtabSectionHeader,
@@ -54,6 +35,7 @@ StringTableSection<T>* getStrtabSectionWithSectionNames(T& p_strtabSectionHeader
 
 }
 
+
 std::vector<ElfPart> readElfPartsFromFile(std::istream* p_fileStream)
 {
     std::vector<ElfPart> l_elfParts;
@@ -62,7 +44,10 @@ std::vector<ElfPart> readElfPartsFromFile(std::istream* p_fileStream)
     readBytesFromFile(l_targetMachineInfo, 0, p_fileStream);
 
     ElfBuildDirector l_elfBuildDirector;
+
     ElfPartAssembler l_elfPartAssembler;
+
+    ElfPartFromSectionVisitor l_elfPartFromSectionVisitor;
 
     if (l_targetMachineInfo.bitVersion == ELFCLASS32)
     {
@@ -72,7 +57,6 @@ std::vector<ElfPart> readElfPartsFromFile(std::istream* p_fileStream)
 
         auto l_elfObject { l_elfBuildDirector.makeElfObject(l_elfObjectBuilder) };
 
-        // get shstrndx (section of type STRTAB with section names)
         auto l_shstrndx { l_elfObject->elfStructureInfo.fileHeader.e_shstrndx };
         auto l_sectionNamesTable { getStrtabSectionWithSectionNames(*l_elfObject->elfStructureInfo.sectionHeaders[l_shstrndx], l_elfObject->sections) };
 
@@ -81,8 +65,8 @@ std::vector<ElfPart> readElfPartsFromFile(std::istream* p_fileStream)
         auto l_programHeadersElfParts { l_elfPartAssembler.assembleElfPartsFromProgramHeaders(l_elfObject->elfStructureInfo.programHeaders,
                                                                                               l_elfObject->elfStructureInfo.fileHeader.e_phoff) };
         l_elfParts.insert(l_elfParts.end(), l_programHeadersElfParts.begin(), l_programHeadersElfParts.end());
-        
-        auto l_sectionsElfParts { assembleElfPartsFromSections(l_elfObject->sections, l_elfPartAssembler, l_sectionNamesTable) };
+
+        auto l_sectionsElfParts { l_elfPartAssembler.assembleElfPartsFromSections(l_elfObject->sections, l_sectionNamesTable, l_elfPartFromSectionVisitor) };
         l_elfParts.insert(l_elfParts.end(), l_sectionsElfParts.begin(), l_sectionsElfParts.end());
 
         auto l_sectionHeadersElfParts { l_elfPartAssembler.assembleElfPartsFromSectionHeaders(l_elfObject->elfStructureInfo.sectionHeaders,
@@ -97,25 +81,21 @@ std::vector<ElfPart> readElfPartsFromFile(std::istream* p_fileStream)
 
         auto l_elfObject { l_elfBuildDirector.makeElfObject(l_elfObjectBuilder) };
 
-        // get shstrndx (section of type STRTAB with section names)
         auto l_shstrndx { l_elfObject->elfStructureInfo.fileHeader.e_shstrndx };
         auto l_sectionNamesTable { getStrtabSectionWithSectionNames(*l_elfObject->elfStructureInfo.sectionHeaders[l_shstrndx], l_elfObject->sections) };
 
         l_elfParts.push_back(l_elfPartAssembler.assembleElfPartFromFileHeader(l_elfObject->elfStructureInfo.fileHeader) );
 
-
         auto l_programHeadersElfParts { l_elfPartAssembler.assembleElfPartsFromProgramHeaders(l_elfObject->elfStructureInfo.programHeaders,
                                                                                               l_elfObject->elfStructureInfo.fileHeader.e_phoff) };
         l_elfParts.insert(l_elfParts.end(), l_programHeadersElfParts.begin(), l_programHeadersElfParts.end());
 
-
-        auto l_sectionsElfParts { assembleElfPartsFromSections(l_elfObject->sections, l_elfPartAssembler, l_sectionNamesTable) };
+        auto l_sectionsElfParts { l_elfPartAssembler.assembleElfPartsFromSections(l_elfObject->sections, l_sectionNamesTable, l_elfPartFromSectionVisitor) };
         l_elfParts.insert(l_elfParts.end(), l_sectionsElfParts.begin(), l_sectionsElfParts.end());
-
 
         auto l_sectionHeadersElfParts { l_elfPartAssembler.assembleElfPartsFromSectionHeaders(l_elfObject->elfStructureInfo.sectionHeaders,
                                                                                               l_elfObject->elfStructureInfo.fileHeader.e_shoff) };
-        l_elfParts.insert(l_elfParts.end(), l_sectionHeadersElfParts.begin(), l_sectionHeadersElfParts.end());  
+        l_elfParts.insert(l_elfParts.end(), l_sectionHeadersElfParts.begin(), l_sectionHeadersElfParts.end());
     }
 
     return l_elfParts;

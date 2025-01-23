@@ -237,65 +237,43 @@ std::vector<ElfPart> ElfPartAssembler::assembleElfPartsFromProgramHeaders(const 
         l_currentOffset += sizeof(Elf64_Phdr);
     }
 
-    return l_elfParts;}
-
-
-ElfPart ElfPartAssembler::assembleElfPartFromSection(NoteSection<Elf32_Shdr, Elf32_Nhdr>& p_noteSection, const std::string& p_sectionName)
-{
-    auto l_noteHeader { p_noteSection.getNoteHeader() };
-
-    auto l_offset { static_cast<int>(p_noteSection.getSectionHeader()->sh_offset) };
-
-    std::vector<ElfField> l_fields;
-
-    l_fields.emplace_back("n_namesz", "Elf32_Word", QString::number(l_noteHeader.n_namesz, 16).toUpper(), "");
-    l_fields.emplace_back("n_descsz", "Elf32_Word", QString::number(l_noteHeader.n_descsz, 16).toUpper(), "");
-    l_fields.emplace_back("n_type", "Elf32_Word", QString::number(l_noteHeader.n_type, 16).toUpper(), "");
-
-    return ElfPart{QString::fromStdString(p_sectionName), ElfPartType::Section, l_offset, sizeof(Elf32_Nhdr), "", l_fields};
+    return l_elfParts;
 }
 
-ElfPart ElfPartAssembler::assembleElfPartFromSection(NoteSection<Elf64_Shdr, Elf64_Nhdr>& p_noteSection, const std::string& p_sectionName)
+std::vector<ElfPart> ElfPartAssembler::assembleElfPartsFromSections(const std::vector<std::shared_ptr<IElfSection<Elf32_Shdr>>>& p_sections,
+                                                                    StringTableSection<Elf32_Shdr>* p_sectionNamesTable,
+                                                                    IElfPartFromSectionVisitor& p_elfPartFromSectionVisitor)
 {
-    auto l_noteHeader { p_noteSection.getNoteHeader() };
+    std::vector<ElfPart> l_elfParts;
 
-    auto l_offset { static_cast<int>(p_noteSection.getSectionHeader()->sh_offset) };
+    for (auto& p_section : p_sections)
+    {
+        if (dynamic_cast<NoteSection<Elf64_Shdr, Elf64_Nhdr>*>(p_section.get()))
+        {
+            l_elfParts.push_back(p_section->acceptElfPartAssembler(p_elfPartFromSectionVisitor,
+                                                                   p_sectionNamesTable->getStringByOffset(p_section->getSectionHeader()->sh_name)));
+        }
+        // l_elfParts.push_back(p_section->acceptElfPartAssembler(p_elfPartAssembler));
+    }
 
-    std::vector<ElfField> l_fields;
-
-    l_fields.emplace_back("n_namesz", "Elf64_Word", QString::number(l_noteHeader.n_namesz, 16).toUpper(), "");
-    l_fields.emplace_back("n_descsz", "Elf64_Word", QString::number(l_noteHeader.n_descsz, 16).toUpper(), "");
-    l_fields.emplace_back("n_type", "Elf64_Word", QString::number(l_noteHeader.n_type, 16).toUpper(), "");
-
-    return ElfPart{QString::fromStdString(p_sectionName), ElfPartType::Section, l_offset, sizeof(Elf64_Nhdr), "", l_fields};
+    return l_elfParts;
 }
 
-ElfPart ElfPartAssembler::assembleElfPartFromSection(NobitsSection<Elf32_Shdr>&, const std::string&)
-{}
+std::vector<ElfPart> ElfPartAssembler::assembleElfPartsFromSections(const std::vector<std::shared_ptr<IElfSection<Elf64_Shdr>>>& p_sections,
+                                                                    StringTableSection<Elf64_Shdr>* p_sectionNamesTable,
+                                                                    IElfPartFromSectionVisitor& p_elfPartFromSectionVisitor)
+{
+    std::vector<ElfPart> l_elfParts;
 
-ElfPart ElfPartAssembler::assembleElfPartFromSection(NobitsSection<Elf64_Shdr>&, const std::string&)
-{}
+    for (auto& p_section : p_sections)
+    {
+        if (dynamic_cast<NoteSection<Elf64_Shdr, Elf64_Nhdr>*>(p_section.get()))
+        {
+            // l_elfParts.push_back(p_section->acceptElfPartAssembler(p_elfPartAssembler,
+            //                                                        p_sectionNamesTable->getStringByOffset(p_section->getSectionHeader()->sh_name)));
+        }
+        // l_elfParts.push_back(p_section->acceptElfPartAssembler(p_elfPartAssembler));
+    }
 
-ElfPart ElfPartAssembler::assembleElfPartFromSection(ProgbitsSection<Elf32_Shdr>&, const std::string&)
-{}
-
-ElfPart ElfPartAssembler::assembleElfPartFromSection(ProgbitsSection<Elf64_Shdr>&, const std::string&)
-{}
-
-ElfPart ElfPartAssembler::assembleElfPartFromSection(RelocationSection<Elf32_Shdr, Elf32_Rel>&, const std::string&)
-{}
-
-ElfPart ElfPartAssembler::assembleElfPartFromSection(RelocationSection<Elf64_Shdr, Elf32_Rel>&, const std::string&)
-{}
-
-ElfPart ElfPartAssembler::assembleElfPartFromSection(StringTableSection<Elf32_Shdr>&, const std::string&)
-{}
-
-ElfPart ElfPartAssembler::assembleElfPartFromSection(StringTableSection<Elf64_Shdr>&, const std::string&)
-{}
-
-ElfPart ElfPartAssembler::assembleElfPartFromSection(SymbolTableSection<Elf32_Shdr, Elf32_Sym>&, const std::string&)
-{}
-
-ElfPart ElfPartAssembler::assembleElfPartFromSection(SymbolTableSection<Elf64_Shdr, Elf64_Sym>&, const std::string&)
-{}
+    return l_elfParts;
+}
