@@ -4,7 +4,6 @@
 #include "ElfObjectBuilderMock.hpp"
 #include "ElfStructureInfoX32.hpp"
 #include "ElfObjectX32.hpp"
-#include <memory>
 
 
 using namespace ::testing;

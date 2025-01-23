@@ -4,6 +4,7 @@ add_library(ElfPartAssembler
             src/ReadingFileContentUtility.cpp
             src/ElfPartAssembler.cpp
             src/FieldDescriptionUtility.cpp
+            src/ElfPartFromSectionVisitor.cpp
             )
 
 target_compile_options(ElfPartAssembler PUBLIC -fPIC)

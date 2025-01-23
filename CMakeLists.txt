@@ -30,5 +30,6 @@ if (BUILD_TESTS)
 
     add_subdirectory(components/elf_structure_info_builder/test)
     add_subdirectory(components/elf_object_builder/test)
+    add_subdirectory(components/elf_parts_assembler/test)
 endif()
 unset(BUILD_TESTS CACHE)
