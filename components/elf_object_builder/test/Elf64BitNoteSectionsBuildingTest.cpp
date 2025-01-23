@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include "ElfObjectBuilder.hpp"
-#include "ElfStructureInfoBuilderMock.hpp"
 #include "TargetMachineInfo.hpp"
 #include <sstream>
 #include "ElfObjectX64.hpp"
@@ -28,7 +27,7 @@ constexpr char N_TYPE_LITTLE_ENDIAN_NOTE_GNU_PROPERTY[] { 0x05, 0x0, 0x0, 0x0 };
 constexpr char GNU_NAMESPACE_BOTH_ENDIANNESS[] {'G', 'N', 'U', '\0' };
 std::string GNU_NAMESPACE { "GNU" };
 
-std::vector<unsigned char> NOTE_GNU_PROPERTY_DESCRIPTION_BOTH_ENDIANNESS {
+std::vector<unsigned char> NOTE_GNU_PROPERTY_DESCRIPTOR_BOTH_ENDIANNESS {
     0x02, 0x00, 0x00, 0xc0, 0x04, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x02, 0x80, 0x00, 0xc0, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00
@@ -53,7 +52,7 @@ constexpr char N_NAMESZ_LITTLE_ENDIAN_NOTE_GNU_BUILD_ID[] { 0x04, 0x0, 0x0, 0x0 
 constexpr char N_DESCSZ_LITTLE_ENDIAN_NOTE_GNU_BUILD_ID[] { 0x14, 0x0, 0x0, 0x0 };
 constexpr char N_TYPE_LITTLE_ENDIAN_NOTE_GNU_BUILD_ID[] { 0x03, 0x0, 0x0, 0x0 };
 
-std::vector<unsigned char> NOTE_GNU_BUILD_ID_DESCRIPTION_BOTH_ENDIANNESS {
+std::vector<unsigned char> NOTE_GNU_BUILD_ID_DESCRIPTOR_BOTH_ENDIANNESS {
     0x87, 0xf7, 0xb0, 0x6c, 0xa1, 0xce, 0x3f, 0x0b, 0x73, 0xc8, 0x91,
     0x1d, 0x06, 0x8b, 0xcd, 0xa1, 0xa9, 0xbc, 0x32, 0xf4
 };
@@ -68,7 +67,7 @@ constexpr Elf64_Nhdr NOTE_GNU_BUILD_ID
 Elf64_Shdr NOTE_GNU_BUILD_ID_SECTION_HEADER
 {
     .sh_type = SHT_NOTE,
-    .sh_offset = sizeof(Elf64_Nhdr) + NOTE_GNU_PROPERTY.n_namesz + NOTE_GNU_PROPERTY.n_descsz
+    .sh_offset = 0x0
 };
 
 // (3) NOTE_ABI_TAG
@@ -76,7 +75,7 @@ constexpr char N_NAMESZ_LITTLE_ENDIAN_NOTE_ABI_TAG[] { 0x04, 0x0, 0x0, 0x0 };
 constexpr char N_DESCSZ_LITTLE_ENDIAN_NOTE_ABI_TAG[] { 0x10, 0x0, 0x0, 0x0 };
 constexpr char N_TYPE_LITTLE_ENDIAN_NOTE_ABI_TAG[] { 0x01, 0x0, 0x0, 0x0 };
 
-std::vector<unsigned char> NOTE_ABI_TAG_DESCRIPTION_BOTH_ENDIANNESS {
+std::vector<unsigned char> NOTE_ABI_TAG_DESCRIPTOR_BOTH_ENDIANNESS {
     0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
@@ -90,10 +89,11 @@ constexpr Elf64_Nhdr NOTE_ABI_TAG
 Elf64_Shdr NOTE_ABI_TAG_SECTION_HEADER
 {
     .sh_type = SHT_NOTE,
-    .sh_offset = NOTE_GNU_BUILD_ID_SECTION_HEADER.sh_offset + sizeof(Elf64_Nhdr) + NOTE_GNU_BUILD_ID.n_namesz + NOTE_GNU_BUILD_ID.n_descsz
+    .sh_offset = 0x0
 };
 
-std::string generate64BitLittleEndianNoteHeaders()
+
+std::string generate64BitLittleEndianGnuPropertyNoteHeader()
 {
     std::string l_streamContent;
 
@@ -101,24 +101,38 @@ std::string generate64BitLittleEndianNoteHeaders()
     l_streamContent.append(N_DESCSZ_LITTLE_ENDIAN_NOTE_GNU_PROPERTY, sizeof(Elf64_Word));
     l_streamContent.append(N_TYPE_LITTLE_ENDIAN_NOTE_GNU_PROPERTY, sizeof(Elf64_Word));
     l_streamContent.append(GNU_NAMESPACE_BOTH_ENDIANNESS, NOTE_GNU_PROPERTY.n_namesz);
-    l_streamContent.append(reinterpret_cast<const char*>(NOTE_GNU_PROPERTY_DESCRIPTION_BOTH_ENDIANNESS.data()), NOTE_GNU_PROPERTY.n_descsz);
+    l_streamContent.append(reinterpret_cast<const char*>(NOTE_GNU_PROPERTY_DESCRIPTOR_BOTH_ENDIANNESS.data()), NOTE_GNU_PROPERTY.n_descsz);
+
+    return l_streamContent;
+}
+
+std::string generate64BitLittleEndianGnuBuildIdNoteHeader()
+{
+    std::string l_streamContent;
 
     l_streamContent.append(N_NAMESZ_LITTLE_ENDIAN_NOTE_GNU_BUILD_ID, sizeof(Elf64_Word));
     l_streamContent.append(N_DESCSZ_LITTLE_ENDIAN_NOTE_GNU_BUILD_ID, sizeof(Elf64_Word));
     l_streamContent.append(N_TYPE_LITTLE_ENDIAN_NOTE_GNU_BUILD_ID, sizeof(Elf64_Word));
     l_streamContent.append(GNU_NAMESPACE_BOTH_ENDIANNESS, NOTE_GNU_BUILD_ID.n_namesz);
-    l_streamContent.append(reinterpret_cast<const char*>(NOTE_GNU_BUILD_ID_DESCRIPTION_BOTH_ENDIANNESS.data()), NOTE_GNU_BUILD_ID.n_descsz);
+    l_streamContent.append(reinterpret_cast<const char*>(NOTE_GNU_BUILD_ID_DESCRIPTOR_BOTH_ENDIANNESS.data()), NOTE_GNU_BUILD_ID.n_descsz);
+
+    return l_streamContent;
+}
+
+std::string generate64BitLittleEndianGnuAbiTagNoteHeader()
+{
+    std::string l_streamContent;
 
     l_streamContent.append(N_NAMESZ_LITTLE_ENDIAN_NOTE_ABI_TAG, sizeof(Elf64_Word));
     l_streamContent.append(N_DESCSZ_LITTLE_ENDIAN_NOTE_ABI_TAG, sizeof(Elf64_Word));
     l_streamContent.append(N_TYPE_LITTLE_ENDIAN_NOTE_ABI_TAG, sizeof(Elf64_Word));
     l_streamContent.append(GNU_NAMESPACE_BOTH_ENDIANNESS, NOTE_ABI_TAG.n_namesz);
-    l_streamContent.append(reinterpret_cast<const char*>(NOTE_ABI_TAG_DESCRIPTION_BOTH_ENDIANNESS.data()), NOTE_ABI_TAG.n_descsz);
+    l_streamContent.append(reinterpret_cast<const char*>(NOTE_ABI_TAG_DESCRIPTOR_BOTH_ENDIANNESS.data()), NOTE_ABI_TAG.n_descsz);
 
     return l_streamContent;
 }
 
-std::string generate64BitBigEndianNoteHeaders()
+std::string generate64BitBigEndianGnuPropertyNoteHeader()
 {
     std::string l_streamContent;
 
@@ -129,7 +143,14 @@ std::string generate64BitBigEndianNoteHeaders()
     l_streamContent.append(std::rbegin(N_TYPE_LITTLE_ENDIAN_NOTE_GNU_PROPERTY),
                            std::rend(N_TYPE_LITTLE_ENDIAN_NOTE_GNU_PROPERTY));
     l_streamContent.append(GNU_NAMESPACE_BOTH_ENDIANNESS, NOTE_GNU_PROPERTY.n_namesz);
-    l_streamContent.append(reinterpret_cast<const char*>(NOTE_GNU_PROPERTY_DESCRIPTION_BOTH_ENDIANNESS.data()), NOTE_GNU_PROPERTY.n_descsz);
+    l_streamContent.append(reinterpret_cast<const char*>(NOTE_GNU_PROPERTY_DESCRIPTOR_BOTH_ENDIANNESS.data()), NOTE_GNU_PROPERTY.n_descsz);
+
+    return l_streamContent;
+}
+
+std::string generate64BitBigEndianGnuBuildIdNoteHeader()
+{
+    std::string l_streamContent;
 
     l_streamContent.append(std::rbegin(N_NAMESZ_LITTLE_ENDIAN_NOTE_GNU_BUILD_ID),
                            std::rend(N_NAMESZ_LITTLE_ENDIAN_NOTE_GNU_BUILD_ID));
@@ -138,7 +159,14 @@ std::string generate64BitBigEndianNoteHeaders()
     l_streamContent.append(std::rbegin(N_TYPE_LITTLE_ENDIAN_NOTE_GNU_BUILD_ID),
                            std::rend(N_TYPE_LITTLE_ENDIAN_NOTE_GNU_BUILD_ID));
     l_streamContent.append(GNU_NAMESPACE_BOTH_ENDIANNESS, NOTE_GNU_BUILD_ID.n_namesz);
-    l_streamContent.append(reinterpret_cast<const char*>(NOTE_GNU_BUILD_ID_DESCRIPTION_BOTH_ENDIANNESS.data()), NOTE_GNU_BUILD_ID.n_descsz);
+    l_streamContent.append(reinterpret_cast<const char*>(NOTE_GNU_BUILD_ID_DESCRIPTOR_BOTH_ENDIANNESS.data()), NOTE_GNU_BUILD_ID.n_descsz);
+
+    return l_streamContent;
+}
+
+std::string generate64BitBigEndianGnuAbiTagNoteHeader()
+{
+    std::string l_streamContent;
 
     l_streamContent.append(std::rbegin(N_NAMESZ_LITTLE_ENDIAN_NOTE_ABI_TAG),
                            std::rend(N_NAMESZ_LITTLE_ENDIAN_NOTE_ABI_TAG));
@@ -147,7 +175,7 @@ std::string generate64BitBigEndianNoteHeaders()
     l_streamContent.append(std::rbegin(N_TYPE_LITTLE_ENDIAN_NOTE_ABI_TAG),
                            std::rend(N_TYPE_LITTLE_ENDIAN_NOTE_ABI_TAG));
     l_streamContent.append(GNU_NAMESPACE_BOTH_ENDIANNESS, NOTE_ABI_TAG.n_namesz);
-    l_streamContent.append(reinterpret_cast<const char*>(NOTE_ABI_TAG_DESCRIPTION_BOTH_ENDIANNESS.data()), NOTE_ABI_TAG.n_descsz);
+    l_streamContent.append(reinterpret_cast<const char*>(NOTE_ABI_TAG_DESCRIPTOR_BOTH_ENDIANNESS.data()), NOTE_ABI_TAG.n_descsz);
 
     return l_streamContent;
 }
@@ -182,80 +210,112 @@ void Elf64BitNoteSectionBuildingTestSuite::expectNoteSectionsAreEqual(const Note
 }
 
 
-TEST_P(Elf64BitNoteSectionBuildingTestSuite, shouldNotReadNoteHeaderWhenThereIsNoNoteSectionHeader)
+struct Elf64BitGnuPropertyNoteSectionBuildingTestSuite : Elf64BitNoteSectionBuildingTestSuite
+{};
+
+TEST_P(Elf64BitGnuPropertyNoteSectionBuildingTestSuite, shouldReadNoteSectionWithGnuPropertyNoteHeader)
 {
     auto l_params { GetParam() };
     auto l_endianness { std::get<0>(l_params) };
     auto l_streamContent { std::get<1>(l_params) };
 
     std::stringstream l_stubStream { l_streamContent };
-    NiceMock<ElfStructureInfoBuilderMock<ElfStructureInfoX64>> l_elfStructureInfoBuilderMock;
     TargetMachineInfo l_targetMachineInfo;
     l_targetMachineInfo.endianness = l_endianness;
 
-    ElfObjectBuilder<ElfObjectX64, ElfStructureInfoX64> l_elfObjectBuilder (&l_stubStream, l_elfStructureInfoBuilderMock, l_targetMachineInfo);
+    ElfObjectBuilder<ElfObjectX64, ElfStructureInfoX64> l_elfObjectBuilder (&l_stubStream, l_targetMachineInfo);
 
-    ElfStructureInfoX64 l_stubElfStructureInfo;
+    auto l_sectionHeader { std::make_shared<Elf64_Shdr>(NOTE_GNU_PROPERTY_SECTION_HEADER) };
 
-    EXPECT_CALL(l_elfStructureInfoBuilderMock, getResult)
-        .WillOnce(Return(&l_stubElfStructureInfo));
+    l_elfObjectBuilder.buildNoteSection(l_sectionHeader);
 
-    l_elfObjectBuilder.buildElfStructureInfo();
+    auto l_sections { (l_elfObjectBuilder.getResult()->sections) };
+    ASSERT_EQ(l_sections.size(), 1);
 
-    l_elfObjectBuilder.buildNoteSections();
+    auto l_targetNoteSection { dynamic_cast<NoteSection<Elf64_Shdr, Elf64_Nhdr>&>(*l_sections[0]) };
 
-    auto l_sections { (l_elfObjectBuilder.getResult()->sections)};
-    ASSERT_EQ(l_sections.size(), 0);
+    auto l_expectedNoteSection { 
+        std::make_shared<NoteSection<Elf64_Shdr, Elf64_Nhdr>>(l_sectionHeader, NOTE_GNU_PROPERTY, GNU_NAMESPACE, NOTE_GNU_PROPERTY_DESCRIPTOR_BOTH_ENDIANNESS)
+    };
+
+    expectNoteSectionsAreEqual(l_targetNoteSection, *l_expectedNoteSection);
 }
 
-TEST_P(Elf64BitNoteSectionBuildingTestSuite, shouldReadAllThreeNoteHeadersWhenThereAreThreeNoteSectionHeaders)
+INSTANTIATE_TEST_SUITE_P(GnuPropertyNoteSectionBuilding,
+                         Elf64BitGnuPropertyNoteSectionBuildingTestSuite,
+                         Values(std::make_tuple(LITTLE_ENDIAN_VALUE, generate64BitLittleEndianGnuPropertyNoteHeader()),
+                                std::make_tuple(BIG_ENDIAN_VALUE, generate64BitBigEndianGnuPropertyNoteHeader())));
+
+
+struct Elf64BitGnuBuildIdNoteSectionBuildingTestSuite : Elf64BitNoteSectionBuildingTestSuite
+{};
+
+TEST_P(Elf64BitGnuBuildIdNoteSectionBuildingTestSuite, shouldReadNoteSectionWithGnuBuildIdNodeHeader)
 {
     auto l_params { GetParam() };
     auto l_endianness { std::get<0>(l_params) };
     auto l_streamContent { std::get<1>(l_params) };
 
     std::stringstream l_stubStream { l_streamContent };
-    NiceMock<ElfStructureInfoBuilderMock<ElfStructureInfoX64>> l_elfStructureInfoBuilderMock;
     TargetMachineInfo l_targetMachineInfo;
     l_targetMachineInfo.endianness = l_endianness;
 
-    ElfObjectBuilder<ElfObjectX64, ElfStructureInfoX64> l_elfObjectBuilder (&l_stubStream, l_elfStructureInfoBuilderMock, l_targetMachineInfo);
+    ElfObjectBuilder<ElfObjectX64, ElfStructureInfoX64> l_elfObjectBuilder (&l_stubStream, l_targetMachineInfo);
 
-    auto l_sectionHeader1 { std::shared_ptr<Elf64_Shdr>(&NOTE_GNU_PROPERTY_SECTION_HEADER) };
-    auto l_sectionHeader2 { std::shared_ptr<Elf64_Shdr>(&NOTE_GNU_BUILD_ID_SECTION_HEADER) };
-    auto l_sectionHeader3 { std::shared_ptr<Elf64_Shdr>(&NOTE_ABI_TAG_SECTION_HEADER) };
+    auto l_sectionHeader { std::make_shared<Elf64_Shdr>(NOTE_GNU_BUILD_ID_SECTION_HEADER) };
 
-    ElfStructureInfoX64 l_stubElfStructureInfo;
-    l_stubElfStructureInfo.sectionHeaders.push_back(l_sectionHeader1);
-    l_stubElfStructureInfo.sectionHeaders.push_back(l_sectionHeader2);
-    l_stubElfStructureInfo.sectionHeaders.push_back(l_sectionHeader3);
+    l_elfObjectBuilder.buildNoteSection(l_sectionHeader);
 
-    EXPECT_CALL(l_elfStructureInfoBuilderMock, getResult)
-        .WillOnce(Return(&l_stubElfStructureInfo));
+    auto l_sections { (l_elfObjectBuilder.getResult()->sections) };
+    ASSERT_EQ(l_sections.size(), 1);
 
-    l_elfObjectBuilder.buildElfStructureInfo();
+    auto l_targetNoteSection { dynamic_cast<NoteSection<Elf64_Shdr, Elf64_Nhdr>&>(*l_sections[0]) };
 
-    l_elfObjectBuilder.buildNoteSections();
+    auto l_expectedNoteSection { 
+        std::make_shared<NoteSection<Elf64_Shdr, Elf64_Nhdr>>(l_sectionHeader, NOTE_GNU_BUILD_ID, GNU_NAMESPACE, NOTE_GNU_BUILD_ID_DESCRIPTOR_BOTH_ENDIANNESS)
+    };
 
-    auto l_sections { (l_elfObjectBuilder.getResult()->sections)};
-    ASSERT_EQ(l_sections.size(), 3);
-
-    std::vector<NoteSection<Elf64_Shdr, Elf64_Nhdr>> l_expectedNoteSections
-        { 
-            NoteSection<Elf64_Shdr, Elf64_Nhdr>(l_sectionHeader1, NOTE_GNU_PROPERTY, GNU_NAMESPACE, NOTE_GNU_PROPERTY_DESCRIPTION_BOTH_ENDIANNESS),
-            NoteSection<Elf64_Shdr, Elf64_Nhdr>(l_sectionHeader2, NOTE_GNU_BUILD_ID, GNU_NAMESPACE, NOTE_GNU_BUILD_ID_DESCRIPTION_BOTH_ENDIANNESS),
-            NoteSection<Elf64_Shdr, Elf64_Nhdr>(l_sectionHeader3, NOTE_ABI_TAG, GNU_NAMESPACE, NOTE_ABI_TAG_DESCRIPTION_BOTH_ENDIANNESS)
-        };
-
-    for (int i = 0; i < 3; ++i)
-    {
-        auto& l_targetNoteSection { dynamic_cast<NoteSection<Elf64_Shdr, Elf64_Nhdr>&>(*l_sections[i])};
-        auto& l_expectedNoteSection { l_expectedNoteSections[i] };
-        expectNoteSectionsAreEqual(l_targetNoteSection, l_expectedNoteSection);
-    }
+    expectNoteSectionsAreEqual(l_targetNoteSection, *l_expectedNoteSection);
 }
 
-INSTANTIATE_TEST_SUITE_P(NoteSectionsBuilding,
-                         Elf64BitNoteSectionBuildingTestSuite,
-                         Values(std::make_tuple(LITTLE_ENDIAN_VALUE, generate64BitLittleEndianNoteHeaders()),
-                                std::make_tuple(BIG_ENDIAN_VALUE, generate64BitBigEndianNoteHeaders())));
+INSTANTIATE_TEST_SUITE_P(GnuBuildIdNoteSectionBuilding,
+                         Elf64BitGnuBuildIdNoteSectionBuildingTestSuite,
+                         Values(std::make_tuple(LITTLE_ENDIAN_VALUE, generate64BitLittleEndianGnuBuildIdNoteHeader()),
+                                std::make_tuple(BIG_ENDIAN_VALUE, generate64BitBigEndianGnuBuildIdNoteHeader())));
+
+
+struct Elf64BitGnuAbiTagNoteSectionBuildingTestSuite : Elf64BitNoteSectionBuildingTestSuite
+{};
+
+TEST_P(Elf64BitGnuAbiTagNoteSectionBuildingTestSuite, shouldReadNoteSectionWithGnuAbiTagNodeHeader)
+{
+    auto l_params { GetParam() };
+    auto l_endianness { std::get<0>(l_params) };
+    auto l_streamContent { std::get<1>(l_params) };
+
+    std::stringstream l_stubStream { l_streamContent };
+    TargetMachineInfo l_targetMachineInfo;
+    l_targetMachineInfo.endianness = l_endianness;
+
+    ElfObjectBuilder<ElfObjectX64, ElfStructureInfoX64> l_elfObjectBuilder (&l_stubStream, l_targetMachineInfo);
+
+    auto l_sectionHeader { std::make_shared<Elf64_Shdr>(NOTE_ABI_TAG_SECTION_HEADER) };
+
+    l_elfObjectBuilder.buildNoteSection(l_sectionHeader);
+
+    auto l_sections { (l_elfObjectBuilder.getResult()->sections) };
+    ASSERT_EQ(l_sections.size(), 1);
+
+    auto l_targetNoteSection { dynamic_cast<NoteSection<Elf64_Shdr, Elf64_Nhdr>&>(*l_sections[0]) };
+
+    auto l_expectedNoteSection { 
+        std::make_shared<NoteSection<Elf64_Shdr, Elf64_Nhdr>>(l_sectionHeader, NOTE_ABI_TAG, GNU_NAMESPACE, NOTE_ABI_TAG_DESCRIPTOR_BOTH_ENDIANNESS)
+    };
+
+    expectNoteSectionsAreEqual(l_targetNoteSection, *l_expectedNoteSection);
+}
+
+INSTANTIATE_TEST_SUITE_P(GnuAbiTagNoteSectionBuilding,
+                         Elf64BitGnuAbiTagNoteSectionBuildingTestSuite,
+                         Values(std::make_tuple(LITTLE_ENDIAN_VALUE, generate64BitLittleEndianGnuAbiTagNoteHeader()),
+                                std::make_tuple(BIG_ENDIAN_VALUE, generate64BitBigEndianGnuAbiTagNoteHeader())));

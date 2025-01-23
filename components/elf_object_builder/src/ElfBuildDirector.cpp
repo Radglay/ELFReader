@@ -1,22 +1,53 @@
 #include "ElfBuildDirector.hpp"
-#include <memory>
-#include "IElfObjectBuilder.hpp"
 #include "ElfObjectBuilder.hpp"
-
+#include "ElfObjectX32.hpp"
+#include "ElfObjectX64.hpp"
+#include "ElfStructureInfoX32.hpp"
+#include "ElfStructureInfoX64.hpp"
 
 
 template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>
-std::unique_ptr<T> ElfBuildDirector::makeElfObject(
-    IElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>& p_elfObjectBuilder)
+std::unique_ptr<T> ElfBuildDirector::makeElfObject(IElfStructureInfoBuilder<U, ElfStructureInfoTraits>& p_elfStructureInfoBuilder,
+                                                   IElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>& p_elfObjectBuilder)
 {
-    p_elfObjectBuilder.buildElfStructureInfo();
-    p_elfObjectBuilder.buildSymbolSections();
-    p_elfObjectBuilder.buildNoteSections();
-    p_elfObjectBuilder.buildRelocationSections();
-    p_elfObjectBuilder.buildRelocationWithAddendSections();
-    p_elfObjectBuilder.buildStringTableSections();
-    p_elfObjectBuilder.buildProgbitsSections();
-    p_elfObjectBuilder.buildNobitsSections();
+    p_elfStructureInfoBuilder.buildFileHeader();
+    p_elfStructureInfoBuilder.buildSectionHeaders();
+    p_elfStructureInfoBuilder.buildProgramHeaders();
+    auto l_elfStructureInfo { p_elfStructureInfoBuilder.getResult() };
+
+    const auto& l_sectionHeaders { l_elfStructureInfo->sectionHeaders };
+
+    for (const auto& l_sectionHeader : l_sectionHeaders)
+    {
+        switch (l_sectionHeader->sh_type)
+        {
+            case SHT_NULL:
+                break;
+            case SHT_PROGBITS:
+                p_elfObjectBuilder.buildProgbitsSection(l_sectionHeader);
+                break;
+            case SHT_NOBITS:
+                p_elfObjectBuilder.buildNobitsSection(l_sectionHeader);
+                break;
+            case SHT_SYMTAB:
+                p_elfObjectBuilder.buildSymbolSection(l_sectionHeader);
+                break;
+            case SHT_STRTAB:
+                p_elfObjectBuilder.buildStringTableSection(l_sectionHeader);
+                break;
+            case SHT_RELA:
+                p_elfObjectBuilder.buildRelocationWithAddendSection(l_sectionHeader);
+                break;
+            case SHT_REL:
+                p_elfObjectBuilder.buildRelocationSection(l_sectionHeader);
+                break;
+            case SHT_NOTE:
+                p_elfObjectBuilder.buildNoteSection(l_sectionHeader);
+                break;
+            default:
+                break;
+        }
+    }
 
     return std::make_unique<T>(*p_elfObjectBuilder.getResult());
 }
@@ -27,7 +58,8 @@ std::unique_ptr<ElfObjectX32> ElfBuildDirector::makeElfObject <
     ElfStructureInfoX32,
     elf_structure_info_traits<ElfStructureInfoX32>,
     elf_object_traits<ElfObjectX32> >
-    (IElfObjectBuilder<ElfObjectX32, ElfStructureInfoX32, elf_structure_info_traits<ElfStructureInfoX32>, elf_object_traits<ElfObjectX32>>&);
+    (IElfStructureInfoBuilder<ElfStructureInfoX32, elf_structure_info_traits<ElfStructureInfoX32>>&,
+    IElfObjectBuilder<ElfObjectX32, ElfStructureInfoX32, elf_structure_info_traits<ElfStructureInfoX32>, elf_object_traits<ElfObjectX32>>&);
 
 template
 std::unique_ptr<ElfObjectX64> ElfBuildDirector::makeElfObject <
@@ -35,4 +67,5 @@ std::unique_ptr<ElfObjectX64> ElfBuildDirector::makeElfObject <
     ElfStructureInfoX64,
     elf_structure_info_traits<ElfStructureInfoX64>,
     elf_object_traits<ElfObjectX64> >
-    (IElfObjectBuilder<ElfObjectX64, ElfStructureInfoX64, elf_structure_info_traits<ElfStructureInfoX64>, elf_object_traits<ElfObjectX64>>&);
+    (IElfStructureInfoBuilder<ElfStructureInfoX64, elf_structure_info_traits<ElfStructureInfoX64>>&,
+     IElfObjectBuilder<ElfObjectX64, ElfStructureInfoX64, elf_structure_info_traits<ElfStructureInfoX64>, elf_object_traits<ElfObjectX64>>&);
