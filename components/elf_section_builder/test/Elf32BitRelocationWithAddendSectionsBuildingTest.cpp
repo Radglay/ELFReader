@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include "ElfObjectBuilder.hpp"
+#include "ElfSectionBuilder.hpp"
 #include "TargetMachineInfo.hpp"
 #include <sstream>
 #include "ElfObjectX32.hpp"
@@ -213,7 +213,7 @@ TEST_P(Elf32BitRelocationWithAddendSectionBuildingTestSuite, shouldReadRelocatio
     TargetMachineInfo l_targetMachineInfo;
     l_targetMachineInfo.endianness = l_endianness;
 
-    ElfObjectBuilder<ElfObjectX32, ElfStructureInfoX32> l_elfObjectBuilder (&l_stubStream, l_targetMachineInfo);
+    ElfSectionBuilder<ElfObjectX32, ElfStructureInfoX32> l_elfObjectBuilder (&l_stubStream, l_targetMachineInfo);
 
     auto l_sectionHeader { std::shared_ptr<Elf32_Shdr>(&RELA_SECTION_HEADER_WITH_ZERO_RELA_HEADERS) };
 
@@ -240,7 +240,7 @@ TEST_P(Elf32BitRelocationWithAddendSectionBuildingTestSuite, shouldReadRelocatio
     TargetMachineInfo l_targetMachineInfo;
     l_targetMachineInfo.endianness = l_endianness;
 
-    ElfObjectBuilder<ElfObjectX32, ElfStructureInfoX32> l_elfObjectBuilder (&l_stubStream, l_targetMachineInfo);
+    ElfSectionBuilder<ElfObjectX32, ElfStructureInfoX32> l_elfObjectBuilder (&l_stubStream, l_targetMachineInfo);
 
     auto l_sectionHeader { std::shared_ptr<Elf32_Shdr>(&RELA_SECTION_HEADER_WITH_FIVE_RELA_HEADERS) };
 

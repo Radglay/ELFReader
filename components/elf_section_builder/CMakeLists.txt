@@ -1,16 +1,16 @@
-add_library(ElfObjectBuilder
-            src/ElfObjectBuilder.cpp
+add_library(ElfSectionBuilder
+            src/ElfSectionBuilder.cpp
             src/ElfBuildDirector.cpp
             ${PROJECT_SOURCE_DIR}/components/common/src/EndiannessUtility.cpp
             )
 
-target_include_directories(ElfObjectBuilder PUBLIC
+target_include_directories(ElfSectionBuilder PUBLIC
             include
             include/sections
             ${PROJECT_SOURCE_DIR}/components/common/include
             ${PROJECT_SOURCE_DIR}/components/common/include/structures
             )
 
-target_link_libraries(ElfObjectBuilder PRIVATE Logger)
-target_link_libraries(ElfObjectBuilder PUBLIC ElfStructureInfoBuilder)
-target_link_libraries(ElfObjectBuilder PUBLIC ElfPartAssembler)
+target_link_libraries(ElfSectionBuilder PRIVATE Logger)
+target_link_libraries(ElfSectionBuilder PUBLIC ElfStructureInfoBuilder)
+target_link_libraries(ElfSectionBuilder PUBLIC ElfPartAssembler)

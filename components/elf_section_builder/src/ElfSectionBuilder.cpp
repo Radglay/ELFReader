@@ -1,4 +1,4 @@
-#include "ElfObjectBuilder.hpp"
+#include "ElfSectionBuilder.hpp"
 #include <istream>
 #include <algorithm>
 #include <vector>
@@ -20,7 +20,7 @@
 
 
 template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>
-void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::reset()
+void ElfSectionBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::reset()
 {
     delete m_elfObject;
     m_elfObject = new T{};
@@ -28,7 +28,7 @@ void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::reset()
 
 
 template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>
-void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildSymbolSection(std::shared_ptr<typename ElfStructureInfoTraits::section_header_type> p_sectionHeader)
+void ElfSectionBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildSymbolSection(std::shared_ptr<typename ElfStructureInfoTraits::section_header_type> p_sectionHeader)
 {
     std::vector<typename ElfObjectTraits::symbol_header_type> l_symbolHeaders (p_sectionHeader->sh_size / sizeof(typename ElfObjectTraits::symbol_header_type));
 
@@ -58,7 +58,7 @@ void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildSymbo
 }
 
 template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>
-void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildNoteSection(std::shared_ptr<typename ElfStructureInfoTraits::section_header_type> p_sectionHeader)
+void ElfSectionBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildNoteSection(std::shared_ptr<typename ElfStructureInfoTraits::section_header_type> p_sectionHeader)
 {
     typename ElfObjectTraits::note_header_type l_noteHeader {};
     auto l_currentOffset  { p_sectionHeader->sh_offset };
@@ -92,7 +92,7 @@ void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildNoteS
 }
 
 template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>
-void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildRelocationSection(std::shared_ptr<typename ElfStructureInfoTraits::section_header_type> p_sectionHeader)
+void ElfSectionBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildRelocationSection(std::shared_ptr<typename ElfStructureInfoTraits::section_header_type> p_sectionHeader)
 {
     std::vector<typename ElfObjectTraits::rel_header_type> l_relHeaders (
         p_sectionHeader->sh_size / sizeof(typename ElfObjectTraits::rel_header_type));
@@ -122,7 +122,7 @@ void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildReloc
 }
 
 template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>
-void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildRelocationWithAddendSection(std::shared_ptr<typename ElfStructureInfoTraits::section_header_type> p_sectionHeader)
+void ElfSectionBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildRelocationWithAddendSection(std::shared_ptr<typename ElfStructureInfoTraits::section_header_type> p_sectionHeader)
 {
     std::vector<typename ElfObjectTraits::rel_with_addend_header_type> l_relaHeaders (
         p_sectionHeader->sh_size / sizeof(typename ElfObjectTraits::rel_with_addend_header_type));
@@ -152,7 +152,7 @@ void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildReloc
 }
 
 template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>
-void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildStringTableSection(std::shared_ptr<typename ElfStructureInfoTraits::section_header_type> p_sectionHeader)
+void ElfSectionBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildStringTableSection(std::shared_ptr<typename ElfStructureInfoTraits::section_header_type> p_sectionHeader)
 {
     std::map<int, std::string> l_stringTable;
 
@@ -177,7 +177,7 @@ void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildStrin
 }
 
 template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>
-void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildProgbitsSection(std::shared_ptr<typename ElfStructureInfoTraits::section_header_type> p_sectionHeader)
+void ElfSectionBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildProgbitsSection(std::shared_ptr<typename ElfStructureInfoTraits::section_header_type> p_sectionHeader)
 {
     std::vector<unsigned char> l_bytes;
     auto l_offset { p_sectionHeader->sh_offset};
@@ -191,14 +191,14 @@ void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildProgb
 }
 
 template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>
-void ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildNobitsSection(std::shared_ptr<typename ElfStructureInfoTraits::section_header_type> p_sectionHeader)
+void ElfSectionBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildNobitsSection(std::shared_ptr<typename ElfStructureInfoTraits::section_header_type> p_sectionHeader)
 {
     m_elfObject->sections.emplace_back(
         std::make_shared<NobitsSection<typename ElfStructureInfoTraits::section_header_type>>(p_sectionHeader));
 }
 
 template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>
-T* ElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::getResult()
+T* ElfSectionBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::getResult()
 {
     auto l_result = new T{ *m_elfObject };
     reset();

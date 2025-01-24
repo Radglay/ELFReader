@@ -8,7 +8,7 @@
 #include "ElfStructureInfoX64.hpp"
 #include "ElfBuildDirector.hpp"
 #include "ElfStructureInfoBuilder.hpp"
-#include "ElfObjectBuilder.hpp"
+#include "ElfSectionBuilder.hpp"
 #include "ElfPartAssembler.hpp"
 #include <memory>
 #include "IElfSection.hpp"
@@ -77,7 +77,7 @@ std::vector<ElfPart> readElfPartsFromFile(std::istream* p_fileStream)
     if (l_targetMachineInfo.bitVersion == ELFCLASS32)
     {
         ElfStructureInfoBuilder<ElfStructureInfoX32> l_elfStructureInfoBuilder { p_fileStream, l_targetMachineInfo.endianness };
-        ElfObjectBuilder<ElfObjectX32, ElfStructureInfoX32> l_elfObjectBuilder { p_fileStream, l_targetMachineInfo };
+        ElfSectionBuilder<ElfObjectX32, ElfStructureInfoX32> l_elfObjectBuilder { p_fileStream, l_targetMachineInfo };
     
         auto l_elfObject { l_elfBuildDirector.makeElfObject(l_elfStructureInfoBuilder, l_elfObjectBuilder) };
 
@@ -86,7 +86,7 @@ std::vector<ElfPart> readElfPartsFromFile(std::istream* p_fileStream)
     else if (l_targetMachineInfo.bitVersion == ELFCLASS64)
     {
         ElfStructureInfoBuilder<ElfStructureInfoX64> l_elfStructureInfoBuilder { p_fileStream, l_targetMachineInfo.endianness };
-        ElfObjectBuilder<ElfObjectX64, ElfStructureInfoX64> l_elfObjectBuilder { p_fileStream, l_targetMachineInfo };
+        ElfSectionBuilder<ElfObjectX64, ElfStructureInfoX64> l_elfObjectBuilder { p_fileStream, l_targetMachineInfo };
 
         auto l_elfObject { l_elfBuildDirector.makeElfObject(l_elfStructureInfoBuilder, l_elfObjectBuilder) };
 

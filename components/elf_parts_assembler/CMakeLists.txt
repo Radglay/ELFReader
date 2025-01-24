@@ -14,5 +14,5 @@ target_include_directories(ElfPartAssembler PUBLIC
             )
 
 target_link_libraries(ElfPartAssembler PRIVATE Logger)
-target_link_libraries(ElfPartAssembler PUBLIC ElfObjectBuilder)
+target_link_libraries(ElfPartAssembler PUBLIC ElfSectionBuilder)
 target_link_libraries(ElfPartAssembler PUBLIC Qt6::Core)

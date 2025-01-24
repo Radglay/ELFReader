@@ -1,5 +1,5 @@
 #include "ElfBuildDirector.hpp"
-#include "ElfObjectBuilder.hpp"
+#include "ElfSectionBuilder.hpp"
 #include "ElfObjectX32.hpp"
 #include "ElfObjectX64.hpp"
 #include "ElfStructureInfoX32.hpp"
@@ -8,7 +8,7 @@
 
 template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>
 std::unique_ptr<T> ElfBuildDirector::makeElfObject(IElfStructureInfoBuilder<U, ElfStructureInfoTraits>& p_elfStructureInfoBuilder,
-                                                   IElfObjectBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>& p_elfObjectBuilder)
+                                                   IElfSectionBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>& p_elfObjectBuilder)
 {
     p_elfStructureInfoBuilder.buildFileHeader();
     p_elfStructureInfoBuilder.buildSectionHeaders();
@@ -59,7 +59,7 @@ std::unique_ptr<ElfObjectX32> ElfBuildDirector::makeElfObject <
     elf_structure_info_traits<ElfStructureInfoX32>,
     elf_object_traits<ElfObjectX32> >
     (IElfStructureInfoBuilder<ElfStructureInfoX32, elf_structure_info_traits<ElfStructureInfoX32>>&,
-    IElfObjectBuilder<ElfObjectX32, ElfStructureInfoX32, elf_structure_info_traits<ElfStructureInfoX32>, elf_object_traits<ElfObjectX32>>&);
+    IElfSectionBuilder<ElfObjectX32, ElfStructureInfoX32, elf_structure_info_traits<ElfStructureInfoX32>, elf_object_traits<ElfObjectX32>>&);
 
 template
 std::unique_ptr<ElfObjectX64> ElfBuildDirector::makeElfObject <
@@ -68,4 +68,4 @@ std::unique_ptr<ElfObjectX64> ElfBuildDirector::makeElfObject <
     elf_structure_info_traits<ElfStructureInfoX64>,
     elf_object_traits<ElfObjectX64> >
     (IElfStructureInfoBuilder<ElfStructureInfoX64, elf_structure_info_traits<ElfStructureInfoX64>>&,
-     IElfObjectBuilder<ElfObjectX64, ElfStructureInfoX64, elf_structure_info_traits<ElfStructureInfoX64>, elf_object_traits<ElfObjectX64>>&);
+     IElfSectionBuilder<ElfObjectX64, ElfStructureInfoX64, elf_structure_info_traits<ElfStructureInfoX64>, elf_object_traits<ElfObjectX64>>&);
