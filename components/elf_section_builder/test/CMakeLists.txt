@@ -5,7 +5,7 @@ macro(add_tests_from_file TESTNAME)
                           gtest
                           gmock
                           gtest_main
-                          ElfObjectBuilder)
+                          ElfSectionBuilder)
     gtest_discover_tests(${TESTNAME})
 endmacro()
 
