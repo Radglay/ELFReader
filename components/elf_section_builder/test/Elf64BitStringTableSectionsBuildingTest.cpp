@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include "ElfObjectBuilder.hpp"
+#include "ElfSectionBuilder.hpp"
 #include "TargetMachineInfo.hpp"
 #include <sstream>
 #include "ElfObjectX64.hpp"
@@ -171,7 +171,7 @@ TEST_P(Elf64BitStringTableSectionsBuildingTestSuite, shouldReadEmptyStringTableS
     TargetMachineInfo l_targetMachineInfo;
     l_targetMachineInfo.endianness = l_endianness;
 
-    ElfObjectBuilder<ElfObjectX64, ElfStructureInfoX64> l_elfObjectBuilder (&l_stubStream, l_targetMachineInfo);
+    ElfSectionBuilder<ElfObjectX64, ElfStructureInfoX64> l_elfObjectBuilder (&l_stubStream, l_targetMachineInfo);
 
     auto l_sectionHeader { std::shared_ptr<Elf64_Shdr>(&STRING_TABLE_SECTION_WITH_ZERO_ELEMENTS) };
 
@@ -199,7 +199,7 @@ TEST_P(Elf64BitStringTableSectionsBuildingTestSuite, shouldReadStringTableSectio
     TargetMachineInfo l_targetMachineInfo;
     l_targetMachineInfo.endianness = l_endianness;
 
-    ElfObjectBuilder<ElfObjectX64, ElfStructureInfoX64> l_elfObjectBuilder (&l_stubStream, l_targetMachineInfo);
+    ElfSectionBuilder<ElfObjectX64, ElfStructureInfoX64> l_elfObjectBuilder (&l_stubStream, l_targetMachineInfo);
 
     auto l_sectionHeader { std::shared_ptr<Elf64_Shdr>(&STRING_TABLE_SECTION_WITH_TEN_ELEMENTS) };
 

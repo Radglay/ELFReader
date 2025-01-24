@@ -1,46 +1,46 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include "ElfBuildDirector.hpp"
-#include "ElfObjectBuilderMock.hpp"
+#include "ElfSectionBuilderMock.hpp"
 #include "ElfStructureInfoBuilderMock.hpp"
-#include "ElfStructureInfoX64.hpp"
-#include "ElfObjectX64.hpp"
+#include "ElfStructureInfoX32.hpp"
+#include "ElfObjectX32.hpp"
 #include <elf.h>
 
 
 namespace
 {
-    Elf64_Shdr SYMBOL_TABLE_SECTION_HEADER
+    Elf32_Shdr SYMBOL_TABLE_SECTION_HEADER
     {
         .sh_type = SHT_SYMTAB
     };
 
-    Elf64_Shdr NOTE_SECTION_HEADER
+    Elf32_Shdr NOTE_SECTION_HEADER
     {
         .sh_type = SHT_NOTE
     };
 
-    Elf64_Shdr RELOCATION_SECTION_HEADER
+    Elf32_Shdr RELOCATION_SECTION_HEADER
     {
         .sh_type = SHT_REL
     };
 
-    Elf64_Shdr RELOCATION_WITH_ADDEND_SECTION_HEADER
+    Elf32_Shdr RELOCATION_WITH_ADDEND_SECTION_HEADER
     {
         .sh_type = SHT_RELA
     };
 
-    Elf64_Shdr STRING_TABLE_SECTION_HEADER
+    Elf32_Shdr STRING_TABLE_SECTION_HEADER
     {
         .sh_type = SHT_STRTAB
     };
 
-    Elf64_Shdr PROGBITS_SECTION_HEADER
+    Elf32_Shdr PROGBITS_SECTION_HEADER
     {
         .sh_type = SHT_PROGBITS
     };
 
-    Elf64_Shdr NOBITS_SECTION_HEADER
+    Elf32_Shdr NOBITS_SECTION_HEADER
     {
         .sh_type = SHT_NOBITS
     };
@@ -49,24 +49,23 @@ namespace
 
 using namespace ::testing;
 
-TEST(Elf64BitElfBuildDrectorTestSuite, shouldCallAllTheNecessary64BitElfBuilderFunctions)
+TEST(Elf32BitElfBuildDrectorTestSuite, shouldCallAllTheNecessary32BitElfBuilderFunctions)
 {
-    StrictMock<ElfStructureInfoBuilderMock<ElfStructureInfoX64>> l_elfStructureInfoBuilderMock;
-    StrictMock<ElfObjectBuilderMock<ElfObjectX64, ElfStructureInfoX64>> l_elfObjectBuilderMock;
+    StrictMock<ElfStructureInfoBuilderMock<ElfStructureInfoX32>> l_elfStructureInfoBuilderMock;
+    StrictMock<ElfSectionBuilderMock<ElfObjectX32, ElfStructureInfoX32>> l_elfObjectBuilderMock;
 
     ElfBuildDirector l_elfBuildDirector;
 
-
-    ElfStructureInfoX64 l_elfstructureInfo
+    ElfStructureInfoX32 l_elfstructureInfo
     {
         .sectionHeaders = {
-            std::make_shared<Elf64_Shdr>(SYMBOL_TABLE_SECTION_HEADER),
-            std::make_shared<Elf64_Shdr>(NOTE_SECTION_HEADER),
-            std::make_shared<Elf64_Shdr>(RELOCATION_SECTION_HEADER),
-            std::make_shared<Elf64_Shdr>(RELOCATION_WITH_ADDEND_SECTION_HEADER),
-            std::make_shared<Elf64_Shdr>(STRING_TABLE_SECTION_HEADER),
-            std::make_shared<Elf64_Shdr>(PROGBITS_SECTION_HEADER),
-            std::make_shared<Elf64_Shdr>(NOBITS_SECTION_HEADER)
+            std::make_shared<Elf32_Shdr>(SYMBOL_TABLE_SECTION_HEADER),
+            std::make_shared<Elf32_Shdr>(NOTE_SECTION_HEADER),
+            std::make_shared<Elf32_Shdr>(RELOCATION_SECTION_HEADER),
+            std::make_shared<Elf32_Shdr>(RELOCATION_WITH_ADDEND_SECTION_HEADER),
+            std::make_shared<Elf32_Shdr>(STRING_TABLE_SECTION_HEADER),
+            std::make_shared<Elf32_Shdr>(PROGBITS_SECTION_HEADER),
+            std::make_shared<Elf32_Shdr>(NOBITS_SECTION_HEADER)
         }
     };
 
@@ -97,7 +96,7 @@ TEST(Elf64BitElfBuildDrectorTestSuite, shouldCallAllTheNecessary64BitElfBuilderF
     EXPECT_CALL(l_elfObjectBuilderMock, buildNobitsSection)
         .Times(1);
     EXPECT_CALL(l_elfObjectBuilderMock, getResult)
-        .WillOnce(Return(new ElfObjectX64));
+        .WillOnce(Return(new ElfObjectX32));
 
     l_elfBuildDirector.makeElfObject(l_elfStructureInfoBuilderMock, l_elfObjectBuilderMock);
 }

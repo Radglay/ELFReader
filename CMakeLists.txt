@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(ELFParser
+project(ELFReader
         VERSION 1.0
         LANGUAGES CXX)
 
@@ -19,7 +19,7 @@ add_subdirectory(components/ui)
 add_subdirectory(components/common)
 add_subdirectory(components/elf_structure_info_builder)
 add_subdirectory(components/elf_parts_assembler)
-add_subdirectory(components/elf_object_builder)
+add_subdirectory(components/elf_section_builder)
 add_subdirectory(app)
 
 option(BUILD_TESTS "Build all unit tests" OFF)
@@ -29,7 +29,7 @@ if (BUILD_TESTS)
     add_subdirectory(lib/googletest)
 
     add_subdirectory(components/elf_structure_info_builder/test)
-    add_subdirectory(components/elf_object_builder/test)
+    add_subdirectory(components/elf_section_builder/test)
     add_subdirectory(components/elf_parts_assembler/test)
 endif()
 unset(BUILD_TESTS CACHE)
