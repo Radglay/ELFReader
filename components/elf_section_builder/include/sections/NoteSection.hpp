@@ -1,18 +1,17 @@
 #pragma once
 
-#include "IElfSection.hpp"
-#include <vector>
+#include "INoteSection.hpp"
 #include <memory>
 #include "ElfPart.hpp"
 #include "IElfPartFromSectionVisitor.hpp"
 
 
-template <typename SectionHeader, typename NoteHeader>
-class NoteSection : public IElfSection<SectionHeader>
+template <typename SectionHeader, typename NoteHeader, typename Descriptor>
+class NoteSection : public INoteSection<SectionHeader, NoteHeader>
 {
 public:
     NoteSection(std::shared_ptr<SectionHeader> p_sectionHeader, NoteHeader p_noteHeader,
-                std::string p_namespace, std::vector<unsigned char> p_descriptor)
+                std::string p_namespace, Descriptor p_descriptor)
         : m_sectionHeader { p_sectionHeader }
         , m_noteHeader { p_noteHeader }
         , m_namespace { p_namespace }
@@ -39,9 +38,14 @@ public:
         return m_namespace;
     }
 
+    Descriptor getDescriptor() const
+    {
+        return m_descriptor;
+    }
+
 private:
     std::shared_ptr<SectionHeader> m_sectionHeader;
     NoteHeader m_noteHeader;
     std::string m_namespace;
-    std::vector<unsigned char> m_descriptor { nullptr };
+    Descriptor m_descriptor;
 };

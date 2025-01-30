@@ -1,12 +1,6 @@
 #include "ElfPartAssembler.hpp"
 #include "ElfPart.hpp"
-#include "NoteSection.hpp"
-#include "NobitsSection.hpp"
-#include "ProgbitsSection.hpp"
-#include "RelocationSection.hpp"
-#include "RelocationWithAddendSection.hpp"
 #include "StringTableSection.hpp"
-#include "SymbolTableSection.hpp"
 #include <elf.h>
 #include <QString>
 #include <vector>
@@ -248,12 +242,9 @@ std::vector<ElfPart> ElfPartAssembler::assembleElfPartsFromSections(const std::v
 
     for (auto& p_section : p_sections)
     {
-        if (dynamic_cast<NoteSection<Elf64_Shdr, Elf64_Nhdr>*>(p_section.get()))
-        {
-            l_elfParts.push_back(p_section->acceptElfPartAssembler(p_elfPartFromSectionVisitor,
-                                                                   p_sectionNamesTable->getStringByOffset(p_section->getSectionHeader()->sh_name)));
-        }
-        // l_elfParts.push_back(p_section->acceptElfPartAssembler(p_elfPartAssembler));
+        l_elfParts.push_back(p_section->acceptElfPartAssembler(p_elfPartFromSectionVisitor,
+                                                               p_sectionNamesTable->getStringByOffset(p_section->getSectionHeader()->sh_name)));
+
     }
 
     return l_elfParts;
@@ -267,12 +258,9 @@ std::vector<ElfPart> ElfPartAssembler::assembleElfPartsFromSections(const std::v
 
     for (auto& p_section : p_sections)
     {
-        if (dynamic_cast<NoteSection<Elf64_Shdr, Elf64_Nhdr>*>(p_section.get()))
-        {
-            // l_elfParts.push_back(p_section->acceptElfPartAssembler(p_elfPartAssembler,
-            //                                                        p_sectionNamesTable->getStringByOffset(p_section->getSectionHeader()->sh_name)));
-        }
-        // l_elfParts.push_back(p_section->acceptElfPartAssembler(p_elfPartAssembler));
+        l_elfParts.push_back(p_section->acceptElfPartAssembler(p_elfPartFromSectionVisitor,
+                                                               p_sectionNamesTable->getStringByOffset(p_section->getSectionHeader()->sh_name)));
+
     }
 
     return l_elfParts;

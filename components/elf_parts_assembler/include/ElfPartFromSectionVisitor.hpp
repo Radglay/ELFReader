@@ -6,8 +6,8 @@
 class ElfPartFromSectionVisitor : public IElfPartFromSectionVisitor
 {
 public:
-    ElfPart assembleElfPartFromSection(NoteSection<Elf32_Shdr, Elf32_Nhdr>&, const std::string&) override;
-    ElfPart assembleElfPartFromSection(NoteSection<Elf64_Shdr, Elf64_Nhdr>&, const std::string&) override;
+    ElfPart assembleElfPartFromSection(INoteSection<Elf32_Shdr, Elf32_Nhdr>&, const std::string&) override;
+    ElfPart assembleElfPartFromSection(INoteSection<Elf64_Shdr, Elf64_Nhdr>&, const std::string&) override;
 
     ElfPart assembleElfPartFromSection(NobitsSection<Elf32_Shdr>&, const std::string&) override;
     ElfPart assembleElfPartFromSection(NobitsSection<Elf64_Shdr>&, const std::string&) override;
