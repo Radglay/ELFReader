@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <string>
-#include "ElfPart.hpp"
 
 
 class IElfPartFromSectionVisitor;

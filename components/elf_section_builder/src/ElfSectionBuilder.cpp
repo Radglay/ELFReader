@@ -12,11 +12,11 @@
 #include "SymbolTableSection.hpp"
 #include "RelocationSection.hpp"
 #include "RelocationWithAddendSection.hpp"
-#include "NoteSection.hpp"
+#include "INoteSection.hpp"
 #include "StringTableSection.hpp"
 #include "ProgbitsSection.hpp"
 #include "NobitsSection.hpp"
-
+#include "NoteSectionBuildingUtility.hpp"
 
 
 template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>
@@ -75,20 +75,12 @@ void ElfSectionBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildNote
     l_currentOffset += sizeof(typename ElfObjectTraits::note_header_type);
     std::string l_namespace;
     readNullTerminatedStringFromFile(l_namespace, l_currentOffset, m_fileStream);
-    l_currentOffset += l_noteHeader.n_namesz;
 
-    std::vector<unsigned char> l_descriptorBytes;
-    readBytesFromFileToVector(l_descriptorBytes,
-                                l_currentOffset,
-                                l_noteHeader.n_descsz,
-                                m_fileStream);
-
-    m_elfObject->sections.emplace_back(
-        std::make_shared<NoteSection<typename ElfStructureInfoTraits::section_header_type,
-                                     typename ElfObjectTraits::note_header_type>>(p_sectionHeader,
-                                                                                  l_noteHeader,
-                                                                                  l_namespace,
-                                                                                  l_descriptorBytes));
+    m_elfObject->sections.emplace_back(createNoteSection(m_fileStream,
+                                                         m_targetMachineInfo.endianness,
+                                                         p_sectionHeader,
+                                                         l_noteHeader,
+                                                         l_namespace));
 }
 
 template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>

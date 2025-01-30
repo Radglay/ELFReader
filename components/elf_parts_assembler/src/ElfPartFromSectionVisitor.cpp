@@ -1,6 +1,6 @@
 #include "ElfPartFromSectionVisitor.hpp"
 #include <elf.h>
-#include "NoteSection.hpp"
+#include "INoteSection.hpp"
 #include "NobitsSection.hpp"
 #include "ProgbitsSection.hpp"
 #include "RelocationSection.hpp"
@@ -10,7 +10,7 @@
 #include <QString>
 
 
-ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(NoteSection<Elf32_Shdr, Elf32_Nhdr>& p_noteSection, const std::string& p_sectionName)
+ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(INoteSection<Elf32_Shdr, Elf32_Nhdr>& p_noteSection, const std::string& p_sectionName)
 {
     auto l_noteHeader { p_noteSection.getNoteHeader() };
 
@@ -25,7 +25,7 @@ ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(NoteSection<Elf32_
     return ElfPart{QString::fromStdString(p_sectionName), ElfPartType::Section, l_offset, sizeof(Elf32_Nhdr), "", l_fields};
 }
 
-ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(NoteSection<Elf64_Shdr, Elf64_Nhdr>& p_noteSection, const std::string& p_sectionName)
+ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(INoteSection<Elf64_Shdr, Elf64_Nhdr>& p_noteSection, const std::string& p_sectionName)
 {
     auto l_noteHeader { p_noteSection.getNoteHeader() };
 

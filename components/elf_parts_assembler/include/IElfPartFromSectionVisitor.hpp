@@ -5,7 +5,7 @@
 
 
 template <typename T, typename U>
-class NoteSection;
+class INoteSection;
 
 template <typename T>
 class NobitsSection;
@@ -29,8 +29,8 @@ class ElfPart;
 class IElfPartFromSectionVisitor
 {
 public:
-    virtual ElfPart assembleElfPartFromSection(NoteSection<Elf32_Shdr, Elf32_Nhdr>&, const std::string&) = 0;
-    virtual ElfPart assembleElfPartFromSection(NoteSection<Elf64_Shdr, Elf64_Nhdr>&, const std::string&) = 0;
+    virtual ElfPart assembleElfPartFromSection(INoteSection<Elf32_Shdr, Elf32_Nhdr>&, const std::string&) = 0;
+    virtual ElfPart assembleElfPartFromSection(INoteSection<Elf64_Shdr, Elf64_Nhdr>&, const std::string&) = 0;
 
     virtual ElfPart assembleElfPartFromSection(NobitsSection<Elf32_Shdr>&, const std::string&) = 0;
     virtual ElfPart assembleElfPartFromSection(NobitsSection<Elf64_Shdr>&, const std::string&) = 0;
