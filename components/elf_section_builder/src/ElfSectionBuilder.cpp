@@ -13,10 +13,15 @@
 #include "RelocationSection.hpp"
 #include "RelocationWithAddendSection.hpp"
 #include "INoteSection.hpp"
+#include "NoteSection.hpp"
 #include "StringTableSection.hpp"
 #include "ProgbitsSection.hpp"
 #include "NobitsSection.hpp"
 #include "NoteSectionBuildingUtility.hpp"
+#include "AbiTagInformation.hpp"
+#include "GnuPropertyX86Features.hpp"
+#include "GnuPropertyX86InstructionSet.hpp"
+#include "IGnuProperty.hpp"
 
 
 template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>
@@ -76,9 +81,7 @@ void ElfSectionBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildNote
     std::string l_namespace;
     readNullTerminatedStringFromFile(l_namespace, l_currentOffset, m_fileStream);
 
-    m_elfObject->sections.emplace_back(createNoteSection(m_fileStream,
-                                                         m_targetMachineInfo.endianness,
-                                                         p_sectionHeader,
+    m_elfObject->sections.emplace_back(createNoteSection(p_sectionHeader,
                                                          l_noteHeader,
                                                          l_namespace));
 }
@@ -197,3 +200,27 @@ T* ElfSectionBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::getResult()
     return l_result;
 }
 
+template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>
+std::shared_ptr<INoteSection<typename ElfStructureInfoTraits::section_header_type, typename ElfObjectTraits::note_header_type>> ElfSectionBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::createNoteSection(
+    std::shared_ptr<typename ElfStructureInfoTraits::section_header_type> p_sectionHeader,
+    typename ElfObjectTraits::note_header_type& p_noteHeader,
+    std::string p_namespace)
+{
+    auto l_offset { p_sectionHeader->sh_offset + sizeof(typename ElfObjectTraits::note_header_type) + p_noteHeader.n_namesz };
+
+    if (p_namespace == "GNU")
+    {
+        switch (p_noteHeader.n_type)
+        {
+            case NT_GNU_ABI_TAG:
+                return std::make_shared<NoteSection<typename ElfStructureInfoTraits::section_header_type, typename ElfObjectTraits::note_header_type, AbiTagInformation>>(
+                    p_sectionHeader, p_noteHeader, p_namespace, readAbiTagInformation(m_fileStream, m_targetMachineInfo.endianness, l_offset));
+            case NT_GNU_BUILD_ID:
+                return std::make_shared<NoteSection<typename ElfStructureInfoTraits::section_header_type, typename ElfObjectTraits::note_header_type, std::vector<unsigned char>>>(
+                    p_sectionHeader, p_noteHeader, p_namespace, readBuildIdInformation(m_fileStream, m_targetMachineInfo.endianness, l_offset, p_noteHeader.n_descsz));
+            case NT_GNU_PROPERTY_TYPE_0:
+                return std::make_shared<NoteSection<typename ElfStructureInfoTraits::section_header_type, typename ElfObjectTraits::note_header_type, std::vector<std::shared_ptr<IGnuProperty>>>>(
+                    p_sectionHeader, p_noteHeader, p_namespace, readGnuPropertyInformation(m_fileStream, m_targetMachineInfo, l_offset, p_noteHeader.n_descsz));
+        }
+    }
+}

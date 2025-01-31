@@ -31,3 +31,10 @@ inline void readBytesFromFileToVector(std::vector<unsigned char>& p_toFill, int 
     p_fileStream->read(reinterpret_cast<char*>(l_buffer), p_size);
     p_toFill.assign(&l_buffer[0], &l_buffer[p_size]);
 }
+
+
+inline int alignOffset(int p_value, int p_alignment)
+{
+    auto l_remainder { p_value % p_alignment };
+    return l_remainder ? p_value + (p_alignment - l_remainder) : p_value;
+}

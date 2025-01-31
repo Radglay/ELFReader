@@ -9,6 +9,7 @@
 #include "ElfStructureInfoX64.hpp"
 #include "ElfStructureInfoTraits.hpp"
 #include "ElfObjectTraits.hpp"
+#include "INoteSection.hpp"
 
 
 template <typename T, typename U, typename ElfStructureInfoTraits = elf_structure_info_traits<U>, typename ElfObjectTraits = elf_object_traits<T>>
@@ -36,6 +37,11 @@ private:
     std::istream* m_fileStream;
     TargetMachineInfo m_targetMachineInfo;
     T* m_elfObject;
+
+    std::shared_ptr<INoteSection<typename ElfStructureInfoTraits::section_header_type, typename ElfObjectTraits::note_header_type>> createNoteSection(
+        std::shared_ptr<typename ElfStructureInfoTraits::section_header_type>,
+        typename ElfObjectTraits::note_header_type&,
+        std::string);
 };
 
 template class ElfSectionBuilder<ElfObjectX32, ElfStructureInfoX32>;

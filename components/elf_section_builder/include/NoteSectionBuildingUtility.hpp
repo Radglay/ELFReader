@@ -2,10 +2,23 @@
 
 #include <string>
 #include <istream>
-#include "INoteSection.hpp"
 #include <memory>
-#include <elf.h>
+#include <vector>
 
 
-template <typename SectionHeader, typename NoteHeader>
-std::shared_ptr<INoteSection<SectionHeader, NoteHeader>> createNoteSection(std::istream*, int, std::shared_ptr<SectionHeader>, NoteHeader&, std::string);
+struct AbiTagInformation;
+struct GnuPropertyX86Features;
+struct GnuPropertyX86InstructionSet;
+struct IGnuProperty;
+struct TargetMachineInfo;
+
+
+AbiTagInformation readAbiTagInformation(std::istream* p_fileStream, int p_targetMachineEndianness, int p_offset);
+
+std::vector<unsigned char> readBuildIdInformation(std::istream* p_fileStream, int p_targetMachineEndianness, int p_offset, int p_size);
+
+GnuPropertyX86Features readGnuPropertyX86Features(std::istream* p_fileStream, int p_targetMachineEndianness, int p_offset);
+
+GnuPropertyX86InstructionSet readGnuPropertyX86InstructionSet(std::istream* p_fileStream, int p_targetMachineEndianness, int p_offset);
+
+std::vector<std::shared_ptr<IGnuProperty>> readGnuPropertyInformation(std::istream* p_fileStream, TargetMachineInfo& p_targetMachineInfo, int p_offset, int p_size);
