@@ -8,7 +8,7 @@ add_library(ElfSectionBuilder
 target_include_directories(ElfSectionBuilder PUBLIC
             include
             include/sections
-            include/sections/note_descriptors
+            include/note_descriptors
             ${PROJECT_SOURCE_DIR}/components/common/include
             ${PROJECT_SOURCE_DIR}/components/common/include/structures
             )
