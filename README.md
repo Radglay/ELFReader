@@ -1,27 +1,55 @@
-# ELFReader
+# ELFReader ![workflow status](https://github.com/Radglay/ELFReader/actions/workflows/ci.yml/badge.svg?event=pull_request)
+ELFReader is an desktop application created with C++ and Qt, used to view the structure of files of the Executable And Linkable format (ELF). The application provides user with high level
+descriptions of particular fields of ELF headers and sections. An user can navigate through the file's object code manually or via the naviagation menu.
 
-## Downloading
-1) `git clone https://github.com/Radglay/ELFReader`
-2) `cd ELFReader`
-3) `git submodule init`
-4) `git submodule update`
+## Build
+To create the application on the Linux platform:
 
-## Building & running executable
-### DEBUG version
-1) `cmake -S . -B build -DCMAKE_BUILD_TYPE=DEBUG`
-2) `cmake --build build`
-### RELEASE version
-1) `cmake -S . -B build -DCMAKE_BUILD_TYPE=RELEASE`
-2) `cmake --build build`
+##### Install build tools:
+* g++ version 11.4.0
+* Qt version 6.2.4
+* CMake version 3.10
 
-### Running
-3) `./build/App/main <elf_file_name>`
+##### Download git repository with submodules: 
+* Clone project's code from the git repository main branch
+```
+git clone https://github.com/Radglay/ELFReader
+```
+* Download project's submodules (GTest and plog libraries)  
+```
+cd ELFReader
+git submodule update --init
+```
 
-## Building tests & running tests
-### Building
-1) `cmake -S . -B build -DBUILD_TESTS=ON`
-2) `cmake --build build`
+##### Build the executable:
+From the project top level directory:
+```
+cmake -S . -B build
+```
+```
+cmake --build build
+```
+To run the application:
+```
+./build/App/main
+```
 
-### Running
-3) simple summary: `ctest --test-dir build`
-4) colored verbose summary: `GTEST_COLOR = 1 ctest --test-dir build -V`
+## Tests
+From the project top level directory:
+#### Building
+```
+cmake -S . -B build -DBUILD_TESTS=ON
+```
+```
+cmake --build build
+```
+
+#### Running
+* simple summary:
+```
+ctest --test-dir build
+```
+* colored verbose summary:
+```
+GTEST_COLOR=1 ctest --test-dir build -V
+```
