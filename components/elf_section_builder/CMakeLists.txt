@@ -2,7 +2,7 @@ add_library(ElfSectionBuilder
             src/ElfSectionBuilder.cpp
             src/ElfBuildDirector.cpp
             ${PROJECT_SOURCE_DIR}/components/common/src/EndiannessUtility.cpp
-            src/NoteSectionBuildingUtility.cpp
+            src/NoteDescriptorBuilder.cpp
             )
 
 target_include_directories(ElfSectionBuilder PUBLIC

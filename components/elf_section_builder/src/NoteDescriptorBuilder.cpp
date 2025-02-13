@@ -1,4 +1,4 @@
-#include "NoteSectionBuildingUtility.hpp"
+#include "NoteDescriptorBuilder.hpp"
 #include "NoteSection.hpp"
 #include <elf.h>
 #include "BytesReadingUtility.hpp"
@@ -13,13 +13,13 @@
 #include "GnuProperty.hpp"
 
 
-AbiTagInformation readAbiTagInformation(std::istream* p_fileStream, int p_targetMachineEndianness, int p_offset)
+AbiTagInformation NoteDescriptorBuilder::buildAbiTagInformation(int p_offset)
 {
     AbiTagInformation l_abiTagInformation {};
-    readBytesFromFile(l_abiTagInformation, p_offset, p_fileStream);
+    readBytesFromFile(l_abiTagInformation, p_offset, m_fileStream);
 
-    if (isEndiannessCorrect(p_targetMachineEndianness)
-        and shouldConvertEndianness(p_targetMachineEndianness))
+    if (isEndiannessCorrect(m_targetMachineInfo.endianness)
+        and shouldConvertEndianness(m_targetMachineInfo.endianness))
     {
         convertEndianness(l_abiTagInformation.osDescriptor);
         convertEndianness(l_abiTagInformation.majorVersion);
@@ -30,24 +30,23 @@ AbiTagInformation readAbiTagInformation(std::istream* p_fileStream, int p_target
     return l_abiTagInformation;
 }
 
-std::vector<unsigned char> readBuildIdInformation(std::istream* p_fileStream, int p_targetMachineEndianness, int p_offset, int p_size)
+std::vector<unsigned char> NoteDescriptorBuilder::buildBuildIdInformation(int p_offset, int p_size)
 {
     std::vector<unsigned char> l_gnuBuildId;
-    readBytesFromFileToVector(l_gnuBuildId, p_offset, p_size, p_fileStream);
+    readBytesFromFileToVector(l_gnuBuildId, p_offset, p_size, m_fileStream);
 
     return l_gnuBuildId;
 }
 
-
-GnuPropertyX86Features readGnuPropertyX86Features(std::istream* p_fileStream, int p_targetMachineEndianness, int p_offset)
+GnuPropertyX86Features NoteDescriptorBuilder::buildGnuPropertyX86Features(int p_offset)
 {
     GnuPropertyX86Features l_x86Features {};
 
     uint32_t l_features {};
-    readBytesFromFile(l_features, p_offset, p_fileStream);
+    readBytesFromFile(l_features, p_offset, m_fileStream);
 
-    if (isEndiannessCorrect(p_targetMachineEndianness)
-        and shouldConvertEndianness(p_targetMachineEndianness))
+    if (isEndiannessCorrect(m_targetMachineInfo.endianness)
+        and shouldConvertEndianness(m_targetMachineInfo.endianness))
     {
         convertEndianness(l_features);
     }
@@ -61,25 +60,23 @@ GnuPropertyX86Features readGnuPropertyX86Features(std::istream* p_fileStream, in
     return l_x86Features;
 }
 
-GnuPropertyX86InstructionSet readGnuPropertyX86InstructionSet(std::istream* p_fileStream, int p_targetMachineEndianness, int p_offset)
+GnuPropertyX86InstructionSet NoteDescriptorBuilder::buildGnuPropertyX86InstructionSet(int p_offset)
 {
     GnuPropertyX86InstructionSet l_x86InstructionSet {};
 
     uint32_t l_instructionSetVersion {};
-    readBytesFromFile(l_instructionSetVersion, p_offset, p_fileStream);
+    readBytesFromFile(l_x86InstructionSet.instructionSetVersion, p_offset, m_fileStream);
 
-    if (isEndiannessCorrect(p_targetMachineEndianness)
-        and shouldConvertEndianness(p_targetMachineEndianness))
+    if (isEndiannessCorrect(m_targetMachineInfo.endianness)
+        and shouldConvertEndianness(m_targetMachineInfo.endianness))
     {
-        convertEndianness(l_instructionSetVersion);
+        convertEndianness(l_x86InstructionSet.instructionSetVersion);
     }
-
-    l_x86InstructionSet.instructionSetVersion = l_instructionSetVersion;
 
     return l_x86InstructionSet;
 }
 
-std::vector<std::shared_ptr<IGnuProperty>> readGnuPropertyInformation(std::istream* p_fileStream, TargetMachineInfo& p_targetMachineInfo, int p_offset, int p_size)
+std::vector<std::shared_ptr<IGnuProperty>> NoteDescriptorBuilder::buildGnuPropertyInformation(int p_offset, int p_size)
 {
     auto l_currentOffset { p_offset };
     auto l_endOffset { p_offset + p_size };
@@ -90,13 +87,13 @@ std::vector<std::shared_ptr<IGnuProperty>> readGnuPropertyInformation(std::istre
         uint32_t l_type {};
         uint32_t l_size {};
 
-        readBytesFromFile(l_type, l_currentOffset, p_fileStream);
+        readBytesFromFile(l_type, l_currentOffset, m_fileStream);
         l_currentOffset += sizeof(uint32_t);
 
-        readBytesFromFile(l_size, l_currentOffset, p_fileStream);
+        readBytesFromFile(l_size, l_currentOffset, m_fileStream);
         l_currentOffset += sizeof(uint32_t);
 
-        auto l_targetMachineEndianness { p_targetMachineInfo.endianness };
+        auto l_targetMachineEndianness { m_targetMachineInfo.endianness };
         if (isEndiannessCorrect(l_targetMachineEndianness)
             and shouldConvertEndianness(l_targetMachineEndianness))
         {
@@ -110,14 +107,14 @@ std::vector<std::shared_ptr<IGnuProperty>> readGnuPropertyInformation(std::istre
             {
                 case GNU_PROPERTY_X86_ISA_1_USED:
                     {
-                        auto l_x86InstructionSet { readGnuPropertyX86InstructionSet(p_fileStream, l_targetMachineEndianness, l_currentOffset) };
+                        auto l_x86InstructionSet { buildGnuPropertyX86InstructionSet(l_currentOffset) };
                         l_x86InstructionSet.isHardwareSupportRequired = false;
                         l_gnuProperty.emplace_back(std::make_shared<GnuProperty<GnuPropertyX86InstructionSet>>(l_x86InstructionSet));
                     }
                     break;
                 case GNU_PROPERTY_X86_ISA_1_NEEDED:
                     {
-                        auto l_x86InstructionSet { readGnuPropertyX86InstructionSet(p_fileStream, l_targetMachineEndianness, l_currentOffset) };
+                        auto l_x86InstructionSet { buildGnuPropertyX86InstructionSet(l_currentOffset) };
                         l_x86InstructionSet.isHardwareSupportRequired = true;
                         l_gnuProperty.emplace_back(std::make_shared<GnuProperty<GnuPropertyX86InstructionSet>>(l_x86InstructionSet));
                     }
@@ -125,7 +122,7 @@ std::vector<std::shared_ptr<IGnuProperty>> readGnuPropertyInformation(std::istre
                 case GNU_PROPERTY_X86_FEATURE_1_AND:
                     {
                         l_gnuProperty.emplace_back(std::make_shared<GnuProperty<GnuPropertyX86Features>>(
-                            readGnuPropertyX86Features(p_fileStream, l_targetMachineEndianness, l_currentOffset)));
+                            buildGnuPropertyX86Features(l_currentOffset)));
                     }
                     break;
                 default:
@@ -134,7 +131,7 @@ std::vector<std::shared_ptr<IGnuProperty>> readGnuPropertyInformation(std::istre
 
             l_currentOffset += l_size;
 
-            if (p_targetMachineInfo.bitVersion == ELFCLASS64)
+            if (m_targetMachineInfo.bitVersion == ELFCLASS64)
                 l_currentOffset = alignOffset(l_currentOffset, 8);
         }
     }
