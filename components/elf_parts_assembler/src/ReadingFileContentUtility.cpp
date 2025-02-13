@@ -15,6 +15,7 @@
 #include "NoteSection.hpp"
 #include "StringTableSection.hpp"
 #include "ElfPartFromSectionVisitor.hpp"
+#include "NoteDescriptorBuilder.hpp"
 
 
 namespace
@@ -73,11 +74,12 @@ std::vector<ElfPart> readElfPartsFromFile(std::istream* p_fileStream)
     readBytesFromFile(l_targetMachineInfo, 0, p_fileStream);
 
     ElfBuildDirector l_elfBuildDirector;
+    NoteDescriptorBuilder l_noteDescriptorBuilder { p_fileStream, l_targetMachineInfo };
 
     if (l_targetMachineInfo.bitVersion == ELFCLASS32)
     {
         ElfStructureInfoBuilder<ElfStructureInfoX32> l_elfStructureInfoBuilder { p_fileStream, l_targetMachineInfo.endianness };
-        ElfSectionBuilder<ElfObjectX32, ElfStructureInfoX32> l_elfObjectBuilder { p_fileStream, l_targetMachineInfo };
+        ElfSectionBuilder<ElfObjectX32, ElfStructureInfoX32> l_elfObjectBuilder { p_fileStream, l_targetMachineInfo, l_noteDescriptorBuilder };
     
         auto l_elfObject { l_elfBuildDirector.makeElfObject(l_elfStructureInfoBuilder, l_elfObjectBuilder) };
 
@@ -86,7 +88,7 @@ std::vector<ElfPart> readElfPartsFromFile(std::istream* p_fileStream)
     else if (l_targetMachineInfo.bitVersion == ELFCLASS64)
     {
         ElfStructureInfoBuilder<ElfStructureInfoX64> l_elfStructureInfoBuilder { p_fileStream, l_targetMachineInfo.endianness };
-        ElfSectionBuilder<ElfObjectX64, ElfStructureInfoX64> l_elfObjectBuilder { p_fileStream, l_targetMachineInfo };
+        ElfSectionBuilder<ElfObjectX64, ElfStructureInfoX64> l_elfObjectBuilder { p_fileStream, l_targetMachineInfo, l_noteDescriptorBuilder };
 
         auto l_elfObject { l_elfBuildDirector.makeElfObject(l_elfStructureInfoBuilder, l_elfObjectBuilder) };
 

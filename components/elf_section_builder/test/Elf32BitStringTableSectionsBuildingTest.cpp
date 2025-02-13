@@ -10,7 +10,7 @@
 #include "StringTableSection.hpp"
 #include <memory>
 #include <map>
-
+#include "NoteDescriptorBuilderMock.hpp"
 
 namespace
 {
@@ -171,7 +171,8 @@ TEST_P(Elf32BitStringTableSectionsBuildingTestSuite, shouldReadEmptyStringTableS
     TargetMachineInfo l_targetMachineInfo;
     l_targetMachineInfo.endianness = l_endianness;
 
-    ElfSectionBuilder<ElfObjectX32, ElfStructureInfoX32> l_elfObjectBuilder (&l_stubStream, l_targetMachineInfo);
+    NiceMock<NoteDescriptorBuilderMock> l_noteDescriptorBuilderMock;
+    ElfSectionBuilder<ElfObjectX32, ElfStructureInfoX32> l_elfObjectBuilder (&l_stubStream, l_targetMachineInfo, l_noteDescriptorBuilderMock);
 
     auto l_sectionHeader { std::shared_ptr<Elf32_Shdr>(&STRING_TABLE_SECTION_WITH_ZERO_ELEMENTS) };
 
@@ -199,7 +200,8 @@ TEST_P(Elf32BitStringTableSectionsBuildingTestSuite, shouldReadStringTableSectio
     TargetMachineInfo l_targetMachineInfo;
     l_targetMachineInfo.endianness = l_endianness;
 
-    ElfSectionBuilder<ElfObjectX32, ElfStructureInfoX32> l_elfObjectBuilder (&l_stubStream, l_targetMachineInfo);
+    NiceMock<NoteDescriptorBuilderMock> l_noteDescriptorBuilderMock;
+    ElfSectionBuilder<ElfObjectX32, ElfStructureInfoX32> l_elfObjectBuilder (&l_stubStream, l_targetMachineInfo, l_noteDescriptorBuilderMock);
 
     auto l_sectionHeader { std::shared_ptr<Elf32_Shdr>(&STRING_TABLE_SECTION_WITH_TEN_ELEMENTS) };
 

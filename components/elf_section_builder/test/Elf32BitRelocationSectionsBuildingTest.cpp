@@ -11,6 +11,7 @@
 #include <algorithm>
 #include "RelocationSection.hpp"
 #include <memory>
+#include "NoteDescriptorBuilderMock.hpp"
 
 
 namespace
@@ -189,7 +190,8 @@ TEST_P(Elf32BitRelocationSetionBuildingTestSuite, shouldReadRelocationSectionWit
     TargetMachineInfo l_targetMachineInfo;
     l_targetMachineInfo.endianness = l_endianness;
 
-    ElfSectionBuilder<ElfObjectX32, ElfStructureInfoX32> l_elfObjectBuilder (&l_stubStream, l_targetMachineInfo);
+    NiceMock<NoteDescriptorBuilderMock> l_noteDescriptorBuilderMock;
+    ElfSectionBuilder<ElfObjectX32, ElfStructureInfoX32> l_elfObjectBuilder (&l_stubStream, l_targetMachineInfo, l_noteDescriptorBuilderMock);
 
     auto l_sectionHeader { std::shared_ptr<Elf32_Shdr>(&REL_SECTION_HEADER_WITH_ZERO_REL_HEADERS) };
 
@@ -216,7 +218,8 @@ TEST_P(Elf32BitRelocationSetionBuildingTestSuite, shouldReadRelocationSectionWit
     TargetMachineInfo l_targetMachineInfo;
     l_targetMachineInfo.endianness = l_endianness;
 
-    ElfSectionBuilder<ElfObjectX32, ElfStructureInfoX32> l_elfObjectBuilder (&l_stubStream, l_targetMachineInfo);
+    NiceMock<NoteDescriptorBuilderMock> l_noteDescriptorBuilderMock;
+    ElfSectionBuilder<ElfObjectX32, ElfStructureInfoX32> l_elfObjectBuilder (&l_stubStream, l_targetMachineInfo, l_noteDescriptorBuilderMock);
 
     auto l_sectionHeader { std::shared_ptr<Elf32_Shdr>(&REL_SECTION_HEADER_WITH_FIVE_REL_HEADERS) };
 

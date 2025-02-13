@@ -10,6 +10,8 @@
 #include "ElfStructureInfoTraits.hpp"
 #include "ElfObjectTraits.hpp"
 #include "INoteSection.hpp"
+#include "INoteDescriptorBuilder.hpp"
+#include <memory>
 
 
 template <typename T, typename U, typename ElfStructureInfoTraits = elf_structure_info_traits<U>, typename ElfObjectTraits = elf_object_traits<T>>
@@ -17,9 +19,11 @@ class ElfSectionBuilder : public IElfSectionBuilder<T, U, ElfStructureInfoTraits
 {
 public:
     ElfSectionBuilder(std::istream* p_fileStream, 
-                      TargetMachineInfo& p_targetMachineInfo)
+                      TargetMachineInfo& p_targetMachineInfo,
+                      INoteDescriptorBuilder& p_noteDescriptorBuilder)
         : m_fileStream { p_fileStream }
         , m_targetMachineInfo { p_targetMachineInfo }
+        , m_noteDescriptorBuilder { p_noteDescriptorBuilder }
         , m_elfObject { new T{} }
     {}
 
@@ -36,6 +40,7 @@ public:
 private:
     std::istream* m_fileStream;
     TargetMachineInfo m_targetMachineInfo;
+    INoteDescriptorBuilder& m_noteDescriptorBuilder;
     T* m_elfObject;
 
     std::shared_ptr<INoteSection<typename ElfStructureInfoTraits::section_header_type, typename ElfObjectTraits::note_header_type>> createNoteSection(
