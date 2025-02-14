@@ -41,31 +41,37 @@ ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(INoteSection<Elf64
 }
 
 ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(NobitsSection<Elf32_Shdr>&, const std::string&)
-{}
+{ return {}; }
 
 ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(NobitsSection<Elf64_Shdr>&, const std::string&)
-{}
+{ return {}; }
 
 ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(ProgbitsSection<Elf32_Shdr>&, const std::string&)
-{}
+{ return {}; }
 
 ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(ProgbitsSection<Elf64_Shdr>&, const std::string&)
-{}
+{ return {}; }
 
 ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(RelocationSection<Elf32_Shdr, Elf32_Rel>&, const std::string&)
-{}
+{ return {}; }
 
-ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(RelocationSection<Elf64_Shdr, Elf32_Rel>&, const std::string&)
-{}
+ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(RelocationSection<Elf64_Shdr, Elf64_Rel>&, const std::string&)
+{ return {}; }
+
+ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(RelocationWithAddendSection<Elf32_Shdr, Elf32_Rela>&, const std::string&)
+{ return {}; }
+
+ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(RelocationWithAddendSection<Elf64_Shdr, Elf64_Rela>&, const std::string&)
+{ return {}; }
 
 ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(StringTableSection<Elf32_Shdr>&, const std::string&)
-{}
+{ return {}; }
 
 ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(StringTableSection<Elf64_Shdr>&, const std::string&)
-{}
+{ return {}; }
 
 ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(SymbolTableSection<Elf32_Shdr, Elf32_Sym>&, const std::string&)
-{}
+{ return {}; }
 
 ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(SymbolTableSection<Elf64_Shdr, Elf64_Sym>&, const std::string&)
-{}
+{ return {}; }
