@@ -16,7 +16,10 @@ public:
     ElfPart assembleElfPartFromSection(ProgbitsSection<Elf64_Shdr>&, const std::string&) override;
 
     ElfPart assembleElfPartFromSection(RelocationSection<Elf32_Shdr, Elf32_Rel>&, const std::string&) override;
-    ElfPart assembleElfPartFromSection(RelocationSection<Elf64_Shdr, Elf32_Rel>&, const std::string&) override;
+    ElfPart assembleElfPartFromSection(RelocationSection<Elf64_Shdr, Elf64_Rel>&, const std::string&) override;
+
+    ElfPart assembleElfPartFromSection(RelocationWithAddendSection<Elf32_Shdr, Elf32_Rela>&, const std::string&) override;
+    ElfPart assembleElfPartFromSection(RelocationWithAddendSection<Elf64_Shdr, Elf64_Rela>&, const std::string&) override;
 
     ElfPart assembleElfPartFromSection(StringTableSection<Elf32_Shdr>&, const std::string&) override;
     ElfPart assembleElfPartFromSection(StringTableSection<Elf64_Shdr>&, const std::string&) override;

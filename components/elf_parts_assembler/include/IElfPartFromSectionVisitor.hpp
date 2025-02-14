@@ -16,6 +16,9 @@ class ProgbitsSection;
 template <typename T, typename U>
 class RelocationSection;
 
+template <typename T, typename U>
+class RelocationWithAddendSection;
+
 template <typename T>
 class StringTableSection;
 
@@ -39,7 +42,10 @@ public:
     virtual ElfPart assembleElfPartFromSection(ProgbitsSection<Elf64_Shdr>&, const std::string&) = 0;
 
     virtual ElfPart assembleElfPartFromSection(RelocationSection<Elf32_Shdr, Elf32_Rel>&, const std::string&) = 0;
-    virtual ElfPart assembleElfPartFromSection(RelocationSection<Elf64_Shdr, Elf32_Rel>&, const std::string&) = 0;
+    virtual ElfPart assembleElfPartFromSection(RelocationSection<Elf64_Shdr, Elf64_Rel>&, const std::string&) = 0;
+
+    virtual ElfPart assembleElfPartFromSection(RelocationWithAddendSection<Elf32_Shdr, Elf32_Rela>&, const std::string&) = 0;
+    virtual ElfPart assembleElfPartFromSection(RelocationWithAddendSection<Elf64_Shdr, Elf64_Rela>&, const std::string&) = 0;
 
     virtual ElfPart assembleElfPartFromSection(StringTableSection<Elf32_Shdr>&, const std::string&) = 0;
     virtual ElfPart assembleElfPartFromSection(StringTableSection<Elf64_Shdr>&, const std::string&) = 0;
