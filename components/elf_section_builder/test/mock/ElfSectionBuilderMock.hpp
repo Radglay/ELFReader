@@ -19,5 +19,6 @@ public:
     MOCK_METHOD(void, buildStringTableSection, (std::shared_ptr<typename ElfStructureInfoTraits::section_header_type>), (override));
     MOCK_METHOD(void, buildProgbitsSection, (std::shared_ptr<typename ElfStructureInfoTraits::section_header_type>), (override));
     MOCK_METHOD(void, buildNobitsSection, (std::shared_ptr<typename ElfStructureInfoTraits::section_header_type>), (override));
+    MOCK_METHOD(void, buildNullSection, (std::shared_ptr<typename ElfStructureInfoTraits::section_header_type>), (override));
     MOCK_METHOD(T*, getResult, (), (override));
 };
