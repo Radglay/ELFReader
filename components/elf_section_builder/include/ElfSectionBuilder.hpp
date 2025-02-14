@@ -35,6 +35,7 @@ public:
     void buildStringTableSection(std::shared_ptr<typename ElfStructureInfoTraits::section_header_type>) override;
     void buildProgbitsSection(std::shared_ptr<typename ElfStructureInfoTraits::section_header_type>) override;
     void buildNobitsSection(std::shared_ptr<typename ElfStructureInfoTraits::section_header_type>) override;
+    void buildNullSection(std::shared_ptr<typename ElfStructureInfoTraits::section_header_type>) override;
     T* getResult() override;
 
 private:
