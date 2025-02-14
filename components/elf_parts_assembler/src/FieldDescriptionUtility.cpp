@@ -169,6 +169,8 @@ QString getSectionTypeHighLevelValue(int p_type)
             return "Section group";
         // case SHT_SYMTAB_SHNDX:
         //     return "Extended section indices";
+        default:
+            return "";
     }
 }
 
