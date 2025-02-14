@@ -22,6 +22,7 @@ std::unique_ptr<T> ElfBuildDirector::makeElfObject(IElfStructureInfoBuilder<U, E
         switch (l_sectionHeader->sh_type)
         {
             case SHT_NULL:
+                p_elfObjectBuilder.buildNullSection(l_sectionHeader);
                 break;
             case SHT_PROGBITS:
                 p_elfObjectBuilder.buildProgbitsSection(l_sectionHeader);
@@ -49,7 +50,9 @@ std::unique_ptr<T> ElfBuildDirector::makeElfObject(IElfStructureInfoBuilder<U, E
         }
     }
 
-    return std::make_unique<T>(*p_elfObjectBuilder.getResult());
+    auto l_elfObject { p_elfObjectBuilder.getResult() };
+    l_elfObject->elfStructureInfo = *l_elfStructureInfo;
+    return std::make_unique<T>(*l_elfObject);
 }
 
 template

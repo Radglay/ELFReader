@@ -18,6 +18,7 @@ public:
     virtual void buildStringTableSection(std::shared_ptr<typename ElfStructureInfoTraits::section_header_type>) = 0;
     virtual void buildProgbitsSection(std::shared_ptr<typename ElfStructureInfoTraits::section_header_type>) = 0;
     virtual void buildNobitsSection(std::shared_ptr<typename ElfStructureInfoTraits::section_header_type>) = 0;
+    virtual void buildNullSection(std::shared_ptr<typename ElfStructureInfoTraits::section_header_type>) = 0;
     virtual T* getResult() = 0;
 
     virtual ~IElfSectionBuilder() = default;

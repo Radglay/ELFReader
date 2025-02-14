@@ -44,6 +44,11 @@ namespace
     {
         .sh_type = SHT_NOBITS
     };
+
+    Elf64_Shdr NULL_SECTION_HEADER
+    {
+        .sh_type = SHT_NULL
+    };
 }
 
 
@@ -66,7 +71,8 @@ TEST(Elf64BitElfBuildDrectorTestSuite, shouldCallAllTheNecessary64BitElfBuilderF
             std::make_shared<Elf64_Shdr>(RELOCATION_WITH_ADDEND_SECTION_HEADER),
             std::make_shared<Elf64_Shdr>(STRING_TABLE_SECTION_HEADER),
             std::make_shared<Elf64_Shdr>(PROGBITS_SECTION_HEADER),
-            std::make_shared<Elf64_Shdr>(NOBITS_SECTION_HEADER)
+            std::make_shared<Elf64_Shdr>(NOBITS_SECTION_HEADER),
+            std::make_shared<Elf64_Shdr>(NULL_SECTION_HEADER),
         }
     };
 
@@ -95,6 +101,8 @@ TEST(Elf64BitElfBuildDrectorTestSuite, shouldCallAllTheNecessary64BitElfBuilderF
     EXPECT_CALL(l_elfObjectBuilderMock, buildProgbitsSection)
         .Times(1);
     EXPECT_CALL(l_elfObjectBuilderMock, buildNobitsSection)
+        .Times(1);
+    EXPECT_CALL(l_elfObjectBuilderMock, buildNullSection)
         .Times(1);
     EXPECT_CALL(l_elfObjectBuilderMock, getResult)
         .WillOnce(Return(new ElfObjectX64));

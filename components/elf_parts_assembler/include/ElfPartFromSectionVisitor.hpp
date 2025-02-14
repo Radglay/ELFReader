@@ -26,4 +26,7 @@ public:
 
     ElfPart assembleElfPartFromSection(SymbolTableSection<Elf32_Shdr, Elf32_Sym>&, const std::string&) override;
     ElfPart assembleElfPartFromSection(SymbolTableSection<Elf64_Shdr, Elf64_Sym>&, const std::string&) override;
+
+    ElfPart assembleElfPartFromSection(NullSection<Elf32_Shdr>&, const std::string&) override;
+    ElfPart assembleElfPartFromSection(NullSection<Elf64_Shdr>&, const std::string&) override;
 };

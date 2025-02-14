@@ -33,4 +33,6 @@ add_tests_from_file(Elf64BitStringTableSectionsBuildingTest Elf64BitStringTableS
 add_tests_from_file(Elf32BitElfBuildDirectorTest Elf32BitElfBuildDirectorTest.cpp)
 add_tests_from_file(Elf64BitElfBuildDirectorTest Elf64BitElfBuildDirectorTest.cpp)
 
+add_tests_from_file(NullSectionBuildingTest NullSectionBuildingTest.cpp)
+
 add_tests_from_file(NoteDescriptorBuilderTest NoteDescriptorBuilderTest.cpp)

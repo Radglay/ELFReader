@@ -7,6 +7,7 @@
 #include "RelocationWithAddendSection.hpp"
 #include "StringTableSection.hpp"
 #include "SymbolTableSection.hpp"
+#include "NullSection.hpp"
 #include <QString>
 
 
@@ -74,4 +75,10 @@ ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(SymbolTableSection
 { return {}; }
 
 ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(SymbolTableSection<Elf64_Shdr, Elf64_Sym>&, const std::string&)
+{ return {}; }
+
+ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(NullSection<Elf32_Shdr>&, const std::string&)
+{ return {}; }
+
+ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(NullSection<Elf64_Shdr>&, const std::string&)
 { return {}; }

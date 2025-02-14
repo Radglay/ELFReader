@@ -17,6 +17,7 @@
 #include "StringTableSection.hpp"
 #include "ProgbitsSection.hpp"
 #include "NobitsSection.hpp"
+#include "NullSection.hpp"
 #include "NoteDescriptorBuilder.hpp"
 #include "AbiTagInformation.hpp"
 #include "GnuPropertyX86Features.hpp"
@@ -190,6 +191,13 @@ void ElfSectionBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildNobi
 {
     m_elfObject->sections.emplace_back(
         std::make_shared<NobitsSection<typename ElfStructureInfoTraits::section_header_type>>(p_sectionHeader));
+}
+
+template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>
+void ElfSectionBuilder<T, U, ElfStructureInfoTraits, ElfObjectTraits>::buildNullSection(std::shared_ptr<typename ElfStructureInfoTraits::section_header_type> p_sectionHeader)
+{
+    m_elfObject->sections.emplace_back(
+        std::make_shared<NullSection<typename ElfStructureInfoTraits::section_header_type>>(p_sectionHeader));
 }
 
 template <typename T, typename U, typename ElfStructureInfoTraits, typename ElfObjectTraits>
