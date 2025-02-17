@@ -2,7 +2,7 @@
 #include "ElfPart.hpp"
 
 
-void ElfPartAssemblerTestSuite::expectElfPartsAreEqual(const ElfPart& p_targetElfPart, const ElfPart& p_expectedElfPart)
+void ElfPartAssemblingTestSuite::expectElfPartsAreEqual(const ElfPart& p_targetElfPart, const ElfPart& p_expectedElfPart)
 {
     expectElfPartTextContentsAreEqual(p_targetElfPart, p_expectedElfPart);
 
@@ -10,7 +10,7 @@ void ElfPartAssemblerTestSuite::expectElfPartsAreEqual(const ElfPart& p_targetEl
         expectElfFieldsAreEqual(p_targetElfPart.fields[i], p_expectedElfPart.fields[i]);
 }
 
-void ElfPartAssemblerTestSuite::expectElfFieldsAreEqual(const ElfField& p_targetField, const ElfField& p_expectedField)
+void ElfPartAssemblingTestSuite::expectElfFieldsAreEqual(const ElfField& p_targetField, const ElfField& p_expectedField)
 {
     expectElfFieldTextContentsAreEqual(p_targetField, p_expectedField);
 
@@ -24,7 +24,7 @@ void ElfPartAssemblerTestSuite::expectElfFieldsAreEqual(const ElfField& p_target
     }
 }
 
-void ElfPartAssemblerTestSuite::expectElfFieldTextContentsAreEqual(const ElfField& p_targetField, const ElfField& p_expectedField)
+void ElfPartAssemblingTestSuite::expectElfFieldTextContentsAreEqual(const ElfField& p_targetField, const ElfField& p_expectedField)
 {
     EXPECT_EQ(p_targetField.name, p_expectedField.name);
     EXPECT_EQ(p_targetField.type, p_expectedField.type);
@@ -33,7 +33,7 @@ void ElfPartAssemblerTestSuite::expectElfFieldTextContentsAreEqual(const ElfFiel
 }
 
 
-void ElfPartAssemblerTestSuite::expectElfPartTextContentsAreEqual(const ElfPart& p_targetElfPart, const ElfPart& p_expectedElfPart)
+void ElfPartAssemblingTestSuite::expectElfPartTextContentsAreEqual(const ElfPart& p_targetElfPart, const ElfPart& p_expectedElfPart)
 {
     EXPECT_EQ(p_targetElfPart.name, p_expectedElfPart.name);
     EXPECT_EQ(p_targetElfPart.type, p_expectedElfPart.type);
@@ -42,7 +42,7 @@ void ElfPartAssemblerTestSuite::expectElfPartTextContentsAreEqual(const ElfPart&
     EXPECT_EQ(p_targetElfPart.description, p_expectedElfPart.description);
 }
 
-void ElfPartAssemblerTestSuite::expectElfPartContainersAreEqual(const std::vector<ElfPart>& p_targetElfParts, const std::vector<ElfPart>& p_expectedElfParts)
+void ElfPartAssemblingTestSuite::expectElfPartContainersAreEqual(const std::vector<ElfPart>& p_targetElfParts, const std::vector<ElfPart>& p_expectedElfParts)
 {
     ASSERT_EQ(p_targetElfParts.size(), p_expectedElfParts.size());
 

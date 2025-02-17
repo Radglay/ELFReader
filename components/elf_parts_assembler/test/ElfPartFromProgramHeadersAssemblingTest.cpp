@@ -217,14 +217,15 @@ namespace
 using namespace ::testing;
 
 
-struct ElfPartAssemblerProgramHeadersAssemblingX32TestSuite : public ElfPartAssemblerTestSuite
+struct ElfPartAssemblerProgramHeadersAssemblingX32TestSuite : public ElfPartAssemblingTestSuite
 {};
 
 TEST_F(ElfPartAssemblerProgramHeadersAssemblingX32TestSuite, shouldNotAssembleAnyCorrectElfPartFromEmpty32BitProgramHeadersContainer)
 {
+    ElfPartAssembler l_elfPartAssembler {};
     std::vector<Elf32_Phdr> l_programHeaders;
 
-    const auto& l_targetElfParts { m_elfPartAssembler.assembleElfPartsFromProgramHeaders(l_programHeaders, PROGRAM_HEADER_ELF_PART_OFFSET_32BIT_VALUE) };
+    const auto& l_targetElfParts { l_elfPartAssembler.assembleElfPartsFromProgramHeaders(l_programHeaders, PROGRAM_HEADER_ELF_PART_OFFSET_32BIT_VALUE) };
 
     std::vector<ElfPart> l_expectedElfParts;
 
@@ -268,21 +269,24 @@ TEST_F(ElfPartAssemblerProgramHeadersAssemblingX32TestSuite, shouldAssembleAllCo
 
     std::vector<Elf32_Phdr> l_programHeaders {l_firstProgramHeader, l_secondProgramHeader, l_thirdProgramHeader};
 
-    const auto& l_targetElfParts { m_elfPartAssembler.assembleElfPartsFromProgramHeaders(l_programHeaders, PROGRAM_HEADER_ELF_PART_OFFSET_32BIT_VALUE) };
+    ElfPartAssembler l_elfPartAssembler {};
+    const auto& l_targetElfParts { l_elfPartAssembler.assembleElfPartsFromProgramHeaders(l_programHeaders, PROGRAM_HEADER_ELF_PART_OFFSET_32BIT_VALUE) };
 
     std::vector<ElfPart> l_expectedElfParts;
 
     expectElfPartContainersAreEqual(l_targetElfParts, generate32BitElfParts());
 }
 
-struct ElfPartAssemblerProgramHeadersAssemblingX64TestSuite : public ElfPartAssemblerTestSuite
+struct ElfPartAssemblerProgramHeadersAssemblingX64TestSuite : public ElfPartAssemblingTestSuite
 {};
 
 TEST_F(ElfPartAssemblerProgramHeadersAssemblingX64TestSuite, shouldNotAssembleAnyCorrectElfPartFrom64BitEmptyProgramHeadersContainer)
 {
+    ElfPartAssembler l_elfPartAssembler {};
+
     std::vector<Elf64_Phdr> l_programHeaders;
 
-    const auto& l_targetElfParts { m_elfPartAssembler.assembleElfPartsFromProgramHeaders(l_programHeaders, PROGRAM_HEADER_ELF_PART_OFFSET_64BIT_VALUE) };
+    const auto& l_targetElfParts { l_elfPartAssembler.assembleElfPartsFromProgramHeaders(l_programHeaders, PROGRAM_HEADER_ELF_PART_OFFSET_64BIT_VALUE) };
 
     std::vector<ElfPart> l_expectedElfParts;
 
@@ -326,7 +330,8 @@ TEST_F(ElfPartAssemblerProgramHeadersAssemblingX64TestSuite, shouldAssembleAllCo
 
     std::vector<Elf64_Phdr> l_programHeaders {l_firstProgramHeader, l_secondProgramHeader, l_thirdProgramHeader};
 
-    const auto& l_targetElfParts { m_elfPartAssembler.assembleElfPartsFromProgramHeaders(l_programHeaders, PROGRAM_HEADER_ELF_PART_OFFSET_64BIT_VALUE) };
+    ElfPartAssembler l_elfPartAssembler {};
+    const auto& l_targetElfParts { l_elfPartAssembler.assembleElfPartsFromProgramHeaders(l_programHeaders, PROGRAM_HEADER_ELF_PART_OFFSET_64BIT_VALUE) };
 
     std::vector<ElfPart> l_expectedElfParts;
 

@@ -227,7 +227,7 @@ namespace
 using namespace ::testing;
 
 
-struct ElfPartAssemblerHeaderFileAssemblingX32TestSuite : public ElfPartAssemblerTestSuite
+struct ElfPartAssemblerHeaderFileAssemblingX32TestSuite : public ElfPartAssemblingTestSuite
 {
     Elf32_Ehdr m_fileHeader {
         .e_ident { FIRST_MAGIC_NUMBER_VALUE, SECOND_MAGIC_NUMBER_VALUE, THIRD_MAGIC_NUMBER_VALUE, FOURTH_MAGIC_NUMBER_VALUE,
@@ -255,7 +255,8 @@ struct ElfPartAssemblerHeaderFileAssemblingX32TestSuite : public ElfPartAssemble
 
 TEST_F(ElfPartAssemblerHeaderFileAssemblingX32TestSuite, shouldAssembleCorrectElfPartFrom32BitFileHeader)
 {
-    auto l_targetElfPart { m_elfPartAssembler.assembleElfPartFromFileHeader(m_fileHeader) };
+    ElfPartAssembler l_elfPartAssembler {};
+    auto l_targetElfPart { l_elfPartAssembler.assembleElfPartFromFileHeader(m_fileHeader) };
 
     ElfPart l_expectedElfPart {
         FILE_HEADER_ELF_PART_NAME,
@@ -270,7 +271,7 @@ TEST_F(ElfPartAssemblerHeaderFileAssemblingX32TestSuite, shouldAssembleCorrectEl
 }
 
 
-struct ElfPartAssemblerHeaderFileAssemblingX64TestSuite : public ElfPartAssemblerTestSuite
+struct ElfPartAssemblerHeaderFileAssemblingX64TestSuite : public ElfPartAssemblingTestSuite
 {
     Elf64_Ehdr m_fileHeader {
         .e_ident { FIRST_MAGIC_NUMBER_VALUE, SECOND_MAGIC_NUMBER_VALUE, THIRD_MAGIC_NUMBER_VALUE, FOURTH_MAGIC_NUMBER_VALUE,
@@ -298,7 +299,8 @@ struct ElfPartAssemblerHeaderFileAssemblingX64TestSuite : public ElfPartAssemble
 
 TEST_F(ElfPartAssemblerHeaderFileAssemblingX64TestSuite, shouldAssembleCorrectElfPartFrom64BitFileHeader)
 {
-    auto l_targetElfPart { m_elfPartAssembler.assembleElfPartFromFileHeader(m_fileHeader) };
+    ElfPartAssembler l_elfPartAssembler {};
+    auto l_targetElfPart { l_elfPartAssembler.assembleElfPartFromFileHeader(m_fileHeader) };
     ElfPart l_expectedElfPart {
         FILE_HEADER_ELF_PART_NAME,
         FILE_HEADER_ELF_PART_TYPE,

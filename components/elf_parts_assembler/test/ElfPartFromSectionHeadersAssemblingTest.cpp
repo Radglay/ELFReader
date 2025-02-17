@@ -287,14 +287,15 @@ namespace
 
 using namespace ::testing;
 
-struct ElfPartAssemblerSectionHeadersAssemblingX32TestSuite : public ElfPartAssemblerTestSuite
+struct ElfPartAssemblerSectionHeadersAssemblingX32TestSuite : public ElfPartAssemblingTestSuite
 {};
 
 TEST_F(ElfPartAssemblerSectionHeadersAssemblingX32TestSuite, shouldNotAssembleAnyCorrectElfPartFromEmpty32BitSectionHeaderContainer)
 {
+    ElfPartAssembler l_elfPartAssembler {};
     std::vector<std::shared_ptr<Elf32_Shdr>> l_sectionHeaders;
 
-    const auto& l_targetElfParts { m_elfPartAssembler.assembleElfPartsFromSectionHeaders(l_sectionHeaders, SECTION_HEADER_TABLE_OFFSET_32_VALUE) };
+    const auto& l_targetElfParts { l_elfPartAssembler.assembleElfPartsFromSectionHeaders(l_sectionHeaders, SECTION_HEADER_TABLE_OFFSET_32_VALUE) };
 
     std::vector<ElfPart> l_expectedElfParts;
 
@@ -346,21 +347,23 @@ TEST_F(ElfPartAssemblerSectionHeadersAssemblingX32TestSuite, shouldAssembleAllCo
                                                                std::make_shared<Elf32_Shdr>(l_secondSectionHeader),
                                                                std::make_shared<Elf32_Shdr>(l_thirdSectionHeader)};
 
-    const auto& l_targetElfParts { m_elfPartAssembler.assembleElfPartsFromSectionHeaders(l_sectionHeaders, SECTION_HEADER_TABLE_OFFSET_32_VALUE) };
+    ElfPartAssembler l_elfPartAssembler {};
+    const auto& l_targetElfParts { l_elfPartAssembler.assembleElfPartsFromSectionHeaders(l_sectionHeaders, SECTION_HEADER_TABLE_OFFSET_32_VALUE) };
 
     expectElfPartContainersAreEqual(l_targetElfParts, generate32BitElfParts());
 }
 
 
 
-struct ElfPartAssemblerSectionHeadersAssemblingX64TestSuite : public ElfPartAssemblerTestSuite
+struct ElfPartAssemblerSectionHeadersAssemblingX64TestSuite : public ElfPartAssemblingTestSuite
 {};
 
 TEST_F(ElfPartAssemblerSectionHeadersAssemblingX64TestSuite, shouldNotAssembleAnyCorrectElfPartFromEmpty64BitSectionHeaderContainer)
 {
+    ElfPartAssembler l_elfPartAssembler {};
     std::vector<std::shared_ptr<Elf64_Shdr>> l_sectionHeaders;
 
-    const auto& l_targetElfParts { m_elfPartAssembler.assembleElfPartsFromSectionHeaders(l_sectionHeaders, SECTION_HEADER_TABLE_OFFSET_64_VALUE) };
+    const auto& l_targetElfParts { l_elfPartAssembler.assembleElfPartsFromSectionHeaders(l_sectionHeaders, SECTION_HEADER_TABLE_OFFSET_64_VALUE) };
 
     std::vector<ElfPart> l_expectedElfParts;
 
@@ -413,7 +416,8 @@ TEST_F(ElfPartAssemblerSectionHeadersAssemblingX64TestSuite, shouldAssembleAllCo
                                                                std::make_shared<Elf64_Shdr>(l_secondSectionHeader),
                                                                std::make_shared<Elf64_Shdr>(l_thirdSectionHeader)};
 
-    const auto& l_targetElfParts { m_elfPartAssembler.assembleElfPartsFromSectionHeaders(l_sectionHeaders, SECTION_HEADER_TABLE_OFFSET_64_VALUE) };
+    ElfPartAssembler l_elfPartAssembler {};
+    const auto& l_targetElfParts { l_elfPartAssembler.assembleElfPartsFromSectionHeaders(l_sectionHeaders, SECTION_HEADER_TABLE_OFFSET_64_VALUE) };
 
     expectElfPartContainersAreEqual(l_targetElfParts, generate64BitElfParts());
 }
