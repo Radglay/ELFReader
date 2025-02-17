@@ -3,7 +3,6 @@
 #include <QString>
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include "ElfPartAssembler.hpp"
 #include <vector>
 
 
@@ -25,13 +24,11 @@ const QString ELF64_ADDR_TEXT { "Elf64_Addr" };
 const QString ELF64_OFF_TEXT { "Elf64_Off" };
 
 
-struct ElfPartAssemblerTestSuite : public ::testing::Test
+struct ElfPartAssemblingTestSuite : public ::testing::Test
 {
     void expectElfPartsAreEqual(const ElfPart&, const ElfPart&);
     void expectElfFieldsAreEqual(const ElfField&, const ElfField&);
     void expectElfPartContainersAreEqual(const std::vector<ElfPart>&, const std::vector<ElfPart>&);
-
-    ElfPartAssembler m_elfPartAssembler;
 
 private:
     void expectElfFieldTextContentsAreEqual(const ElfField&, const ElfField&);
