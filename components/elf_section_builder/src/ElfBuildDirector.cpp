@@ -46,6 +46,7 @@ std::unique_ptr<T> ElfBuildDirector::makeElfObject(IElfStructureInfoBuilder<U, E
                 p_elfObjectBuilder.buildNoteSection(l_sectionHeader);
                 break;
             default:
+                p_elfObjectBuilder.buildUnknownSection(l_sectionHeader);
                 break;
         }
     }

@@ -28,6 +28,8 @@ class SymbolTableSection;
 template <typename T>
 class NullSection;
 
+template <typename T>
+class UnknownSection;
 
 class ElfPart;
 
@@ -58,6 +60,9 @@ public:
 
     virtual ElfPart assembleElfPartFromSection(NullSection<Elf32_Shdr>&, const std::string&) = 0;
     virtual ElfPart assembleElfPartFromSection(NullSection<Elf64_Shdr>&, const std::string&) = 0;
+
+    virtual ElfPart assembleElfPartFromSection(UnknownSection<Elf32_Shdr>&, const std::string&) = 0;
+    virtual ElfPart assembleElfPartFromSection(UnknownSection<Elf64_Shdr>&, const std::string&) = 0;
 
     virtual ~IElfPartFromSectionVisitor() = default;
 };
