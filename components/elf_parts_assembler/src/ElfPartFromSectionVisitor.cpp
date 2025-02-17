@@ -17,6 +17,7 @@ ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(INoteSection<Elf32
     auto l_noteHeader { p_noteSection.getNoteHeader() };
 
     auto l_offset { static_cast<int>(p_noteSection.getSectionHeader()->sh_offset) };
+    auto l_size { static_cast<int>(p_noteSection.getSectionHeader()->sh_size) };
 
     std::vector<ElfField> l_fields;
 
@@ -24,7 +25,7 @@ ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(INoteSection<Elf32
     l_fields.emplace_back("n_descsz", "Elf32_Word", QString::number(l_noteHeader.n_descsz, 16).toUpper(), "");
     l_fields.emplace_back("n_type", "Elf32_Word", QString::number(l_noteHeader.n_type, 16).toUpper(), "");
 
-    return ElfPart{QString::fromStdString(p_sectionName), ElfPartType::Section, l_offset, sizeof(Elf32_Nhdr), "", l_fields};
+    return ElfPart{QString::fromStdString(p_sectionName), ElfPartType::Section, l_offset, l_size, "", l_fields};
 }
 
 ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(INoteSection<Elf64_Shdr, Elf64_Nhdr>& p_noteSection, const std::string& p_sectionName)
@@ -32,6 +33,7 @@ ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(INoteSection<Elf64
     auto l_noteHeader { p_noteSection.getNoteHeader() };
 
     auto l_offset { static_cast<int>(p_noteSection.getSectionHeader()->sh_offset) };
+    auto l_size { static_cast<int>(p_noteSection.getSectionHeader()->sh_size) };
 
     std::vector<ElfField> l_fields;
 
@@ -39,7 +41,7 @@ ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(INoteSection<Elf64
     l_fields.emplace_back("n_descsz", "Elf64_Word", QString::number(l_noteHeader.n_descsz, 16).toUpper(), "");
     l_fields.emplace_back("n_type", "Elf64_Word", QString::number(l_noteHeader.n_type, 16).toUpper(), "");
 
-    return ElfPart{QString::fromStdString(p_sectionName), ElfPartType::Section, l_offset, sizeof(Elf64_Nhdr), "", l_fields};
+    return ElfPart{QString::fromStdString(p_sectionName), ElfPartType::Section, l_offset, l_size, "", l_fields};
 }
 
 ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(NobitsSection<Elf32_Shdr>&, const std::string&)
@@ -78,14 +80,34 @@ ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(SymbolTableSection
 ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(SymbolTableSection<Elf64_Shdr, Elf64_Sym>&, const std::string&)
 { return {}; }
 
-ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(NullSection<Elf32_Shdr>&, const std::string&)
-{ return {}; }
+ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(NullSection<Elf32_Shdr>& p_nullSection, const std::string& p_sectionName)
+{
+    auto l_offset { static_cast<int>(p_nullSection.getSectionHeader()->sh_offset) };
+    auto l_size { static_cast<int>(p_nullSection.getSectionHeader()->sh_size) };
 
-ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(NullSection<Elf64_Shdr>&, const std::string&)
-{ return {}; }
+    return {QString::fromStdString(p_sectionName), ElfPartType::Section, l_offset, l_size, "Null Section"};
+}
 
-ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(UnknownSection<Elf32_Shdr>&, const std::string&)
-{ return {}; }
+ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(NullSection<Elf64_Shdr>& p_nullSection, const std::string& p_sectionName)
+{
+    auto l_offset { static_cast<int>(p_nullSection.getSectionHeader()->sh_offset) };
+    auto l_size { static_cast<int>(p_nullSection.getSectionHeader()->sh_size) };
 
-ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(UnknownSection<Elf64_Shdr>&, const std::string&)
-{ return {}; }
+    return {QString::fromStdString(p_sectionName), ElfPartType::Section, l_offset, l_size, "Null Section"};
+}
+
+ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(UnknownSection<Elf32_Shdr>& p_unknownSection, const std::string& p_sectionName)
+{
+    auto l_offset { static_cast<int>(p_unknownSection.getSectionHeader()->sh_offset) };
+    auto l_size { static_cast<int>(p_unknownSection.getSectionHeader()->sh_size) };
+
+    return {QString::fromStdString(p_sectionName), ElfPartType::Section, l_offset, l_size, "Unknown Section"};
+}
+
+ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(UnknownSection<Elf64_Shdr>& p_unknownSection, const std::string& p_sectionName)
+{
+    auto l_offset { static_cast<int>(p_unknownSection.getSectionHeader()->sh_offset) };
+    auto l_size { static_cast<int>(p_unknownSection.getSectionHeader()->sh_size) };
+
+    return {QString::fromStdString(p_sectionName), ElfPartType::Section, l_offset, l_size, "Unknown Section"};
+}
