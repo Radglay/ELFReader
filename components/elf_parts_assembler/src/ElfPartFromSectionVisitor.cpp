@@ -8,6 +8,7 @@
 #include "StringTableSection.hpp"
 #include "SymbolTableSection.hpp"
 #include "NullSection.hpp"
+#include "UnknownSection.hpp"
 #include <QString>
 
 
@@ -81,4 +82,10 @@ ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(NullSection<Elf32_
 { return {}; }
 
 ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(NullSection<Elf64_Shdr>&, const std::string&)
+{ return {}; }
+
+ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(UnknownSection<Elf32_Shdr>&, const std::string&)
+{ return {}; }
+
+ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(UnknownSection<Elf64_Shdr>&, const std::string&)
 { return {}; }

@@ -35,4 +35,6 @@ add_tests_from_file(Elf64BitElfBuildDirectorTest Elf64BitElfBuildDirectorTest.cp
 
 add_tests_from_file(NullSectionBuildingTest NullSectionBuildingTest.cpp)
 
+add_tests_from_file(UnknownSectionBuildingTest UnknownSectionBuildingTest.cpp)
+
 add_tests_from_file(NoteDescriptorBuilderTest NoteDescriptorBuilderTest.cpp)

@@ -50,6 +50,10 @@ namespace
         .sh_type = SHT_NULL
     };
 
+    Elf32_Shdr UNKNOWN_SECTION_HEADER
+    {
+        .sh_type = 12345
+    };
 }
 
 
@@ -73,6 +77,7 @@ TEST(Elf32BitElfBuildDrectorTestSuite, shouldCallAllTheNecessary32BitElfBuilderF
             std::make_shared<Elf32_Shdr>(PROGBITS_SECTION_HEADER),
             std::make_shared<Elf32_Shdr>(NOBITS_SECTION_HEADER),
             std::make_shared<Elf32_Shdr>(NULL_SECTION_HEADER),
+            std::make_shared<Elf32_Shdr>(UNKNOWN_SECTION_HEADER)
         }
     };
 
@@ -103,6 +108,8 @@ TEST(Elf32BitElfBuildDrectorTestSuite, shouldCallAllTheNecessary32BitElfBuilderF
     EXPECT_CALL(l_elfObjectBuilderMock, buildNobitsSection)
         .Times(1);
     EXPECT_CALL(l_elfObjectBuilderMock, buildNullSection)
+        .Times(1);
+    EXPECT_CALL(l_elfObjectBuilderMock, buildUnknownSection)
         .Times(1);
     EXPECT_CALL(l_elfObjectBuilderMock, getResult)
         .WillOnce(Return(new ElfObjectX32));
