@@ -20,3 +20,6 @@ add_tests_from_file(ElfPartFromProgramHeadersAssemblingTest ElfPartFromProgramHe
 
 add_tests_from_file(ElfPartFromNullSectionTest ElfPartFromNullSectionTest.cpp)
 add_tests_from_file(ElfPartFromUnknownSectionTest ElfPartFromUnknownSectionTest.cpp)
+
+add_tests_from_file(NoteDescriptorUtilityTest NoteDescriptorUtilityTest.cpp)
+add_tests_from_file(GnuPropertyVisitorTest GnuPropertyVisitorTest.cpp)

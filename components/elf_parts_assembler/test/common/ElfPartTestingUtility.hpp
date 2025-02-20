@@ -23,6 +23,10 @@ const QString ELF64_XWORD_TEXT { "Elf64_Xword" };
 const QString ELF64_ADDR_TEXT { "Elf64_Addr" };
 const QString ELF64_OFF_TEXT { "Elf64_Off" };
 
+const QString UINT32_T_TEXT { "uint32_t" };
+const QString INT_TEXT { "int" };
+const QString BOOL_TEXT { "bool" };
+
 
 struct ElfPartAssemblingTestSuite : public ::testing::Test
 {

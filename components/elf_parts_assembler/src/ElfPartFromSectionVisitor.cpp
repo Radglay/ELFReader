@@ -12,7 +12,7 @@
 #include <QString>
 
 
-ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(INoteSection<Elf32_Shdr, Elf32_Nhdr>& p_noteSection, const std::string& p_sectionName)
+ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(INoteSection<Elf32_Shdr, Elf32_Nhdr>& p_noteSection, const std::string& p_sectionName, const ElfField& p_descriptor)
 {
     auto l_noteHeader { p_noteSection.getNoteHeader() };
 
@@ -24,11 +24,12 @@ ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(INoteSection<Elf32
     l_fields.emplace_back("n_namesz", "Elf32_Word", QString::number(l_noteHeader.n_namesz, 16).toUpper(), "");
     l_fields.emplace_back("n_descsz", "Elf32_Word", QString::number(l_noteHeader.n_descsz, 16).toUpper(), "");
     l_fields.emplace_back("n_type", "Elf32_Word", QString::number(l_noteHeader.n_type, 16).toUpper(), "");
+    l_fields.emplace_back(p_descriptor);
 
     return ElfPart{QString::fromStdString(p_sectionName), ElfPartType::Section, l_offset, l_size, "", l_fields};
 }
 
-ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(INoteSection<Elf64_Shdr, Elf64_Nhdr>& p_noteSection, const std::string& p_sectionName)
+ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(INoteSection<Elf64_Shdr, Elf64_Nhdr>& p_noteSection, const std::string& p_sectionName, const ElfField& p_descriptor)
 {
     auto l_noteHeader { p_noteSection.getNoteHeader() };
 
@@ -40,6 +41,7 @@ ElfPart ElfPartFromSectionVisitor::assembleElfPartFromSection(INoteSection<Elf64
     l_fields.emplace_back("n_namesz", "Elf64_Word", QString::number(l_noteHeader.n_namesz, 16).toUpper(), "");
     l_fields.emplace_back("n_descsz", "Elf64_Word", QString::number(l_noteHeader.n_descsz, 16).toUpper(), "");
     l_fields.emplace_back("n_type", "Elf64_Word", QString::number(l_noteHeader.n_type, 16).toUpper(), "");
+    l_fields.emplace_back(p_descriptor);
 
     return ElfPart{QString::fromStdString(p_sectionName), ElfPartType::Section, l_offset, l_size, "", l_fields};
 }

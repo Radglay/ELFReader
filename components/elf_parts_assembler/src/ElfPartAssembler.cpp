@@ -242,9 +242,9 @@ std::vector<ElfPart> ElfPartAssembler::assembleElfPartsFromSections(const std::v
 
     for (auto& p_section : p_sections)
     {
-        l_elfParts.push_back(p_section->acceptElfPartAssembler(p_elfPartFromSectionVisitor,
-                                                               p_sectionNamesTable->getStringByOffset(p_section->getSectionHeader()->sh_name)));
-
+        if (p_section)
+            l_elfParts.push_back(p_section->acceptElfPartAssembler(p_elfPartFromSectionVisitor,
+                                                                   p_sectionNamesTable->getStringByOffset(p_section->getSectionHeader()->sh_name)));
     }
 
     return l_elfParts;
@@ -258,9 +258,9 @@ std::vector<ElfPart> ElfPartAssembler::assembleElfPartsFromSections(const std::v
 
     for (auto& p_section : p_sections)
     {
-        l_elfParts.push_back(p_section->acceptElfPartAssembler(p_elfPartFromSectionVisitor,
-                                                               p_sectionNamesTable->getStringByOffset(p_section->getSectionHeader()->sh_name)));
-
+        if (p_section)
+            l_elfParts.push_back(p_section->acceptElfPartAssembler(p_elfPartFromSectionVisitor,
+                                                                   p_sectionNamesTable->getStringByOffset(p_section->getSectionHeader()->sh_name)));
     }
 
     return l_elfParts;

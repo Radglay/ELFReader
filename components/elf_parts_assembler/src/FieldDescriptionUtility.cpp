@@ -1,7 +1,17 @@
 #include "FieldDescriptionUtility.hpp"
 #include <elf.h>
 #include <QString>
+#include <QVariant>
 
+
+
+namespace
+{
+    QString getHexNumber(uint64_t p_number)
+    {
+        return QString::number(p_number, 16).toUpper();
+    }
+}
 
 QString getBinaryNumberString(uint64_t p_number, int p_length)
 {
@@ -10,7 +20,7 @@ QString getBinaryNumberString(uint64_t p_number, int p_length)
 
 QString getHexNumberString(uint64_t p_number)
 {
-    return QString("0x") + QString::number(p_number, 16).toUpper();
+    return QString("0x") + getHexNumber(p_number);
 }
 
 QString getDecimalNumberString(uint64_t p_number)
@@ -18,6 +28,20 @@ QString getDecimalNumberString(uint64_t p_number)
     return QString::number(p_number, 10);
 }
 
+QString getBooleanString(bool p_flag)
+{
+    return QVariant(p_flag).toString();
+}
+
+QString getBytesString(const std::vector<unsigned char>& p_bytes)
+{
+    QString l_result {};
+
+    for (const auto& p_byte : p_bytes)
+        l_result += getHexNumber(static_cast<uint64_t>(p_byte));
+
+    return l_result;
+}
 
 QString getBitVersionHighLevelValue(int p_ident)
 {

@@ -22,18 +22,10 @@ namespace
 {
 
 template <typename T>
-StringTableSection<T>* getStrtabSectionWithSectionNames(T& p_strtabSectionHeader,
-                                                        std::vector<std::shared_ptr<IElfSection<T>>>& p_sections)
+StringTableSection<T>* getStringTableSection(const std::vector<std::shared_ptr<IElfSection<T>>>& p_sections, int p_strTabIndex)
 {
-    for (const auto& p_section : p_sections)
-    {
-        if (p_section->getSectionHeader()->sh_offset == p_strtabSectionHeader.sh_offset)
-            return dynamic_cast<StringTableSection<T>*>(p_section.get());
-    }
-
-    return nullptr;
+    return dynamic_cast<StringTableSection<T>*>(p_sections[p_strTabIndex].get());
 }
-
 
 template <typename ElfObject>
 std::vector<ElfPart> assembleElfPartsFromElfObject(ElfObject& p_elfObject)
@@ -44,8 +36,9 @@ std::vector<ElfPart> assembleElfPartsFromElfObject(ElfObject& p_elfObject)
 
     ElfPartFromSectionVisitor l_elfPartFromSectionVisitor;
 
+
     auto l_shstrndx { p_elfObject.elfStructureInfo.fileHeader.e_shstrndx };
-    auto l_sectionNamesTable { getStrtabSectionWithSectionNames(*p_elfObject.elfStructureInfo.sectionHeaders[l_shstrndx], p_elfObject.sections) };
+    auto l_sectionNamesTable { getStringTableSection(p_elfObject.sections, l_shstrndx) };
 
     l_elfParts.push_back(l_elfPartAssembler.assembleElfPartFromFileHeader(p_elfObject.elfStructureInfo.fileHeader) );
 

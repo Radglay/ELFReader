@@ -5,6 +5,8 @@ add_library(ElfPartAssembler
             src/ElfPartAssembler.cpp
             src/FieldDescriptionUtility.cpp
             src/ElfPartFromSectionVisitor.cpp
+            src/NoteDescriptorUtility.cpp
+            src/GnuPropertyVisitor.cpp
             )
 
 target_compile_options(ElfPartAssembler PUBLIC -fPIC)

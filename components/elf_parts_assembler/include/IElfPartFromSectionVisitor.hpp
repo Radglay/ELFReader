@@ -32,13 +32,14 @@ template <typename T>
 class UnknownSection;
 
 class ElfPart;
+class ElfField;
 
 
 class IElfPartFromSectionVisitor
 {
 public:
-    virtual ElfPart assembleElfPartFromSection(INoteSection<Elf32_Shdr, Elf32_Nhdr>&, const std::string&) = 0;
-    virtual ElfPart assembleElfPartFromSection(INoteSection<Elf64_Shdr, Elf64_Nhdr>&, const std::string&) = 0;
+    virtual ElfPart assembleElfPartFromSection(INoteSection<Elf32_Shdr, Elf32_Nhdr>&, const std::string&, const ElfField&) = 0;
+    virtual ElfPart assembleElfPartFromSection(INoteSection<Elf64_Shdr, Elf64_Nhdr>&, const std::string&, const ElfField&) = 0;
 
     virtual ElfPart assembleElfPartFromSection(NobitsSection<Elf32_Shdr>&, const std::string&) = 0;
     virtual ElfPart assembleElfPartFromSection(NobitsSection<Elf64_Shdr>&, const std::string&) = 0;

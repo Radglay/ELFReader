@@ -4,6 +4,7 @@
 #include <memory>
 #include "ElfPart.hpp"
 #include "IElfPartFromSectionVisitor.hpp"
+#include "NoteDescriptorUtility.hpp"
 
 
 template <typename SectionHeader, typename NoteHeader, typename Descriptor>
@@ -25,7 +26,8 @@ public:
 
     ElfPart acceptElfPartAssembler(IElfPartFromSectionVisitor& p_visitor, const std::string& p_sectionName) override
     {
-        return p_visitor.assembleElfPartFromSection(*this, p_sectionName);
+        auto l_descriptorHighLevelValue { assembleElfPartFromDescriptor(m_descriptor) };
+        return p_visitor.assembleElfPartFromSection(*this, p_sectionName, l_descriptorHighLevelValue);
     }
 
     NoteHeader getNoteHeader() const

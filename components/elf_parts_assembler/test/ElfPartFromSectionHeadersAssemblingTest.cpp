@@ -20,8 +20,6 @@ namespace
     constexpr Elf32_Off SECTION_HEADER_TABLE_OFFSET_32_VALUE { 0x2000 };
     constexpr Elf64_Off SECTION_HEADER_TABLE_OFFSET_64_VALUE { 0x3000 };
 
-    // const QString
-
     const QString SH_NAME_NAME_TEXT { "sh_name" };
     const QString SH_TYPE_NAME_TEXT { "sh_type" };
     const QString SH_FLAGS_NAME_TEXT { "sh_flags" };

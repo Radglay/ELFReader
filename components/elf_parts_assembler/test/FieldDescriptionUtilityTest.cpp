@@ -60,8 +60,20 @@ namespace
     const QString BINARY_0_WITH_8_BITS_LENGTH_TEXT_VALUE { "0b00000000" };
     const QString BINARY_0_WITH_4_BITS_LENGTH_TEXT_VALUE { "0b0000" };
 
+    constexpr bool TRUE_VALUE { true };
+    constexpr bool FALSE_VALUE { false };
 
-    
+    const QString TRUE_TEXT_VALUE { "true" };
+    const QString FALSE_TEXT_VALUE { "false" };
+
+    const std::vector<unsigned char> EMPTY_BYTE_CONTAINER_VALUE {};
+    const std::vector<unsigned char> BYTE_CONTAINER_VALUE {
+        0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF
+    };
+
+    const QString BYTE_CONTAINER_TEXT_VALUE { "123456789ABCDEF" };
+
+
     constexpr int UNUSED_SECTION_HEADER_TABLE_TYPE_VALUE {};
     constexpr int PROGBITS_TYPE_VALUE { 1 };
     constexpr int SYMTAB_TYPE_VALUE { 2 };
@@ -219,24 +231,24 @@ TEST_F(FieldDescriptionUtilityIdentPartInstructionSetArchitectureTestSuite, shou
 
 
 
-struct FieldDescriptionUtilityNumberConversionsTestSuite : public Test
+struct FieldDescriptionUtilityTypeConversionsTestSuite : public Test
 {};
 
-TEST_F(FieldDescriptionUtilityNumberConversionsTestSuite, shouldConvertNumberToDecimalNumberString)
+TEST_F(FieldDescriptionUtilityTypeConversionsTestSuite, shouldConvertNumberToDecimalNumberString)
 {
 
     EXPECT_EQ(getDecimalNumberString(NUMBER_10), DECIMAL_10_TEXT_VALUE);
     EXPECT_EQ(getDecimalNumberString(NUMBER_0), DECIMAL_0_TEXT_VALUE);
 }
 
-TEST_F(FieldDescriptionUtilityNumberConversionsTestSuite, shouldConvertNumberToHexNumberString)
+TEST_F(FieldDescriptionUtilityTypeConversionsTestSuite, shouldConvertNumberToHexNumberString)
 {
 
     EXPECT_EQ(getHexNumberString(NUMBER_10), HEX_10_TEXT_VALUE);
     EXPECT_EQ(getHexNumberString(NUMBER_0), HEX_0_TEXT_VALUE);
 }
 
-TEST_F(FieldDescriptionUtilityNumberConversionsTestSuite, shouldConvertNumberToBinaryNumberString)
+TEST_F(FieldDescriptionUtilityTypeConversionsTestSuite, shouldConvertNumberToBinaryNumberString)
 {
 
     EXPECT_EQ(getBinaryNumberString(NUMBER_10, BINARY_LENGTH_8), BINARY_10_WITH_8_BITS_LENGTH_TEXT_VALUE);
@@ -244,6 +256,18 @@ TEST_F(FieldDescriptionUtilityNumberConversionsTestSuite, shouldConvertNumberToB
     EXPECT_EQ(getBinaryNumberString(NUMBER_0, BINARY_LENGTH_8), BINARY_0_WITH_8_BITS_LENGTH_TEXT_VALUE);
     EXPECT_EQ(getBinaryNumberString(NUMBER_0, BINARY_LENGTH_4), BINARY_0_WITH_4_BITS_LENGTH_TEXT_VALUE);
 }
+
+TEST_F(FieldDescriptionUtilityTypeConversionsTestSuite, shouldConvertBooleanToString)
+{
+    EXPECT_EQ(getBooleanString(TRUE_VALUE), TRUE_TEXT_VALUE);
+    EXPECT_EQ(getBooleanString(FALSE_VALUE), FALSE_TEXT_VALUE);
+}
+
+TEST_F(FieldDescriptionUtilityTypeConversionsTestSuite, shouldConvertBytesToString)
+{
+    EXPECT_EQ(getBytesString(EMPTY_BYTE_CONTAINER_VALUE), EMPTY_TEXT_VALUE);
+    EXPECT_EQ(getBytesString(BYTE_CONTAINER_VALUE), BYTE_CONTAINER_TEXT_VALUE);
+};
 
 
 struct FieldDescriptionUtilitySectionTypeTestSuite : public Test

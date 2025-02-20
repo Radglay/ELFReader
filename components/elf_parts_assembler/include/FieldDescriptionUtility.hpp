@@ -2,6 +2,7 @@
 
 #include <QStringList>
 #include <cstdint>
+#include <vector>
 
 
 class QString;
@@ -10,6 +11,8 @@ class QString;
 QString getBinaryNumberString(uint64_t p_number, int p_length);
 QString getHexNumberString(uint64_t p_number);
 QString getDecimalNumberString(uint64_t p_number);
+QString getBooleanString(bool p_flag);
+QString getBytesString(const std::vector<unsigned char>& p_bytes);
 
 QString getBitVersionHighLevelValue(int p_ident);
 QString getEndiannessHighLevelValue(int p_endianness);
