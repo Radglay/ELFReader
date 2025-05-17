@@ -19,8 +19,8 @@ jobs:
       - name: Install OpenGL
         run: sudo apt install libgl1-mesa-dev
       - name: Generating CMakeFiles
-        run: cmake -S . -B build -D BUILD_TESTS=ON
+        run: cmake -S . --preset=linux-ci
       - name: Building
-        run: cmake --build build
+        run: cmake --build --preset=linux-ci
       - name: Testing
-        run: GTEST_COLOR=1 CTEST_OUTPUT_ON_FAILURE=1 ctest --test-dir build -V
+        run: ctest --preset=linux-ci

@@ -24,32 +24,18 @@ git submodule update --init
 ##### Build the executable:
 From the project top level directory:
 ```
-cmake -S . -B build
+cmake -S . --preset=linux-debug
 ```
 ```
-cmake --build build
+cmake --build --preset=linux-debug
 ```
 To run the application:
 ```
-./build/App/main
+./build/linux-debug/App/main
 ```
 
 ## Tests
 From the project top level directory:
-#### Building
 ```
-cmake -S . -B build -DBUILD_TESTS=ON
-```
-```
-cmake --build build
-```
-
-#### Running
-* simple summary:
-```
-ctest --test-dir build
-```
-* colored verbose summary:
-```
-GTEST_COLOR=1 ctest --test-dir build -V
+ctest --preset=linux-debug
 ```

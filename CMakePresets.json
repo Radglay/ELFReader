@@ -1,0 +1,86 @@
+{
+    "version": 8,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 28
+    },
+    "configurePresets": [
+        {
+            "name": "linux-default",
+            "hidden": true,
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Linux"
+            },
+            "generator": "Unix Makefiles",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "/usr/bin/gcc",
+                "CMAKE_CXX_COMPILER": "/usr/bin/g++",
+                "CMAKE_BUILD_TYPE": "Debug",
+                "BUILD_TESTS": {
+                    "type": "BOOL",
+                    "value": "ON"
+                }
+            }
+        },
+        {
+            "name": "linux-debug",
+            "inherits": "linux-default",
+            "displayName": "x86_64-linux-gnu Debug",
+            "description": "Build with debug info"
+        },
+        {
+            "name": "linux-ci",
+            "inherits": "linux-default",
+            "displayName": "x86_64-linux-gnu CI",
+            "description": "Build CI",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "linux-debug",
+            "configurePreset": "linux-debug",
+            "jobs": 5
+        },
+        {
+            "name":"linux-ci",
+            "configurePreset": "linux-ci",
+            "jobs": 5
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "linux-default",
+            "hidden": true,
+            "output": {
+                "shortProgress": true,
+                "outputOnFailure": true,
+                "labelSummary": true
+            },
+            "environment": {
+                "GTEST_COLOR": "1"
+            },
+            "execution": {
+                "noTestsAction": "error"
+            }
+        },
+        {
+            "name": "linux-debug",
+            "inherits": "linux-default",
+            "configurePreset": "linux-debug"
+        },
+        {
+            "name": "linux-ci",
+            "inherits": "linux-default",
+            "configurePreset": "linux-ci",
+            "execution": {
+                "stopOnFailure": true
+            }
+        }
+    ]
+}
