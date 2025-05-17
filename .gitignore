@@ -1,8 +1,11 @@
 build/
 CMakeCache.txt
 CMakeFiles
+CMakeLists.txt.user
 
-Testing
+CMakeUserPresets.json
+
+Testing                             
 
 logs/
 
