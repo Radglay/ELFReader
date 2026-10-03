@@ -1,13 +1,20 @@
 build/
+
 CMakeCache.txt
 CMakeFiles
 CMakeLists.txt.user
-
 CMakeUserPresets.json
+.cache
 
-Testing                             
+compile_commands.json
+
+.agents
+.kilo
+**/AGENTS.md
+
+.vscode
+
+Testing/
 
 logs/
 
-logs
-.vscode
